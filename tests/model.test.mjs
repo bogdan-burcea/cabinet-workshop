@@ -1,0 +1,18 @@
+import{test}from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';
+import{create,empty,validate,panels,issues,generateWorktops,objects,partRows,csv,place,overlaps}from'../src/model.js';import{step}from'../src/step.js';
+const demo=validate(JSON.parse(readFileSync(new URL('../src/demo.json',import.meta.url))));
+const fixtures=JSON.parse(readFileSync(new URL('./geometry-fixtures.json',import.meta.url)));
+for(let i=0;i<fixtures.length;i++)test('Desktop geometry parity '+(i+1),()=>{const f=fixtures[i],p=validate(f.project),actual=panels(p,p.cabinets[0]);assert.equal(actual.length,f.panels.length);for(let j=0;j<actual.length;j++){assert.equal(actual[j][0],f.panels[j][0]);for(let k=1;k<7;k++)assert.ok(Math.abs(actual[j][k]-f.panels[j][k])<1e-6,`panel ${j} coordinate ${k}: ${actual[j][k]} vs ${f.panels[j][k]}`);}assert.deepEqual(issues(p).map(s=>s.text),f.issues);});
+test('Sample has no issues and 114 export panels',()=>{assert.deepEqual(issues(demo),[]);assert.equal(partRows(demo).length,114);assert.equal(objects(demo).length,15)});
+test('Desktop schema 1 import',()=>{const p=structuredClone(demo);p.schema=1;delete p.worktops;delete p.openings;delete p.appliances;const result=validate(p);assert.equal(result.worktops.length,0);assert.equal(partRows(result).length,112)});
+test('JSON roundtrip',()=>assert.deepEqual(validate(JSON.parse(JSON.stringify(demo))),demo));
+test('Reject invalid geometry and IDs',()=>{for(const value of [NaN,-1,Infinity,'600']){const p=structuredClone(demo);p.cabinets[0].width=value;assert.throws(()=>validate(p));}const p=structuredClone(demo);p.appliances[0].id=p.cabinets[0].id;assert.throws(()=>validate(p));});
+test('Windows allow base below sill but block upper cabinet',()=>{const p=empty();p.cabinets=[create('Base')];p.openings=[create('Window')];assert.equal(issues(p).length,0);p.cabinets.push(create('Wall'));assert.ok(issues(p).some(i=>i.text.includes('blocks')))});
+test('Door clearance blocks free appliance',()=>{const p=empty();p.openings=[create('Door')];const c=create('Fridge','Free');c.x=100;c.y=400;p.appliances=[c];assert.ok(issues(p).some(i=>i.text.includes('blocks')))});
+test('Worktop bridges connected dishwasher',()=>{const p=empty();p.cabinets=[create('Base'),{...create('Base'),offset:1200}];p.appliances=[{...create('Dishwasher'),offset:600}];const tops=generateWorktops(p);assert.equal(tops.length,1);assert.equal(tops[0].width,1800);p.worktops=tops;assert.equal(issues(p).length,0)});
+test('Worktop does not bridge a cooker',()=>{const p=empty();p.cabinets=[create('Base'),{...create('Base'),offset:1200}];p.appliances=[{...create('Cooker'),offset:600}];assert.equal(generateWorktops(p).length,2)});
+test('Free worktops inherit rotation and position',()=>{const p=empty(),c=create('Base','Free');c.rotation=90;c.x=1600;c.y=1400;p.cabinets=[c];const top=generateWorktops(p)[0];assert.equal(top.rotation,90);assert.equal(top.x,1600);assert.equal(top.elevation,870)});
+test('Auto placement skips occupied bay',()=>{const p=empty();p.cabinets=[create('Base')];const next=create('Base');place(p,next);assert.equal(next.offset,600)});
+test('CSV excludes planning references and includes worktops',()=>{const s=csv(demo);assert.equal(s.split('\r\n').length,115);assert.ok(s.includes('Worktop'));assert.ok(!s.includes('Kitchen window'));assert.ok(!s.includes('Dishwasher'))});
+test('STEP contains closed planar solids with finite coordinates',()=>{const s=step(demo);assert.equal((s.match(/MANIFOLD_SOLID_BREP/g)||[]).length,114);assert.equal((s.match(/ADVANCED_FACE/g)||[]).length,114*6);assert.ok(!s.includes('NaN'));assert.ok(s.endsWith('END-ISO-10303-21;\n'))});
+test('Empty STEP gives meaningful error',()=>assert.throws(()=>step(empty()),/Add a cabinet/));
