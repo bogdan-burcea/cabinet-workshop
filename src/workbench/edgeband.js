@@ -2,8 +2,8 @@ import {transformOperation,validateOperations} from '../machining.js';
 export function bandPart(part,settings,override={}){
  if(!settings)return part;
  const t=settings.thickness||0;const name=part.row[0],band={xMin:0,xMax:0,yMin:0,yMax:0};
- if(settings.doors&&/^Door/.test(name))Object.keys(band).forEach(k=>band[k]=t);
- if(settings.fronts&&part.frontEdge&&(/side$/.test(name)||name==='Bottom'||name==='Top'||name==='Front rail'||/^Shelf /.test(name)))band[part.frontEdge]=t;
+ if(settings.doors&&(/^Door/.test(name)||/overlay front$/.test(name)))Object.keys(band).forEach(k=>band[k]=t);
+ if(settings.fronts&&part.frontEdge&&((!/^Drawer /.test(name)&&/side$/.test(name))||name==='Bottom'||name==='Top'||name==='Front rail'||/^Shelf /.test(name)))band[part.frontEdge]=t;
  const bandDefaults={...band};Object.assign(band,override);if(!Object.values(band).some(Boolean))return {...part,bandDefaults};
  const w=part.width-band.xMin-band.xMax,h=part.height-band.yMin-band.yMax;if(w<=0||h<=0)throw Error(name+': edgebanding leaves no core panel.');
  const move=([x,y,z])=>[x-band.xMin,y-band.yMin,z],ops=part.flatOperations.map(o=>transformOperation(o,move,v=>v)).map(o=>{if(o.type!=='pocket')return o;const b=[...o.box];for(const [i,max]of [[0,w],[1,h]]){const end=Math.min(max,b[i]+b[i+3]);b[i]=Math.max(0,b[i]);b[i+3]=end-b[i];}return {...o,box:b};});
