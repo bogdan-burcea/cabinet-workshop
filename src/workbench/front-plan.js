@@ -1,0 +1,21 @@
+import {resolveInstallation} from './installation.js';
+import {svgEl} from './view.js';
+export function frontLayout(records){
+ const items=[],configs=records.map(r=>({...r,config:resolveInstallation(structuredClone(r.config))}));let floorX=0,wallX=0;
+ function item(r,x){const c=r.config,bottom=c.style==='Wall'?c.mountingHeight:c.feetHeight-(c.bottomDado?c.bottomLift:0);return {id:r.id,name:c.name,style:c.style,x,width:c.width,height:c.height,bottom,top:bottom+c.height,doors:c.doors,glass:c.doorStyle==='glass',manual:r.x!==undefined};}
+ for(const r of configs.filter(r=>r.config.style!=='Wall')){const a=item(r,r.x??floorX);items.push(a);floorX=Math.max(floorX,a.x+a.width);}
+ for(const r of configs.filter(r=>r.config.style==='Wall')){let x=r.x??wallX;let a=item(r,x);if(r.x===undefined){for(let k=0;k<items.length+1;k++){const tall=items.find(b=>b.style==='Tall'&&a.x<b.x+b.width-.01&&a.x+a.width>b.x+.01&&a.bottom<b.top-.01);if(!tall)break;x=tall.x+tall.width;a=item(r,x);}}items.push(a);wallX=Math.max(wallX,a.x+a.width);}
+ const overlaps=[];for(let i=0;i<items.length;i++)for(let j=0;j<i;j++){const a=items[i],b=items[j];if(Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)>.01&&Math.min(a.top,b.top)-Math.max(a.bottom,b.bottom)>.01)overlaps.push({first:a.id,second:b.id,message:a.name+' overlaps '+b.name+' in the front elevation.'});}
+ return {items,width:Math.max(0,...items.map(a=>a.x+a.width)),height:Math.max(0,...items.map(a=>a.top)),overlaps};
+}
+export function drawFrontPlan(parent,records,{selected,onSelect}={}){
+ parent.replaceChildren();const layout=frontLayout(records),W=layout.width,H=layout.height,pad=260,svg=svgEl('svg',{viewBox:`${-pad} ${-pad} ${W+2*pad} ${H+pad*2}`,role:'img','aria-label':'Kitchen front elevation with cabinet and total widths'});svg.style.minWidth=Math.max(700,W/3)+'px';
+ const text=(x,y,value,attrs={})=>svg.append(svgEl('text',{x,y,'text-anchor':'middle','font-size':48,fill:'#393939',...attrs},value)),line=(x1,y1,x2,y2,attrs={})=>svg.append(svgEl('line',{x1,y1,x2,y2,stroke:'#8d8d8d','stroke-width':1,'vector-effect':'non-scaling-stroke',...attrs}));
+ line(-40,H,W+40,H,{stroke:'#525252'});text(-35,H+15,'Floor',{'text-anchor':'end','font-size':38});
+ for(const a of layout.items){const y=H-a.top,g=svgEl('g',{role:'button',tabindex:0,'aria-label':a.name+' · '+a.style+' · '+a.width+' mm wide',class:'front-cabinet'+(a.id===selected?' selected':'')});g.append(svgEl('title',{},a.name+' · '+a.width+' W × '+a.height+' H mm; '+a.bottom+' mm above floor'));g.append(svgEl('rect',{x:a.x,y,width:a.width,height:a.height,fill:a.style==='Wall'?'#edf5ff':a.style==='Tall'?'#dde1e6':'#f4f4f4',stroke:a.id===selected?'#0f62fe':'#6f6f6f','stroke-width':a.id===selected?2:1,'vector-effect':'non-scaling-stroke'}));if(a.doors===2)g.append(svgEl('line',{x1:a.x+a.width/2,x2:a.x+a.width/2,y1:y,y2:y+a.height,stroke:'#8d8d8d','vector-effect':'non-scaling-stroke'}));if(a.glass&&a.doors){const n=a.doors,w=a.width/n;for(let i=0;i<n;i++)g.append(svgEl('rect',{x:a.x+i*w+70,y:y+70,width:Math.max(0,w-140),height:Math.max(0,a.height-140),fill:'#d0e2e8',stroke:'#8d8d8d','vector-effect':'non-scaling-stroke'}));}
+ const activate=()=>onSelect?.(a.id);g.onclick=activate;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};g.append(svgEl('text',{x:a.x+a.width/2,y:y+a.height/2,'text-anchor':'middle','font-size':40,fill:'#393939','pointer-events':'none'},a.name));svg.append(g);
+ if(a.style!=='Wall')for(const x of [a.x+40,a.x+a.width-40])line(x,H-a.bottom,x,H);
+ const dy=a.style==='Wall'?-120:H+90;line(a.x,dy,a.x+a.width,dy);line(a.x,dy-18,a.x,dy+18);line(a.x+a.width,dy-18,a.x+a.width,dy+18);text(a.x+a.width/2,dy-22,Number(a.width.toFixed(1))+' mm');
+ }
+ const totalY=H+210;line(0,totalY,W,totalY,{stroke:'#161616'});line(0,totalY-20,0,totalY+20);line(W,totalY-20,W,totalY+20);text(W/2,totalY-24,'Total '+Number(W.toFixed(1))+' mm',{'font-weight':600});parent.append(svg);return layout;
+}
