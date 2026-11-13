@@ -1,0 +1,15 @@
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),sub=(a,b)=>a.map((v,i)=>v-b[i]),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],cross2=(a,b)=>a[0]*b[1]-a[1]*b[0];
+function insideInterval(a,b,poly){let lo=0,hi=1;const area=poly.reduce((s,p,i)=>s+cross2(p,poly[(i+1)%poly.length]),0),sign=Math.sign(area);if(!sign)return null;for(let i=0;i<poly.length;i++){const p=poly[i],d=sub(poly[(i+1)%poly.length],p),v=sign*cross2(d,sub(a,p)),s=sign*cross2(d,sub(b,a));if(Math.abs(s)<1e-10){if(v< -1e-7)return null;continue;}const t=-v/s;if(s>0)lo=Math.max(lo,t);else hi=Math.min(hi,t);if(lo>=hi-1e-8)return null;}return [lo,hi];}
+// Draw genuine panel edges after fills, clipping every segment by nearer surfaces.
+// Coplanar panels retain their joint lines; hidden and BSP-generated edges are excluded.
+export function visibleEdges(faces,eye,project){const planes=faces.map(f=>{const v=f.vertices,n=cross(sub(v[1],v[0]),sub(v[2],v[0])),len=Math.hypot(...n),normal=n.map(x=>x/(len||1));return {f,normal,d:dot(normal,v[0]),denom:dot(normal,eye),xy:v.map(project)};});const result=[];
+ const candidates=[];
+ for(const p of planes){const v=p.f.vertices;for(let i=0;i<v.length;i++)candidates.push({a:v[i],b:v[(i+1)%v.length],f:p.f});}
+ // Captured panels overlap their mating stock. Their buried perimeter cannot
+ // describe the visible seam: include finite surface/surface intersections.
+ function section(poly,plane){const hits=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=dot(plane.normal,a)-plane.d,db=dot(plane.normal,b)-plane.d;if(Math.abs(da)<1e-7)hits.push(a);if(da*db< -1e-12)hits.push(a.map((v,j)=>v+(b[j]-v)*da/(da-db)));}return hits;}
+ for(let i=0;i<planes.length;i++)for(let j=i+1;j<planes.length;j++){const p=planes[i],q=planes[j];if(p.f.code===q.f.code)continue;const dir=cross(p.normal,q.normal),len=Math.hypot(...dir);if(len<1e-8)continue;const unit=dir.map(v=>v/len),a=section(p.f.vertices,q),b=section(q.f.vertices,p);if(a.length<2||b.length<2)continue;const values=ps=>ps.map(v=>dot(v,unit)),u=values(a),v=values(b),lo=Math.max(Math.min(...u),Math.min(...v)),hi=Math.min(Math.max(...u),Math.max(...v));if(hi-lo<1e-6)continue;const base=a[0],at=t=>base.map((v,k)=>v+unit[k]*(t-dot(base,unit)));candidates.push({a:at(lo),b:at(hi),f:p.f,seam:true,otherCode:q.f.code});}
+ for(const candidate of candidates){const {a,b,f}=candidate,ab=sub(b,a);let live=[[0,1]];for(const q of planes){if(Math.abs(q.denom)<1e-9)continue;const interval=insideInterval(project(a),project(b),q.xy);if(!interval)continue;const k0=(q.d-dot(q.normal,a))/q.denom,kd=-dot(q.normal,ab)/q.denom;let [lo,hi]=interval;if(Math.abs(kd)<1e-10){if(k0<=1e-5)continue;}else{const at=(1e-5-k0)/kd;if(kd>0)lo=Math.max(lo,at);else hi=Math.min(hi,at);}if(lo>=hi-1e-8)continue;live=live.flatMap(([u,w])=>hi<=u||lo>=w?[[u,w]]:[[u,Math.max(u,lo)],[Math.min(w,hi),w]].filter(([x,y])=>y-x>1e-8));if(!live.length)break;}
+ for(const [lo,hi]of live)result.push({a:a.map((x,j)=>x+ab[j]*lo),b:a.map((x,j)=>x+ab[j]*hi),code:f.code,name:f.name,seam:!!candidate.seam,otherCode:candidate.otherCode});}
+ return result;
+}
