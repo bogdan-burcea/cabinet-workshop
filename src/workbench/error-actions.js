@@ -4,6 +4,11 @@ export function correctionActions(error,context={}){
  if(error.field)add('machine',error.field,'Edit '+({tool:'contour / hinge cutter',dadoTool:'dado cutter',pilotTool:'small-hole cutter',sheetTool:'sheet cutter',flute:'cutting length',dadoFlute:'dado cutting length',pilotFlute:'pilot cutting length'}[error.field]||error.field));
  const height=context.style==='Wall'||context.style==='Tall'?'wallTopHeight':'counterHeight';
  for(const [pattern,targets]of [
+  [/tab width|tabs do not fit|holding tabs/i,[['machine','tabWidth','Edit holding-tab width'],['machine','tool','Edit contour cutter']]],
+  [/tab height/i,[['machine','tabHeight','Edit holding-tab height']]],
+  [/sheet border|sheet.*gap|spacing/i,[['stock','margin','Edit sheet border'],['stock','gap','Edit part spacing'],['machine','dadoTool','Edit dado cutter']]],
+  [/blank margin/i,[['machine','margin','Edit blank margin']]],
+  [/touchplate|probe|tool-change height/i,[['machine','probeX','Edit probe X'],['machine','probeY','Edit probe Y'],['machine','changeZ','Edit change height']]],
   [/handle/i,[['cabinet','handleEdge','Edit handle setback'],['cabinet','handlePitch','Edit handle spacing'],['cabinet','handlePosition','Edit handle placement']]],
   [/hinge|cup|mounting plate/i,[['cabinet','hinge','Edit hinge preset'],['cabinet','plate','Edit mounting plate'],['cabinet','hingeEnd','Edit hinge end setback']]],
   [/shelf|pin positions/i,[['cabinet','shelves','Edit shelf quantity'],['cabinet','pinFront','Edit front shelf-pin setback'],['installation',height,'Edit cabinet height target']]],
