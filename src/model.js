@@ -1,3 +1,4 @@
+import {tandemRows} from './workbench/tandem.js';
 import {machineSettings,machiningActive,adjustPanels,localMachining,transformOperation} from './machining.js';
 export const WALLS=['North','East','South','West','Free'];
 export const FRONTS=['Open','One door','Two doors','1 drawer','2 drawers','3 drawers','4 drawers'];
@@ -56,13 +57,13 @@ export function panels(p,c,local=false){
  }
  else if(c.front==='One door')rows.push(['Door',2,-20,2,w-4,18,h-4]);
  if(c.front==='Two doors'){const dw=(w-6)/2;rows.push(['Door left',2,-20,2,dw,18,h-4],['Door right',4+dw,-20,2,dw,18,h-4]);}
- if(count){const fh=(h-4-(count-1)*2)/count,dep=Math.min(450,cd-10),x=t+12.7,bw=w-2*t-25.4;
+ if(count&&!c.tandem){const fh=(h-4-(count-1)*2)/count,dep=Math.min(450,cd-10),x=t+12.7,bw=w-2*t-25.4;
   for(let i=0;i<count;i++){const prefix='Drawer '+(i+1)+' ',fz=2+i*(fh+2),base=fz+10+(i===0?t-2:0),wh=i===count-1?75:120,z=base+6;
    if(z+wh>Math.min(fz+fh-10,h-t-10)+1e-7)throw Error('Drawer boxes are too tall for these fronts. Increase cabinet height or reduce drawer count.');
    rows.push([prefix+'overlay front',2,-20,fz,w-4,18,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
   }
  }
- const adjusted=adjustPanels(c,rows);rows.splice(0,rows.length,...adjusted);
+ const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));rows.splice(0,rows.length,...adjusted);
  if(w<=2*t||h<=2*t||cd<=0||b<=0||t<=0)throw Error('Panel thickness leaves no usable cabinet space.');
  if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=2*r)throw Error('Base depth must leave space between its two support rails.');
  if(!count&&c.shelves&&(h-2*t<=c.shelves*18||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');

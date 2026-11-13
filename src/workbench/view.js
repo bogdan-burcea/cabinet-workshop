@@ -13,9 +13,9 @@ export function previewFaces(cabinet,{open=true,exploded=false}={}){
   if(glazed){const g=glassDimensions(w,h,cabinet),f=g.frame;boxes=[[x,y,z,w,d,f,false],[x,y,z+h-f,w,d,f,false],[x,y,z+f,f,d,h-2*f,false],[x+w-f,y,z+f,f,d,h-2*f,false],[x+f,y+d-g.rebateDepth,z+f,w-2*f,g.thickness,h-2*f,true]];}
   for(const [bx,by,bz,bw,bd,bh,glass]of boxes){
    let vertices=[[bx,by,bz],[bx+bw,by,bz],[bx+bw,by+bd,bz],[bx,by+bd,bz],[bx,by,bz+bh],[bx+bw,by,bz+bh],[bx+bw,by+bd,bz+bh],[bx,by+bd,bz+bh]];
-   if(door&&open){const right=name==='Door right'||(name==='Door'&&cabinet.hand==='Right'),hingeX=right?x+w:x,hingeY=y,angle=(right?-1:1)*Math.PI*.42;vertices=vertices.map(([px,py,pz])=>[hingeX+(px-hingeX)*Math.cos(angle)-(py-hingeY)*Math.sin(angle),hingeY+(px-hingeX)*Math.sin(angle)+(py-hingeY)*Math.cos(angle),pz]);}
+   if(/^Drawer /.test(name)&&open)vertices=vertices.map(([px,py,pz])=>[px,py+Math.min(250,cabinet.depth*.45),pz]);if(door&&open){const right=name==='Door right'||(name==='Door'&&cabinet.hand==='Right'),hingeX=right?x+w:x,hingeY=y,angle=(right?-1:1)*Math.PI*.42;vertices=vertices.map(([px,py,pz])=>[hingeX+(px-hingeX)*Math.cos(angle)-(py-hingeY)*Math.sin(angle),hingeY+(px-hingeX)*Math.sin(angle)+(py-hingeY)*Math.cos(angle),pz]);}
    if(exploded)vertices=vertices.map(([px,py,pz])=>[px+(name==='Left side'?-70:name==='Right side'?70:0),py+(door?90:name==='Back'?-70:0),pz+(name==='Bottom'?-60:name.includes('rail')||name==='Top'?60:0)]);
-   const color=glass?'rgba(120,190,210,0.20)':door?'#c1c7cd':name==='Back'?'#f2f4f8':name.startsWith('Shelf')?'#e0e0e0':'#dde1e6';
+   const color=/overlay front$/.test(name)?'#c1c7cd':glass?'rgba(120,190,210,0.20)':door?'#c1c7cd':name==='Back'?'#f2f4f8':name.startsWith('Shelf')?'#e0e0e0':'#dde1e6';
    for(const face of [[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){const v=face.map(j=>vertices[j]),u=v[1].map((n,j)=>n-v[0][j]),q=v[2].map((n,j)=>n-v[1][j]),normal=[u[1]*q[2]-u[2]*q[1],u[2]*q[0]-u[0]*q[2],u[0]*q[1]-u[1]*q[0]];if(normal.reduce((n,x,j)=>n+x*camera[j],0)<=0)continue;const xy=v.map(project);faces.push({vertices:v,originalVertices:v,xy,color,depth:v.reduce((n,p)=>n+p.reduce((n,a)=>n+a,0),0)/4,name,code:'P'+String(i+1).padStart(3,'0'),...(glass?{glass:true}:{})});}
   }
  }
