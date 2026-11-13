@@ -158,3 +158,12 @@ Validation: 359 automated tests covering all base/wall × top × front combinati
 - Four overlapping rebate strips avoid bulk-clearing the window. An inward-compensated interior contour cuts the opening, with through allowance and four waste-retaining tabs. Rebate tools are limited to Ø6 mm for corner clearance. Manual tools use T2 for rebates and T3 for the opening/cups, then exterior cutouts. All geometry stays on the hinge/inside face. Remove aperture waste and tabs before fitting glass. This is a routed one-piece frame, not a rail-and-stile joint system.
 
 Validation includes prior regressions plus inset fit/plate coordinates, matched handle regeneration and wall-local inheritance, glass migration, one-face/nested operation coverage, interior cutter compensation/depth/tabs, frame/hardware collisions and exterior profiles last. Physical machining and glass installation remain untested.
+
+
+### Workbench 0.19 — multiple cabinets and layout restoration
+
+Projects now keep up to 100 independent base/wall cabinets. The Active cabinet selector switches the editable cabinet; Add, Duplicate and Remove support Undo. Save/Open project and autosave retain the complete collection and active selection; earlier single-cabinet files migrate automatically. Project defaults update inheriting cabinets while independent exceptions remain local. Any invalid shared change rejects the edit for the whole project.
+
+Nesting combines all project cabinets by material and thickness, with cabinet-qualified part IDs. Clicking a nested part opens its owning cabinet. Nested sheet programs and packs include all cabinets, while individual blank, edge and underside setups use the active cabinet. Parts and glass CSVs identify the owning cabinet; the project JSON in each pack contains the full collection. This iteration is a cabinet collection with joint production, not a room-placement planner.
+
+The sidebar and Toolpaths layout return to the pre-0.18 arrangement. All workflow tabs occupy the same width; the persistent assembly starts beneath the tab bar. Wall starter defaults use one plain grey button with hover/focus help. The assembled bottom preview clips hidden dado tongues at the side-panel interior faces; exploded and manufacturing dimensions keep the full joinery.
