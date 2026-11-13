@@ -8,7 +8,7 @@ export const previewProject=([x,y,z])=>[(x-y)*.866,(x+y)*.42-z],previewCamera=[1
 export function previewFaces(cabinet,{open=true,exploded=false}={}){
  const rows=cabinetRows(cabinet),project=previewProject,camera=previewCamera,faces=[];
  for(let i=0;i<rows.length;i++){
-  const [name,x,y,z,w,d,h]=rows[i].row,door=name.startsWith('Door'),glazed=door&&cabinet.doorStyle==='glass';
+  let [name,x,y,z,w,d,h]=rows[i].row;if(name==='Bottom'&&!exploded){const left=Math.max(x,cabinet.thickness);w=Math.min(x+w,cabinet.width-cabinet.thickness)-left;x=left;}const door=name.startsWith('Door'),glazed=door&&cabinet.doorStyle==='glass';
   let boxes=[[x,y,z,w,d,h,false]];
   if(glazed){const g=glassDimensions(w,h,cabinet),f=g.frame;boxes=[[x,y,z,w,d,f,false],[x,y,z+h-f,w,d,f,false],[x,y,z+f,f,d,h-2*f,false],[x+w-f,y,z+f,f,d,h-2*f,false],[x+f,y+d-g.rebateDepth,z+f,w-2*f,g.thickness,h-2*f,true]];}
   for(const [bx,by,bz,bw,bd,bh,glass]of boxes){
