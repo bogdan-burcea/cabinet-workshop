@@ -1,0 +1,8 @@
+The CAD engine uses unchanged open-source dependency packages:
+replicad 1.2.1 (MIT): https://github.com/sgenoud/replicad
+replicad-opencascadejs 1.2.1 (LGPL-2.1-only): https://github.com/sgenoud/replicad/tree/main/packages/replicad-opencascadejs
+OpenCascade.js / Open CASCADE Technology: https://github.com/donalffons/opencascade.js and https://github.com/Open-Cascade-SAS/OCCT
+Source package and build configuration: https://www.npmjs.com/package/replicad-opencascadejs/v/1.2.1
+The unchanged WASM is copied from that package. CAD-LICENSE.txt accompanies the deployed binary. The worker loads cad.wasm as a separate file, replaceable with a compatible build.
+Other dependencies and exact integrity hashes are recorded in package-lock.json.
+The embedded ASCII font is a subset of DejaVu Sans; its license is in PDF-FONT-LICENSE.txt.

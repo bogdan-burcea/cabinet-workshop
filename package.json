@@ -1,0 +1,21 @@
+{
+  "name": "kitchen-planner-web",
+  "private": true,
+  "version": "0.17.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "replicad": "1.2.1",
+    "replicad-opencascadejs": "1.2.1",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@carbon/icons": "11.92.0",
+    "@ibm/plex-mono": "2.5.0",
+    "@ibm/plex-sans": "1.1.0",
+    "esbuild": "0.25.10"
+  }
+}

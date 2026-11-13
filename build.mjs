@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import {mkdir,readFile,writeFile,rm,cp} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+await rm('dist',{recursive:true,force:true});await mkdir('dist',{recursive:true});
+const result=await build({entryPoints:['src/workbench/app.js'],bundle:true,format:'esm',outdir:'dist',entryNames:'app-[hash]',minify:true,sourcemap:false,metafile:true});
+const script=Object.keys(result.metafile.outputs).find(p=>p.endsWith('.js')).split('/').at(-1);
+const css=await readFile('public/cabinet.css','utf8'),style='style-'+createHash('sha256').update(css).digest('hex').slice(0,10)+'.css';
+const html=(await readFile('public/cabinet.html','utf8')).replace('/cabinet-app.js','./'+script).replace('/cabinet.css','./'+style);
+await writeFile('dist/'+style,css);await writeFile('dist/index.html',html);
+await writeFile('dist/_headers','/\n  Cache-Control: no-cache\n/index.html\n  Cache-Control: no-cache\n');
+await cp('public/assets','dist/assets',{recursive:true});
