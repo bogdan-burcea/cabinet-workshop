@@ -13,7 +13,7 @@ export function initializeProject(s){if(!s.cabinets?.length){const id=newId();s.
 export function syncProject(s){
  if(!Array.isArray(s.cabinets)||!s.cabinets.length||s.cabinets.length>100)throw Error('A project needs 1–100 cabinets.');
  const ids=new Set();for(const r of s.cabinets){if(typeof r.id!=='string'||!r.id||r.id.length>100||ids.has(r.id)||!r.config)throw Error('Invalid or duplicate cabinet ID.');if(r.x!==undefined&&(!Number.isFinite(r.x)||r.x<0||r.x>100000))throw Error('Cabinet position from left must be 0–100000 mm.');ids.add(r.id);}const active=s.cabinets.find(r=>r.id===s.activeCabinetId);if(!active)throw Error('The selected cabinet is missing.');active.config=s.cabinet;
- checkedGlobals(s.globals);for(const record of s.cabinets){try{applyGlobals(record.config,s.globals);resolveInstallation(record.config);cabinetProject(record.config);cabinetParts(record.config);}catch(e){const error=Error(record.config.name+': '+e.message);error.cabinetId=record.id;error.field=e.field;throw error;}}
+ checkedGlobals(s.globals);for(const record of s.cabinets){try{applyGlobals(record.config,s.globals);resolveInstallation(record.config);cabinetProject(record.config);cabinetParts(record.config);}catch(e){const error=Error(e.message.startsWith(record.config.name+': ')?e.message:record.config.name+': '+e.message);error.cabinetId=record.id;error.field=e.field;throw error;}}
  s.cabinet=active.config;return s;
 }
 export function selectCabinet(s,id){const r=s.cabinets.find(r=>r.id===id);if(!r)throw Error('Choose a cabinet in this project.');s.activeCabinetId=id;s.cabinet=r.config;return s;}
