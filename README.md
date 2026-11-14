@@ -2,6 +2,12 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.29 — Clearer assembly and edge drilling
+
+The assembled view uses a quarter-width right panel with aligned icon toggles for opening doors and exploding the assembly. The Cabinet centre pane is dedicated to the elevation, whose glass openings now follow each door's actual frame width and inset/overlay boundaries. Parts navigation switches cabinets; parts remain selectable directly from the list or drawing. Bottom workflow buttons and the Cabinet sidebar job summary are removed.
+
+Edge-pilot drawings name the drilled edge, mark its zero end, and dimension every hole from that datum. Each hole lists its diameter, depth and distance from the clearly defined machining face. An orientation map connects the edge sections to the main part drawing. Bottom lift retains its physical definition: with feet fixed to the raised bottom, lifting the bottom reduces side clearance and increases side-panel height to preserve a fixed counter/top target. The common construction setting now shows that height relationship explicitly; wall cabinet outside height stays unchanged.
+
 ## 0.28 — Shared construction and connected drawings
 
 Captured-back side grooves stop at the mating back bottom (including joint clearance), preserving the lower lip. Matching back dimensions stay unchanged. The machined STEP solids contain the stopped geometry; finish internal corner treatment in CAM for the actual cutter.
