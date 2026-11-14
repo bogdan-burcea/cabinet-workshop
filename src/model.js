@@ -1,4 +1,5 @@
 import {tandemRows} from './workbench/tandem.js';
+import {frameDoorParts} from './workbench/glass-frame.js';
 import {machineSettings,machiningActive,adjustPanels,localMachining,transformOperation} from './machining.js';
 export const WALLS=['North','East','South','West','Free'];
 export const FRONTS=['Open','One door','Two doors','1 drawer','2 drawers','3 drawers','4 drawers'];
@@ -157,7 +158,13 @@ export function generateWorktops(p){const runs=new Map(),result=[];for(const c o
 }
 export function cabinetOperations(p,c){if(!isCab(c)||!machiningActive(c))return [];const [ox,oy,ux,uy,vx,vy]=frame(p,c);return localMachining(c,panels(p,c,true)).map(o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]));}
 export function thicknessAxis(p,c,name){if(c.kind==='Worktop')return 2;let local;if(c.kind==='Filler')local=1;else if(c.kind==='End panel')local=0;else if(/^(Left side|Right side)$|^Drawer .* (left side|right side)$/.test(name))local=0;else if(/^(Bottom|Top|Shelf |Front rail|Rear rail)|^Drawer .*bottom$/.test(name))local=2;else local=1;if(local===2)return 2;const f=frame(p,c);return (local===0?Math.abs(f[2]):Math.abs(f[4]))>.5?0:1;}
-export function partRows(p){return [...p.cabinets,...p.worktops,...(p.finishing||[])].flatMap(c=>{const ops=cabinetOperations(p,c);return panels(p,c).map(row=>({owner:c.label,id:c.id,kind:c.kind,row,thicknessAxis:thicknessAxis(p,c,row[0]),holes:c.kind==='Worktop'?cutoutsFor(p,c):[],operations:ops.filter(o=>o.part===row[0])}));});}
+export function partRows(p){return [...p.cabinets,...p.worktops,...(p.finishing||[])].flatMap(c=>{
+ if(c.doorStyle==='glass'&&isCab(c)){
+  const local=panels(p,c,true),ops=localMachining(c,local),[ox,oy,ux,uy,vx,vy]=frame(p,c),transform=o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]);
+  const orient=r=>oriented(p,c,[r[0],r[1],c.depth-r[2]-r[5],r[3],...r.slice(4)]);
+  return local.flatMap(row=>{const own=ops.filter(o=>o.part===row[0]),pieces=/^Door|^Access door/.test(row[0])?frameDoorParts(row,own,c):[{row,operations:own}];return pieces.map(a=>({...a,owner:c.label,id:c.id,kind:c.kind,row:orient(a.row),...(a.glassDoor?{glassDoor:{...a.glassDoor,bounds:orient([a.glassDoor.name,...a.glassDoor.bounds]).slice(1)}}:{}),thicknessAxis:thicknessAxis(p,c,a.row[0]),holes:[],operations:a.operations.map(transform)}));});
+ }
+ const ops=cabinetOperations(p,c);return panels(p,c).map(row=>({owner:c.label,id:c.id,kind:c.kind,row,thicknessAxis:thicknessAxis(p,c,row[0]),holes:c.kind==='Worktop'?cutoutsFor(p,c):[],operations:ops.filter(o=>o.part===row[0])}));});}
 export function csv(p){const quote=v=>'"'+String(v).replaceAll('"','""')+'"';return '\ufeff'+[['Cabinet / Worktop / Finishing','Part','X mm','Y mm','Z mm','Size X mm','Size Y mm','Size Z mm','Cutout count'],...partRows(p).map(({owner,row,holes})=>[owner,...row.map(v=>typeof v==='number'?Number(v.toFixed(4)):v),holes.length])].map(r=>r.map(quote).join(',')).join('\r\n');}
 
 export function cornerExample(){
