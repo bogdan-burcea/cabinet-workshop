@@ -6,7 +6,7 @@ export function sheetStepRows(sheet){
  const {width,height}=sheet.settings,t=sheet.thickness;
  if(![width,height,t].every(v=>Number.isFinite(v)&&v>0))throw Error('The sheet dimensions are invalid.');
  return sheet.parts.map(p=>{
-  if(!p.singleSide)throw Error('Enable One-side flat machining in Toolpaths before exporting machining-face-up STEP sheets.');
+  if(!p.singleSide)throw Error('Use machining-face-up parts before exporting STEP sheets.');
   if(![p.x,p.y,p.w,p.h,p.thickness].every(Number.isFinite)||p.w<=0||p.h<=0||p.x<0||p.y<0||p.x+p.w>width+1e-5||p.y+p.h>height+1e-5||Math.abs(p.thickness-t)>1e-5)throw Error(p.code+': invalid sheet placement or stock thickness.');
   // Secondary feet were stored before the one-side mirror. Apply the same
   // transform before placing them; edge pilots are already canonical.
@@ -25,7 +25,7 @@ export function stepSetupGuide(manifests,{unplaced=0}={}){
  'Import each .step file into Fusion or another solid-model CAM application. Each named body is one finished CNC core, positioned exactly as in the nesting layout. Units: millimetres. X0/Y0: sheet lower-left. Z0: stock TOP; solid undersides are at negative stock thickness. Machining faces point UP (+Z).\n\n'+
  'Create one milling setup per sheet. Select the PART BODIES as the model. Define fixed-size stock using the dimensions below and in sheet-manifest.json, aligned with this sheet origin. There is deliberately no overlapping stock solid in STEP.\n\n'+
  'Holes, dados, pockets, apertures and any secondary edge/underside bores are actual cuts in the solids. Set machining strategies, tools, depths per pass, feeds, cutter compensation, tabs and the machine post in CAM. The STEP has no toolpaths, cutter offsets, holding tabs, or spoilboard allowance. Pockets have their designed geometry; physical internal corner radii depend on the cutter. Glass itself is bought separately and is not a wood solid.\n\n'+
- 'SECONDARY WORK: edge pilots and blind underside feet, where listed, cannot be machined from the primary top face. Plan separate fixtures/setups after cutout. TANDEM hook/locking-device jig work remains in its separate preparation guide and is not invented by this export.\n\n'+
+ 'SECONDARY WORK: edge pilots and blind underside feet, where listed, cannot be machined from the primary top face. Plan separate fixtures/setups after cutout. Four-piece glass frames use two full-height stiles and two butt-jointed rails. Paired frame dowels are 30 mm long with 15 mm embedment per side (diameter in geometry / hardware list). Bore these edges after cutout, glue and clamp square, then confirm glass fit and attach retainers. These edge bores do not require a sheet flip. TANDEM hook/locking-device jig work remains in its separate preparation guide and is not invented by this export.\n\n'+
  manifests.map(m=>'Sheet '+m.sheet+': '+m.material+', '+m.stock.width+' × '+m.stock.height+' × '+m.stock.thickness+' mm; '+m.parts.length+' bodies; '+m.parts.reduce((n,p)=>n+p.edgeOperations,0)+' edge bores; '+m.parts.reduce((n,p)=>n+p.undersideFeet,0)+' underside foot bores.').join('\n')+
  (unplaced?'\n\nPROJECT INCOMPLETE: '+unplaced+' parts are unplaced and not included in this selected-sheet export.':'')+'\n';
 }
