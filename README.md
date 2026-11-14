@@ -213,3 +213,9 @@ Nesting → **Drawer bottoms use back material** is on by default, including pro
 ### 0.22.2 — Mobile settings visibility
 
 Phone layouts use the page's normal vertical scroll for the settings panel. Front type, TANDEM drawer controls and lower nesting material options no longer sit inside a separate 440 px scrolling region that can make them appear missing.
+
+### 0.23 — Panels follow the workflow
+
+Documents & costs now has a wider kitchen elevation and cabinet price breakdown. Shared sheet costs (including waste) are allocated by each cabinet's area within the material/thickness group; hardware, glass and banding follow quantities. Rounded cabinet lines reconcile to the project estimate. Additional items remain project-wide, and missing prices or unplaced parts are marked as partial.
+
+Selecting a nested part stays on Nesting, selects its owning cabinet and highlights that panel in the assembly; Inspect selected part opens machining details. Toolpaths replaces the assembly rail with an always-open Required bits panel for the selected setup, including separate blind-feet preparation. The app also has a local SVG favicon. On narrow screens, costs and bits use normal page flow instead of a floating overlay.

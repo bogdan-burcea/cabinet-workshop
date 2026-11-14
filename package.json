@@ -1,7 +1,7 @@
 {
   "name": "kitchen-planner-web",
   "private": true,
-  "version": "0.22.2",
+  "version": "0.23.0",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
