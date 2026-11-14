@@ -97,3 +97,22 @@ body{grid-template-rows:48px 76px minmax(0,1fr)}
 /* Mobile uses the page scroll for settings. A capped, independently scrolling
    sidebar made lower controls look absent in phone browsers. */
 @media(max-width:672px){aside{max-height:none;overflow:visible}}
+
+/* Context follows the work: project costs, selected nested part, or cutters. */
+#assembly-panel.context-pricing,#assembly-panel.context-bits{overflow:auto;scrollbar-width:thin}
+.pricing-elevation{height:340px;min-height:260px;flex:none;background:#f4f4f4;border:1px solid #e0e0e0;margin:0 0 16px;overflow:auto}
+#assembly-panel .pricing-elevation svg{display:block;height:100%;width:100%;max-height:none;padding:16px}
+.pricing-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-top:2px solid #161616;padding:16px 0}
+.pricing-total span{font-size:12px}.pricing-total strong{font-size:22px;font-weight:400;white-space:nowrap}
+.cabinet-price{border-top:1px solid #e0e0e0;padding:0 12px}.cabinet-price.active{border-left:3px solid #0f62fe;background:#edf5ff}
+.cabinet-price summary{display:flex;justify-content:space-between;gap:12px;padding:16px 20px 16px 0;font-size:14px;cursor:pointer;text-align:left}.cabinet-price summary>span{flex:1}.cabinet-price summary strong{white-space:nowrap;font:13px var(--mono)}
+.price-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:12px}.price-line span:last-child{font-family:var(--mono)}.price-select{border:0;background:transparent;color:#0f62fe;min-height:32px;padding:4px 0;font-size:12px}.price-status{font-size:12px;color:#8e6a00;margin:4px 0}.project-extras{border-top:1px solid #c6c6c6;margin-top:12px}
+.nested-part-name{font-size:14px;line-height:20px;margin:4px 0 12px}.sheet-drawing .nested-selected rect{fill:#a6c8ff;stroke:#0043ce;stroke-width:2px}
+#assembly-panel.context-bits .tool-summary{margin:0;border:0;background:transparent}#assembly-panel.context-bits .tool-summary>summary{display:none}#assembly-panel.context-bits .tool-summary>div{padding:0}
+#assembly-panel.context-bits .operation-table{display:block;margin:16px 0}#assembly-panel.context-bits .operation-table tr:first-child{display:none}#assembly-panel.context-bits .operation-table tr{display:flex;flex-direction:column;border:1px solid #e0e0e0;background:#f4f4f4;padding:16px;margin-bottom:12px}
+#assembly-panel.context-bits .operation-table td{display:block;border:0;height:auto;min-height:0;padding:4px 0;text-align:left;font:12px/18px 'IBM Plex Sans',sans-serif;background:transparent}
+#assembly-panel.context-bits .operation-table td:first-child{font-size:16px;font-weight:500;margin-bottom:4px}#assembly-panel.context-bits .operation-table td:nth-child(3)::before{content:'Minimum reach: '}
+.bit-card{padding:16px;border:1px solid #e0e0e0;background:#f4f4f4;margin-bottom:12px}.bit-card p{font-size:12px;margin-bottom:8px}
+@media(min-width:901px){body[data-context="pricing"]{grid-template-columns:260px minmax(0,1fr) clamp(360px,38vw,640px)}body[data-context="bits"]{grid-template-columns:300px minmax(0,1fr) 340px}}
+@media(max-width:1100px) and (min-width:901px){body[data-context="pricing"]{grid-template-columns:220px minmax(0,1fr) 340px}body[data-context="bits"]{grid-template-columns:260px minmax(0,1fr) 300px}.context-pricing .pricing-total{flex-direction:column}.pricing-elevation{height:280px}}
+@media(max-width:900px){#assembly-panel.context-pricing,#assembly-panel.context-bits{position:static;width:auto;height:auto;min-height:0;margin:0 16px 24px;padding:20px;box-shadow:none;z-index:auto}#assembly-panel.context-pricing h2,#assembly-panel.context-bits h2,#assembly-panel.context-pricing>.eyebrow,#assembly-panel.context-bits>.eyebrow,#assembly-panel.context-pricing>.note,#assembly-panel.context-bits>.note{display:block}body[data-context="pricing"] .workspace,body[data-context="bits"] .workspace{padding-bottom:24px}.pricing-elevation{height:360px}}
