@@ -133,3 +133,17 @@ body[data-step="1"] .canvas-label{top:10px;left:12px;font-size:11px;padding:2px 
 @media(min-width:901px){body{grid-template-rows:48px 92px minmax(0,1fr)}body[data-context="pricing"]{grid-template-columns:var(--sidebar-width) minmax(0,1fr) clamp(340px,36vw,640px)}body[data-context="bits"]{grid-template-columns:var(--sidebar-width) minmax(0,1fr) 340px}}
 @media(min-width:1600px){body{--sidebar-width:320px}}
 @media(max-width:900px){body[data-step="1"] .workspace{min-height:820px}body[data-step="1"] #workspace-body{height:auto;grid-template-rows:440px 320px;overflow:visible}body[data-step="1"] .viewer .view-controls{top:36px}.document-toolbar{gap:8px}.document-toolbar>button{font-size:12px}}
+
+/* Cabinet build and project fittings have separate, compact settings spaces. */
+.cabinet-settings-switch{display:flex;width:100%;margin-bottom:20px}.cabinet-settings-switch button{flex:1;padding:6px 8px;font-size:12px;white-space:nowrap}
+.position-picker input{width:100%;height:40px;min-width:0;border:0;border-bottom:1px solid #8d8d8d;background:#e0e0e0;padding:0 12px;font:14px var(--mono)}
+.position-picker .picker-top{margin-bottom:6px}.position-picker .picker-top label{line-height:16px;flex:1}.position-picker .cabinet-actions{flex:none}.position-picker .picker-icon{width:28px!important;height:32px!important;min-height:32px!important}
+.field-info.compact-icon{width:20px;min-width:20px;height:20px;min-height:20px;border:0;background:transparent;color:#525252;padding:0}
+body[data-step="1"] #workspace-body{grid-template-columns:minmax(0,3fr) minmax(0,2fr);grid-template-rows:minmax(0,1fr);overflow:hidden}
+body[data-step="1"] #workspace-body>.cabinet-elevation{grid-column:1;grid-row:1;padding:40px 16px 12px}
+body[data-step="1"] #workspace-body>.viewer:not(.cabinet-elevation){grid-column:2;grid-row:1}
+body[data-step="1"] .viewer:not(.cabinet-elevation)>svg{padding:64px 12px 40px}
+body[data-step="1"] .viewer .view-controls{top:36px;left:8px;right:8px;justify-content:center;gap:8px;padding:0}
+body[data-step="1"]:has(.form-error) #workspace-body{grid-template-rows:auto minmax(0,1fr)}body[data-step="1"] #workspace-body>.form-error{grid-column:1/-1;grid-row:1}body[data-step="1"]:has(.form-error) #workspace-body>.viewer{grid-row:2}
+@media(max-width:1056px){body[data-step="1"] .canvas-dimensions{font-size:10px}}
+@media(max-width:900px){body[data-step="1"] .workspace{min-height:820px}body[data-step="1"] #workspace-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:440px 300px;overflow:visible}body[data-step="1"] #workspace-body>.cabinet-elevation{grid-column:1;grid-row:1}body[data-step="1"] #workspace-body>.viewer:not(.cabinet-elevation){grid-column:1;grid-row:2}body[data-step="1"]:has(.form-error) #workspace-body{grid-template-rows:auto 440px 300px}body[data-step="1"]:has(.form-error) #workspace-body>.cabinet-elevation{grid-row:2}body[data-step="1"]:has(.form-error) #workspace-body>.viewer:not(.cabinet-elevation){grid-row:3}}
