@@ -219,3 +219,9 @@ Phone layouts use the page's normal vertical scroll for the settings panel. Fron
 Documents & costs now has a wider kitchen elevation and cabinet price breakdown. Shared sheet costs (including waste) are allocated by each cabinet's area within the material/thickness group; hardware, glass and banding follow quantities. Rounded cabinet lines reconcile to the project estimate. Additional items remain project-wide, and missing prices or unplaced parts are marked as partial.
 
 Selecting a nested part stays on Nesting, selects its owning cabinet and highlights that panel in the assembly; Inspect selected part opens machining details. Toolpaths replaces the assembly rail with an always-open Required bits panel for the selected setup, including separate blind-feet preparation. The app also has a local SVG favicon. On narrow screens, costs and bits use normal page flow instead of a floating overlay.
+
+### 0.24 — Shared feet and worktops, paired cabinet views
+
+Editing any foot setting applies the complete foot configuration to all base/tall cabinets and future cabinets. Worktop thickness edits apply project-wide; base carcass heights compensate to retain their counter targets. Wall cabinets remain foot-free, and tall/wall top targets stay fixed. Shared settings save with the project and participate in Undo and whole-project validation. Earlier independent settings remain until the corresponding shared setting is edited.
+
+Cabinet shows assembly and selectable kitchen elevation together. Automatic position is an accessible icon button. The bits rail has a compact face-up instruction with a shortcut to Parts instead of a long orientation dump. Cutting feed time uses h:mm; estimate download sits at the right of its 32 px tabs. Tab groups have 16 px bottom spacing, and Documents uses the same sidebar width as the other workflow pages.
