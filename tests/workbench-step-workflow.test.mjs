@@ -19,6 +19,11 @@ test('legacy two-face project settings migrate to the STEP face-up workflow',()=
  const cabinet=cabinetDefaults(),s=initializeProject({cabinet,globals:globalsFrom(cabinet),machine:{...machineDefaults,singleSide:false},stock:{...stockDefaults}});
  assert.equal(s.machine.singleSide,true);assert(projectLayout(s).parts.every(p=>p.singleSide));
 });
+test('a pull with holes on two frame members still counts as one handle per door',()=>{
+ const cabinet={...cabinetDefaults(),width:446,doorStyle:'glass',handle:'horizontal'},s=initializeProject({cabinet,globals:globalsFrom(cabinet),machine:{...machineDefaults},stock:{...stockDefaults}}),layout=projectLayout(s);
+ assert.equal(layout.parts.filter(p=>p.flatOperations.some(o=>o.label==='Handle through hole')).length,4);
+ assert.equal(costRows(s.cabinets,layout.parts,layout).rows.find(r=>r.label.includes('pull ·')).quantity,2);
+});
 test('the public workflow exposes four tabs and no toolpath generator or program download',()=>{
  const html=readFileSync(new URL('../public/cabinet.html',import.meta.url),'utf8'),app=readFileSync(new URL('../src/workbench/app.js',import.meta.url),'utf8');
  assert.equal((html.match(/role="tab"/g)||[]).length,4);assert(!html.includes('aria-label="Toolpaths"'));
