@@ -1,6 +1,14 @@
 # Cabinet Workshop
 
-Browser-based cabinet design, nesting and CNC toolpath preparation.
+Browser-based cabinet design, nesting and STEP preparation for external CAM.
+
+## 0.27 — Four-piece glass frames and STEP workflow
+
+Glass doors produce two full-height stiles and two rails between them. All four are separately selectable, nested, priced and exported as solids. Each has a rear glass rebate; every butt joint has paired edge bores for 30 mm dowels with 15 mm embedment per side (normally Ø6 mm). Drill these edge bores after cutout, glue and clamp square, then verify the bought glass size before fitting retainers. Hinge/handle holes belong to their actual member. Horizontal pulls centre on the top rail for base/tall doors or bottom rail for wall doors. Only exposed perimeter edges receive default banding.
+
+The app no longer offers toolpath generation, playback, cutting-time estimates, cutter settings or NC downloads. Its four tabs are Cabinet, Parts, Nesting and Documents. Use selected-sheet STEP or the all-sheets pack and generate toolpaths in Fusion or another CAM application. Face-up orientation is automatic, including for older projects; legacy machine values remain in saved files only for compatibility. Former one-piece glass-door feature overrides should be rechecked against the new independent members. Existing slab doors, drawer construction and saved project format remain supported.
+
+Verified with 415 tests, including frame joint alignment, hardware/glass quantities, external-edge band deductions, per-member preview IDs and machined STEP solid round trips. Fusion import itself requires user validation.
 
 ## 0.26 — Nested sheets for external CAM
 
