@@ -116,3 +116,20 @@ body{grid-template-rows:48px 76px minmax(0,1fr)}
 @media(min-width:901px){body[data-context="pricing"]{grid-template-columns:260px minmax(0,1fr) clamp(360px,38vw,640px)}body[data-context="bits"]{grid-template-columns:300px minmax(0,1fr) 340px}}
 @media(max-width:1100px) and (min-width:901px){body[data-context="pricing"]{grid-template-columns:220px minmax(0,1fr) 340px}body[data-context="bits"]{grid-template-columns:260px minmax(0,1fr) 300px}.context-pricing .pricing-total{flex-direction:column}.pricing-elevation{height:280px}}
 @media(max-width:900px){#assembly-panel.context-pricing,#assembly-panel.context-bits{position:static;width:auto;height:auto;min-height:0;margin:0 16px 24px;padding:20px;box-shadow:none;z-index:auto}#assembly-panel.context-pricing h2,#assembly-panel.context-bits h2,#assembly-panel.context-pricing>.eyebrow,#assembly-panel.context-bits>.eyebrow,#assembly-panel.context-pricing>.note,#assembly-panel.context-bits>.note{display:block}body[data-context="pricing"] .workspace,body[data-context="bits"] .workspace{padding-bottom:24px}.pricing-elevation{height:360px}}
+
+/* Shared settings and paired cabinet drawings. */
+body{--sidebar-width:300px;grid-template-rows:48px 92px minmax(0,1fr)}
+.steps[role=tablist]{margin-bottom:16px;height:76px;min-height:76px}
+.face-tabs{margin-bottom:16px}.document-toolbar{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}.document-toolbar .face-tabs{margin:0}.document-toolbar>button{margin-left:auto;height:32px;min-height:32px;padding:4px 12px;font-size:13px}
+.face-up-summary{margin:20px 0;padding-top:16px;border-top:1px solid #e0e0e0}.face-up-summary button{font-size:12px;min-height:32px;padding:6px 10px}.face-up-summary h3{margin-bottom:8px}
+.plan-position{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:8px}.plan-position label{grid-column:1/-1;margin:0}.plan-position button{margin:0;height:40px}
+body[data-step="1"] #workspace-body{display:grid;grid-template-rows:minmax(280px,3fr) minmax(240px,2fr);gap:16px;padding:0 16px 16px;overflow:auto}
+body[data-step="1"]:has(.form-error) #workspace-body{grid-template-rows:auto minmax(280px,3fr) minmax(240px,2fr)}
+body[data-step="1"] .viewer{height:auto;min-height:0;border:1px solid #e0e0e0}
+body[data-step="1"] .cabinet-elevation{padding:40px 12px 8px;min-height:0!important;flex:none}
+body[data-step="1"] .cabinet-elevation .front-plan-canvas{min-height:0;overflow:auto}
+body[data-step="1"] .cabinet-elevation .front-plan-canvas>svg{min-height:0!important;max-height:none!important;height:100%;padding:0;display:block}
+body[data-step="1"] .canvas-label{top:10px;left:12px;font-size:11px;padding:2px 6px}
+@media(min-width:901px){body{grid-template-rows:48px 92px minmax(0,1fr)}body[data-context="pricing"]{grid-template-columns:var(--sidebar-width) minmax(0,1fr) clamp(340px,36vw,640px)}body[data-context="bits"]{grid-template-columns:var(--sidebar-width) minmax(0,1fr) 340px}}
+@media(min-width:1600px){body{--sidebar-width:320px}}
+@media(max-width:900px){body[data-step="1"] .workspace{min-height:820px}body[data-step="1"] #workspace-body{height:auto;grid-template-rows:440px 320px;overflow:visible}body[data-step="1"] .viewer .view-controls{top:36px}.document-toolbar{gap:8px}.document-toolbar>button{font-size:12px}}
