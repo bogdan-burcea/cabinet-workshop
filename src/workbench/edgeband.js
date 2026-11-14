@@ -2,7 +2,7 @@ import {transformOperation,validateOperations} from '../machining.js';
 export function bandPart(part,settings,override={}){
  if(!settings)return part;
  const t=settings.thickness||0;const name=part.row[0],band={xMin:0,xMax:0,yMin:0,yMax:0};
- if(settings.doors&&(/^Door/.test(name)||/overlay front$/.test(name)))Object.keys(band).forEach(k=>band[k]=t);
+ if(settings.doors&&(/^Door/.test(name)||/overlay front$/.test(name))){if(part.glassFramePart){const r=part.glassFramePart;if(r==='left stile')band.xMin=t;if(r==='right stile')band.xMax=t;if(r.includes('stile'))band.yMin=band.yMax=t;else band[r==='bottom rail'?'yMin':'yMax']=t;}else Object.keys(band).forEach(k=>band[k]=t);}
  if(settings.fronts&&part.frontEdge&&((!/^Drawer /.test(name)&&/side$/.test(name))||name==='Bottom'||name==='Top'||name==='Front rail'||/^Shelf /.test(name)))band[part.frontEdge]=t;
  const bandDefaults={...band};Object.assign(band,override);if(!Object.values(band).some(Boolean))return {...part,bandDefaults};
  const w=part.width-band.xMin-band.xMax,h=part.height-band.yMin-band.yMax;if(w<=0||h<=0)throw Error(name+': edgebanding leaves no core panel.');

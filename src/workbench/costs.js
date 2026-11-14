@@ -13,6 +13,7 @@ export function costRows(cabinets,parts,layout,costs={}){
   if(cups){add('Hardware',a.hinge+' · hinge','each',cups,a.hinge);add('Hardware',a.hinge+' · '+a.plate+' mm mounting plate','each',cups,a.hinge+'-plate-'+a.plate);}
   const handles=ps.filter(p=>p.flatOperations.some(o=>o.label==='Handle through hole')).length;if(handles)add('Hardware',a.handle==='knob'?'Knob':a.handle+' pull · '+a.handlePitch+' mm','each',handles,a.handle==='knob'?'knob':a.handle+'-'+a.handlePitch);
   if(a.style!=='Wall'&&a.feet!=='none')add('Hardware',a.feet+' foot plate / adjustable foot','each',a.feetCount,a.feet);
+  const dowels=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Frame dowel');for(const diameter of new Set(dowels.map(o=>o.diameter)))add('Hardware','Frame dowel · Ø'+diameter+' × 30 mm','each',dowels.filter(o=>o.diameter===diameter).length/2,'frame-dowel-'+diameter);
   for(const g of glassSchedule(ps,a))add('Glass',`Glass · ${g.thickness} mm`,'m²',g.width*g.height/1e6,'glass-'+g.thickness);
  }
  for(const p of parts)for(const [edge,t]of Object.entries(p.edgeBand||{}))if(t)add('Edgeband',`Edgeband · ${t} mm`,'m',(edge.startsWith('x')?(p.finishedHeight||p.height):(p.finishedWidth||p.width))/1000,'band-'+t);
