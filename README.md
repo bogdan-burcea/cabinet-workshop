@@ -205,3 +205,7 @@ Costs use user-entered prices in one chosen currency. Materials default to whole
 Nesting and Toolpaths have accessible icon-only Previous/Next controls beside their dropdowns, disabled at the ends. Toolpath scrubbing has a blue progress track, visible thumb, keyboard-supported move count, and first/all-moves icon controls. Workflow tab width remains stable with five tabs and horizontal overflow on smaller screens.
 
 Validation: 392 automated checks pass, including 81 ordinary drawer handle/size/count/placement combinations, automatic stock/family/length/front reconciliation, independent-cabinet migration/roundtrip, sheet/area cost quantities and stable price keys, hardware pairs, zero/missing prices, extras persistence, invalid price rejection and partial estimates for unplaced stock. Browser checks cover arithmetic totals, document ZIP without NC, saved cost metadata, navigation endpoints, keyboard scrubbing and retention of generated programs after price edits. Physical machining/hardware assembly remains untested.
+
+### 0.22.1 — Shared back and drawer-bottom stock
+
+Nesting → **Drawer bottoms use back material** is on by default, including projects saved before this option existed. Matching back/bottom thicknesses can now share sheets; disable it when bottoms use the carcass material instead. Different thicknesses always remain separate. The setting saves with the project and applies consistently to layouts, sheet toolpaths and material estimates.
