@@ -2,6 +2,14 @@
 
 Browser-based cabinet design, nesting and CNC toolpath preparation.
 
+## 0.26 — Nested sheets for external CAM
+
+Nesting offers **Download this sheet · STEP**. Documents offers a **Nested sheets · STEP pack**, also included in the complete documents download when all parts fit the stock. Each sheet contains separate named finished-core solids in their nested positions, including bores, grooves, apertures and edge-band deductions. X/Y start at the sheet lower-left; Z0 is stock top, with parts extending downward. Primary machining faces point up.
+
+The pack includes stock dimensions, a part manifest, project JSON and Fusion/CAM setup instructions. Create fixed-size stock in CAM and choose tools, compensation, tabs, feeds and the machine post there. Edge and underside bores can require additional setups; TANDEM jig work remains separate. STEP export requires One-side flat machining. A selected sheet can be exported independently when other project parts are unplaced; the complete pack requires a complete layout.
+
+The solid CAD engine loads only when exporting STEP. Validation covers rotated/mirrored features, physical part volumes and STEP solid round trips. Fusion itself has not been tested in this environment.
+
 For GitHub Pages setup and automatic updates, see [GITHUB-DEPLOYMENT.md](GITHUB-DEPLOYMENT.md).
 
 # Cabinet Workshop 0.10
