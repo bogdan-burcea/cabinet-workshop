@@ -19,4 +19,20 @@ export function costRows(cabinets,parts,layout,costs={}){
  const priced=rows.map(r=>({...r,price:c.prices[r.key]??null,total:Math.round(r.quantity*(c.prices[r.key]??0)*100)/100}));const extras=c.extras.map((e,i)=>({key:'extra-'+i,category:'Additional',label:e.name,unit:'each',quantity:e.quantity,price:e.price,total:Math.round(e.quantity*(e.price??0)*100)/100}));
  const total=[...priced,...extras].reduce((n,r)=>n+r.total,0);return {rows:priced,extras,total:Math.round(total*100)/100,currency:c.currency,missing:[...priced,...extras].filter(r=>r.price===null).length,unplaced:layout.unplaced.length,basis:c.basis};
 }
+// Allocate each rounded project line in cents, so cabinet subtotals reconcile
+// exactly even when cabinets share sheets. Extras remain project-wide.
+export function cabinetCosts(cabinets,parts,layout,costs={}){
+ const c=checkedCosts(costs),estimate=costRows(cabinets,parts,layout,c),local=cabinets.map(r=>{
+  const own=parts.filter(p=>p.cabinetId===r.id),quantities=costRows([r],own,{...layout,sheets:[],unplaced:[]},{...c,basis:'area',extras:[]}).rows;
+  return {id:r.id,name:r.config.name,rows:[],total:0,missing:0,unplaced:layout.unplaced.filter(p=>p.cabinetId===r.id).length,quantities,parts:own};
+ });
+ for(const row of estimate.rows){
+  const weights=local.map(a=>{if(row.category!=='Material')return a.quantities.find(q=>q.key===row.key)?.quantity||0;const [material,t]=JSON.parse(row.key)[1];return a.parts.filter(p=>p.material===material&&p.thickness===t).reduce((n,p)=>n+p.width*p.height,0);}),sum=weights.reduce((n,w)=>n+w,0);
+  if(!sum)continue;
+  const raw=weights.map(w=>Math.round(row.total*100)*w/sum),cents=raw.map(Math.floor),order=raw.map((v,i)=>({i,remainder:v-cents[i]})).sort((a,b)=>b.remainder-a.remainder||a.i-b.i);
+  let left=Math.round(row.total*100)-cents.reduce((n,v)=>n+v,0);for(const a of order){if(left--<=0)break;cents[a.i]++;}
+  local.forEach((a,i)=>{if(!weights[i])return;const share={...row,quantity:row.quantity*weights[i]/sum,total:cents[i]/100};a.rows.push(share);a.total+=cents[i];if(row.price===null)a.missing++;});
+ }
+ return {cabinets:local.map(({quantities,parts,total,...a})=>({...a,total:total/100})),extras:estimate.extras,total:estimate.total,currency:c.currency,missing:estimate.missing,unplaced:estimate.unplaced};
+}
 export function estimateCsv(estimate){const rows=[['Category','Item','Quantity','Unit','Unit price '+estimate.currency,'Amount '+estimate.currency],...[...estimate.rows,...estimate.extras].map(r=>[r.category,r.label,Number(r.quantity.toFixed(4)),r.unit,r.price??'NOT PRICED',Number(r.total.toFixed(2))]),['TOTAL',estimate.missing||estimate.unplaced?'PARTIAL ESTIMATE':'Estimate','','','',Number(estimate.total.toFixed(2))]];return rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');}
