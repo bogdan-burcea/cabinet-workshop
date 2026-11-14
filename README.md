@@ -2,6 +2,16 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.28 — Shared construction and connected drawings
+
+Captured-back side grooves stop at the mating back bottom (including joint clearance), preserving the lower lip. Matching back dimensions stay unchanged. The machined STEP solids contain the stopped geometry; finish internal corner treatment in CAM for the actual cutter.
+
+Common features now has keyboard-accessible Base/Wall/Tall tabs for handles and joinery/assembly. Back thickness is shared across all styles. A style edit applies to existing and future cabinets of that style; older independent values remain until the relevant common profile is edited. Legacy assembly-drilling settings still load. Invalid shared edits keep the previous project.
+
+Parts adds a current-part selector and previous/next icon buttons. Elevations show the actual handle-hole centres, including frame members, drawer fronts, band deductions and floor references. In Nesting, selecting a panel in the assembly locates and highlights it on its sheet; unplaced parts show a useful message. Stock notes are collapsible, the repeated blue ribbons are removed, and document buttons have consistent padding. Assembly checkboxes sit at the upper right; placement actions match the active-cabinet control. Cabinet price rows select/expand directly. Documents uses equal content panes alongside its settings sidebar, stacking on smaller screens.
+
+Validation includes shared-profile persistence/inheritance, stopped-groove clearance and CAD lip volume, hole positions, nested selection, STEP round trips and browser navigation/layout checks.
+
 ## 0.27 — Four-piece glass frames and STEP workflow
 
 Glass doors produce two full-height stiles and two rails between them. All four are separately selectable, nested, priced and exported as solids. Each has a rear glass rebate; every butt joint has paired edge bores for 30 mm dowels with 15 mm embedment per side (normally Ø6 mm). Drill these edge bores after cutout, glue and clamp square, then verify the bought glass size before fitting retainers. Hinge/handle holes belong to their actual member. Horizontal pulls centre on the top rail for base/tall doors or bottom rail for wall doors. Only exposed perimeter edges receive default banding.
