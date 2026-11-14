@@ -5,7 +5,7 @@ import {defaults,cabinetParts,cabinetProject,saveProject,loadProject} from './ca
 import {cabinetDefaults} from './styles.js';
 import {enableInstallation,resolveInstallation} from './installation.js';
 import {globalsFrom,applyGlobals,checkedGlobals} from './globals.js';
-import {checkedStock} from './production.js';
+import {checkedStock,partMaterial} from './production.js';
 import {manufacturingParts} from './single-side.js';
 import {packParts} from '../nesting.js';
 const copy=v=>structuredClone(v);
@@ -28,7 +28,7 @@ export function deserializeProject(data){
  const records=data.cabinets.map(r=>({id:r.id,...(r.x!==undefined?{x:r.x}:{}),config:enableInstallation(loadProject({format:data.format,version:1,cabinet:r.config,machine:data.machine}).cabinet,data.globals?.installation)}));const r=records.find(r=>r.id===data.activeCabinetId);if(!r)throw Error('The selected cabinet is missing.');
  const s={...(data.costs?{costs:checkedCosts(data.costs)}:{}),...(data.independentCabinets?{independentCabinets:true}:{}),cabinet:r.config,cabinets:records,activeCabinetId:r.id,machine:machineSettings(data.machine),stock:checkedStock(data.stock),globals:{...globalsFrom(r.config),...data.globals}};return syncProject(s);
 }
-export function projectParts(s,{singleSide=s.machine.singleSide}={}){syncProject(s);const stock=checkedStock(s.stock);return s.cabinets.flatMap((r,i)=>manufacturingParts(cabinetParts(r.config),singleSide).map(p=>({...p,code:'C'+String(i+1).padStart(2,'0')+'-'+p.code,sourceCode:p.code,key:r.id+'/'+p.key,cabinetId:r.id,owner:r.config.name,material:p.material==='Back'?stock.backMaterial.trim():p.material==='Front'&&!stock.doorsMatchCarcass?stock.frontMaterial.trim():stock.carcassMaterial.trim(),grain:!stock.rotate})));}
+export function projectParts(s,{singleSide=s.machine.singleSide}={}){syncProject(s);const stock=checkedStock(s.stock);return s.cabinets.flatMap((r,i)=>manufacturingParts(cabinetParts(r.config),singleSide).map(p=>({...p,code:'C'+String(i+1).padStart(2,'0')+'-'+p.code,sourceCode:p.code,key:r.id+'/'+p.key,cabinetId:r.id,owner:r.config.name,material:partMaterial(p,stock),grain:!stock.rotate})));}
 export function projectLayout(s){const settings=checkedStock(s.stock),parts=projectParts(s),trials=['short','area','bottom'].flatMap(heuristic=>['longest','fronts','area','width','height'].map(order=>packParts(parts,settings,{order,heuristic}))).concat(Array.from({length:24},(_,i)=>packParts(parts,settings,{seed:i+1,heuristic:i%2?'area':'short'})));
  const score=l=>[l.unplaced.length,l.sheets.length,l.sheets.reduce((n,s)=>n+Math.max(...s.parts.map(a=>a.x+a.w))*Math.max(...s.parts.map(a=>a.y+a.h)),0),-l.sheets.reduce((n,s,i)=>n+s.utilization/(i+1),0)],less=(a,b)=>a.some((v,i)=>v<b[i]-1e-7&&a.slice(0,i).every((v,j)=>Math.abs(v-b[j])<1e-7));const layout=trials.reduce((a,b)=>less(score(b),score(a))?b:a);layout.searches=trials.length;layout.singleSide=s.machine.singleSide;return layout;
 }
