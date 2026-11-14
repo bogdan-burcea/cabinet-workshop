@@ -209,3 +209,7 @@ Validation: 392 automated checks pass, including 81 ordinary drawer handle/size/
 ### 0.22.1 — Shared back and drawer-bottom stock
 
 Nesting → **Drawer bottoms use back material** is on by default, including projects saved before this option existed. Matching back/bottom thicknesses can now share sheets; disable it when bottoms use the carcass material instead. Different thicknesses always remain separate. The setting saves with the project and applies consistently to layouts, sheet toolpaths and material estimates.
+
+### 0.22.2 — Mobile settings visibility
+
+Phone layouts use the page's normal vertical scroll for the settings panel. Front type, TANDEM drawer controls and lower nesting material options no longer sit inside a separate 440 px scrolling region that can make them appear missing.
