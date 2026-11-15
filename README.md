@@ -2,6 +2,10 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.33.1 — Stable preview proportions and compact cabinet titles
+
+Preview sizing is deferred until the complete assembly panel is laid out after a selection or checkbox update. The viewer fills its drawing region without contributing intrinsic canvas height to the layout, keeping the rendering buffer and camera aspect matched to the displayed canvas. Cabinet codes now appear inline in each Parts sidebar title, freeing the separate code column.
+
 ## 0.33 — Orbitable machined assembly and direct feature editing
 
 The right-hand assembly uses real solid-CAD meshes, including handle bores, hinge cups, grooves, edge pilots and hood openings. Drag to orbit, right-drag to pan, and scroll or pinch to zoom; arrow keys orbit and Home / Fit view resets the camera. Clicking a solid keeps Parts inspection and nesting-sheet selection connected. Door, drawer and exploded poses retain their machining. Glass frames include translucent glass. One persistent viewer and a bounded geometry cache avoid reloading CAD for selection and view changes. WebGL is used when available; a depth-buffered software renderer provides the same orbitable mesh geometry when it is unavailable. The solid engine loads on first use and is shared with STEP export.
