@@ -2,6 +2,14 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.33 — Orbitable machined assembly and direct feature editing
+
+The right-hand assembly uses real solid-CAD meshes, including handle bores, hinge cups, grooves, edge pilots and hood openings. Drag to orbit, right-drag to pan, and scroll or pinch to zoom; arrow keys orbit and Home / Fit view resets the camera. Clicking a solid keeps Parts inspection and nesting-sheet selection connected. Door, drawer and exploded poses retain their machining. Glass frames include translucent glass. One persistent viewer and a bounded geometry cache avoid reloading CAD for selection and view changes. WebGL is used when available; a depth-buffered software renderer provides the same orbitable mesh geometry when it is unavailable. The solid engine loads on first use and is shared with STEP export.
+
+Hood cuts open an editing dialog directly from Parts, with cabinet-referenced opening dimensions or duct exit/diameter/centre controls. Validation, bottom removal, full-top selection and Undo use the cabinet model. Parts cabinet selectors include compact isometric thumbnails. Edge-pilot drawing holes and schedule entries open diameter, inward-depth, datum and machining-face-offset controls; matching edge pilots can be edited together. Source-coordinate mapping handles mirrored machining faces and band deductions. Mating holes are not moved automatically: recheck joint pairs after individual edits. Downloads has no decorative icon; actual download actions retain theirs.
+
+Validation includes mirrored and band-deducted edge editing, pattern spacing, rejected out-of-stock bores, source feature IDs, assembled handle-cut volumes, actual meshing and hood/pose geometry, plus browser checks of dialogs, Undo, orbit and panel selection.
+
 ## 0.32 — Hood cabinets and illustrated part labels
 
 A thin separator divides the equal desktop content panes. Part labels now include a vector isometric preview with face holes, grooves, through openings and edge/underside indicators. Small pilots are enlarged for legibility. The larger QR modal preview uses geometry stored in the compressed QR snapshot, so the printed part remains inspectable without a loaded project. Old text-only QR labels still open; re-export to add their geometry. Label paper size and calibration remain unchanged; QR modules align with a 300 dpi laser grid.
