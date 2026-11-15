@@ -4,7 +4,7 @@ import mono from './pdf-font-mono.json' with {type:'json'};
 const fonts={F1:font,F2:semibold,F3:mono};
 export const mm=72/25.4;
 export const pdfNumber=n=>String(Number(n.toFixed(4)));
-export const pdfAscii=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[×]/g,'x').replace(/[–—]/g,'-').replace(/[^\x20-\x7e]/g,'?');
+export const pdfAscii=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[×]/g,'x').replace(/[·]/g,'|').replace(/[–—]/g,'-').replace(/[^\x20-\x7e]/g,'?');
 export const textWidth=(s,size,face='F1')=>{const f=fonts[face];return [...pdfAscii(s)].reduce((n,ch)=>n+(f.widths[ch.charCodeAt(0)-f.first]||600)*size/1000,0);};
 export function fitText(s,width,size,face='F1'){s=pdfAscii(s);if(textWidth(s,size,face)<=width)return s;while(s&&textWidth(s+'...',size,face)>width)s=s.slice(0,-1);return s+'...';}
 export function pdfText(x,y,size,s,face='F1'){s=pdfAscii(s).replaceAll('\\','\\\\').replaceAll('(','\\(').replaceAll(')','\\)');return `BT /${face} ${size} Tf ${pdfNumber(x)} ${pdfNumber(y)} Td (${s}) Tj ET\n`;}
