@@ -7,10 +7,10 @@ export function edgePilotPlan(part){
  const ops=part.flatOperations.filter(o=>o.type==='bore'&&o.axis!==2);
  return [...new Set(ops.map(operationFace))].map(edge=>{
   const list=ops.filter(o=>operationFace(o)===edge),along=list[0].axis===0?1:0;list.sort((a,b)=>a.point[along]-b.point[along]);
-  return {edge,name:names[edge],length:along===1?part.height:part.width,thickness:part.thickness,datum:along===1?'bottom end':'left end',holes:list.map((o,i)=>({number:i+1,along:o.point[along],fromMachiningFace:part.thickness-o.point[2],diameter:o.diameter,depth:o.depth,label:o.label}))};
+  return {edge,name:names[edge],length:along===1?part.height:part.width,thickness:part.thickness,datum:along===1?'bottom end':'left end',holes:list.map((o,i)=>({number:i+1,along:o.point[along],fromMachiningFace:part.thickness-o.point[2],diameter:o.diameter,depth:o.depth,label:o.label,operation:o}))};
  });
 }
-export function drawEdgePilots(parent,part){
+export function drawEdgePilots(parent,part,{selectedFeature='',onSelect}={}){
  parent.replaceChildren();const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e;},plans=edgePilotPlan(part),container=make('div',null,'edge-diagrams');
  const map=svgEl('svg',{viewBox:'0 0 360 160',role:'img','aria-label':part.code+' edge orientation viewed from machining face',class:'edge-orientation'});
  map.append(svgEl('rect',{x:110,y:30,width:140,height:94,fill:'#f4f4f4',stroke:'#8d8d8d'}));
@@ -28,9 +28,9 @@ export function drawEdgePilots(parent,part){
   dimension(x0,x1,28,fmt(p.length)+' mm edge length');line(624,y0,624,y1);line(619,y0,629,y0);line(619,y1,629,y1);text(svg,642,(y0+y1)/2,fmt(p.thickness)+' mm',{'text-anchor':'middle',transform:`rotate(90 642 ${(y0+y1)/2})`});
   line(x0,y0-5,x0,157,{stroke:'#161616','stroke-dasharray':'3 3'});text(svg,x0,151,'0',{'text-anchor':'middle','font-weight':600});
   for(const h of p.holes){const x=x0+h.along/p.length*(x1-x0),y=y0+h.fromMachiningFace/p.thickness*(y1-y0),dimY=180+(h.number-1)*28;
-   svg.append(svgEl('circle',{cx:x,cy:y,r:5,fill:'#fff',stroke:'#0f62fe','stroke-width':1.5}));text(svg,x,y-10,String(h.number),{'text-anchor':'middle','font-size':12,'font-weight':600});line(x,y+7,x,dimY+5,{'stroke-dasharray':'2 3'});dimension(x0,x,dimY,h.number+' · '+fmt(h.along));
+   const target=svgEl('g',{role:'button',tabindex:0,'aria-label':'Edit '+p.name+' pilot '+h.number+' · '+fmt(h.along)+' mm from '+p.datum,'data-feature-key':h.operation.featureId,class:'feature-target'+(h.operation.featureId===selectedFeature?' is-selected':'')});target.append(svgEl('circle',{cx:x,cy:y,r:5,fill:'#fff',stroke:'#0f62fe','stroke-width':1.5,class:'feature-visual'}),svgEl('circle',{cx:x,cy:y,r:13,fill:'transparent'}));const activate=()=>onSelect?.({kind:'operation',operation:h.operation});target.onclick=activate;target.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}};svg.append(target);text(svg,x,y-10,String(h.number),{'text-anchor':'middle','font-size':12,'font-weight':600});line(x,y+7,x,dimY+5,{'stroke-dasharray':'2 3'});dimension(x0,x,dimY,h.number+' · '+fmt(h.along));
   }
-  block.append(svg);const table=make('table',null,'edge-hole-table'),thead=make('thead'),tbody=make('tbody'),head=make('tr');for(const title of ['Hole','From zero','From face','Ø','Depth'])head.append(make('th',title));thead.append(head);table.append(thead,tbody);for(const h of p.holes){const row=make('tr');for(const value of [h.number,fmt(h.along),fmt(h.fromMachiningFace),fmt(h.diameter),fmt(h.depth)])row.append(make('td',String(value)));tbody.append(row);}block.append(table,make('p','mm · shown to 0.1 · export retains exact geometry','edge-units'));container.append(block);
+  block.append(svg);const table=make('table',null,'edge-hole-table'),thead=make('thead'),tbody=make('tbody'),head=make('tr');for(const title of ['Hole','From zero','From face','Ø','Depth'])head.append(make('th',title));thead.append(head);table.append(thead,tbody);for(const h of p.holes){const row=make('tr');for(const value of [h.number,fmt(h.along),fmt(h.fromMachiningFace),fmt(h.diameter),fmt(h.depth)])row.append(make('td',String(value)));const edit=make('button','Edit '+h.number,'table-edit');edit.onclick=()=>onSelect?.({kind:'operation',operation:h.operation});row.firstChild.replaceChildren(edit);tbody.append(row);}block.append(table,make('p','mm · shown to 0.1 · export retains exact geometry','edge-units'));container.append(block);
  }
  if(!plans.length)container.append(make('p','This part has no edge pilots.'));
  parent.append(container);
