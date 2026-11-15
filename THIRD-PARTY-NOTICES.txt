@@ -5,7 +5,7 @@ OpenCascade.js / Open CASCADE Technology: https://github.com/donalffons/opencasc
 Source package and build configuration: https://www.npmjs.com/package/replicad-opencascadejs/v/1.2.1
 The unchanged WASM is copied from that package. CAD-LICENSE.txt accompanies the deployed binary. The worker loads cad.wasm as a separate file, replaceable with a compatible build.
 Other dependencies and exact integrity hashes are recorded in package-lock.json.
-The embedded ASCII font is a subset of DejaVu Sans; its license is in PDF-FONT-LICENSE.txt.
+Embedded PDF fonts are ASCII subsets of IBM Plex Sans Regular / SemiBold and IBM Plex Mono Regular (SIL OFL 1.1). Their license is in PDF-FONT-LICENSE.txt and deployed assets/IBM-Plex-LICENSE.txt.
 
 QR code generation uses qrcode 1.5.4 (MIT), https://github.com/soldair/node-qrcode
 Copyright (c) 2012 Ryan Day
