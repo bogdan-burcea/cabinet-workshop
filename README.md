@@ -2,6 +2,16 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.34 — Carbon print documents and conservative DXF exchange
+
+All generated PDFs embed IBM Plex Sans Regular/SemiBold and Plex Mono. Cutting sheets use the approved full-width A4 landscape drawing with compact stock/face metadata and a small legend. Part, banding and machining schedules share aligned typography, subtle line icons, repeated headers, pagination and horizontal row rules, with no alternating row fills. Cabinet ownership and core/finished dimensions remain explicit. Drawing-only rotation of portrait sheets keeps original schedule coordinates. Direct downloads and document/STEP bundles use the same PDF renderer.
+
+Labels and calibration sheets use black and white only. Part IDs/names have a stronger hierarchy, dimensions use Plex Mono, thumbnails are outline illustrations, and band summaries use human-readable edge names. The exact A4 3 × 8 grid, 64 × 34 mm label cells, skip slots, margins, four-module QR quiet zones and 300 dpi module alignment remain unchanged. Existing QR snapshots and destinations remain compatible. Print labels at Actual size / 100% after calibration.
+
+DXF now uses conservative ASCII R12 (AC1009), explicit CONTINUOUS/layer/standard-text tables, unique entity handles, closed planar POLYLINE/VERTEX/SEQEND contours, circles and text, with CRLF records. CUT/CUTOUT, stock, label and face/depth layers retain their geometry and meanings. Edge pilots remain annotations, not invented flat cuts. Coordinates are millimetres; in Fusion use Design → Insert → Insert DXF on an XY plane and explicitly choose millimetres. STEP remains the solid-CAM exchange. The previous minimal R2000 file passed a permissive parser, so the specific Fusion rejection is not proven; actual Fusion import needs user verification.
+
+Validation covers contour closure, unique handles/layer definitions, circle centres/radii, stock and part coordinates, pagination, PDF byte offsets/fonts, monochrome label/calibration streams, exact paper/grid geometry, independent ezdxf read/audit and rendered PDF/QR review. Font licenses are included in source and deployed assets.
+
 ## 0.33.1 — Stable preview proportions and compact cabinet titles
 
 Preview sizing is deferred until the complete assembly panel is laid out after a selection or checkbox update. The viewer fills its drawing region without contributing intrinsic canvas height to the layout, keeping the rendering buffer and camera aspect matched to the displayed canvas. Cabinet codes now appear inline in each Parts sidebar title, freeing the separate code column.
