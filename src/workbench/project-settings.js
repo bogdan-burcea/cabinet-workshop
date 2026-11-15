@@ -1,12 +1,13 @@
+import {plinthDefaults} from './plinth.js';
 import {cabinetDefaults} from './styles.js';
 import {hingePresets,platePresets} from '../machining.js';
 export const feetKeys=['feet','feetCount','feetThrough','feetHeight','feetX','feetFront','feetRear','feetPitchX','feetPitchY','feetDiameter','feetDepth'];
-export const commonGroups={feet:feetKeys,hinges:['hinge','plate','hingeEnd'],handles:['handle','handlePosition','handlePitch','handleDiameter','handleEdge','handleAlignment','handleHeight','drawerHandlePosition'],backPanel:['back'],joinery:['backGroove','bottomDado','grooveDepth','bottomLift','backInset','clearance','assembly','screwPilot','screwClearance','screwDepth','screwSetback'],banding:['edgeBand','bandDoors','bandFronts'],shelfDrilling:['pinDepth','pinFront','pinRear'],assemblyDrilling:['screwPilot','screwClearance','screwDepth','screwSetback']};
+export const commonGroups={plinth:Object.keys(plinthDefaults),feet:feetKeys,hinges:['hinge','plate','hingeEnd'],handles:['handle','handlePosition','handlePitch','handleDiameter','handleEdge','handleAlignment','handleHeight','drawerHandlePosition'],backPanel:['back'],joinery:['backGroove','bottomDado','grooveDepth','bottomLift','backInset','clearance','assembly','screwPilot','screwClearance','screwDepth','screwSetback'],banding:['edgeBand','bandDoors','bandFronts'],shelfDrilling:['pinDepth','pinFront','pinRear'],assemblyDrilling:['screwPilot','screwClearance','screwDepth','screwSetback']};
 const byStyle=group=>['handles','joinery'].includes(group);
 export const commonGroupForKey=key=>commonGroups.joinery.includes(key)?'joinery':Object.keys(commonGroups).find(g=>commonGroups[g].includes(key))||(key==='worktopThickness'?'worktop':null);
 export function commonValues(s,group,style=s.cabinet.style){
  const shared=s.projectSettings||{},saved=byStyle(group)?shared[group]?.[style]:shared[group],source=byStyle(group)?(s.cabinet.style===style?s.cabinet:s.cabinets.find(r=>r.config.style===style)?.config)||cabinetDefaults(style):group==='feet'?(s.cabinet.style!=='Wall'?s.cabinet:s.cabinets.find(r=>r.config.style!=='Wall')?.config)||cabinetDefaults():s.cabinet;
- if(group==='worktop')return {worktopThickness:shared.worktopThickness??source.installation?.worktopThickness??38};
+ if(group==='plinth'){const c=(s.cabinet.style==='Base'?s.cabinet:s.cabinets.find(r=>r.config.style==='Base')?.config)||{};return {...plinthDefaults,...Object.fromEntries(Object.keys(plinthDefaults).filter(k=>c[k]!==undefined).map(k=>[k,c[k]])),...saved};}if(group==='worktop')return {worktopThickness:shared.worktopThickness??source.installation?.worktopThickness??38};
  return {...Object.fromEntries(commonGroups[group].map(k=>[k,source[k]])),...saved};
 }
 function clearCommonOverrides(c,group){
@@ -15,7 +16,8 @@ function clearCommonOverrides(c,group){
  if(match)for(const id of Object.keys(c.featureEdits?.operations||{})){let label;try{label=JSON.parse(id)[1];}catch{continue;}if(match.test(label))delete c.featureEdits.operations[id];}
 }
 function validateCommon(group,values,style){
- const ranges={hingeEnd:[1,1000],handlePitch:[1,1000],handleDiameter:[1,12],handleEdge:[1,1000],handleHeight:[0,3000],edgeBand:[0,3],pinDepth:[.1,40],pinFront:[1,1000],pinRear:[1,1000],screwPilot:[.1,10],screwClearance:[.1,20],screwDepth:[1,100],screwSetback:[1,1000]};
+ if(group==='plinth'&&typeof values.plinth!=='boolean')throw Error('Choose whether to include a plinth.');
+ const ranges={plinthThickness:[6,30],plinthSetback:[0,1000],plinthGap:[0,20],hingeEnd:[1,1000],handlePitch:[1,1000],handleDiameter:[1,12],handleEdge:[1,1000],handleHeight:[0,3000],edgeBand:[0,3],pinDepth:[.1,40],pinFront:[1,1000],pinRear:[1,1000],screwPilot:[.1,10],screwClearance:[.1,20],screwDepth:[1,100],screwSetback:[1,1000]};
  for(const [k,[lo,hi]]of Object.entries(ranges))if(k in values&&(!Number.isFinite(values[k])||values[k]<lo||values[k]>hi))throw Error(k+' must be '+lo+'–'+hi+' mm.');
  for(const [k,lo,hi]of [['back',3,30],['grooveDepth',.1,37],['bottomLift',0,1000],['backInset',3,1000],['clearance',0,1]])if(k in values&&(!Number.isFinite(values[k])||values[k]<lo||values[k]>hi))throw Error(k+' must be '+lo+'–'+hi+' mm.');
  if(group==='joinery'&&(!['Base','Wall','Tall'].includes(style)||['backGroove','bottomDado','assembly'].some(k=>typeof values[k]!=='boolean')))throw Error('Choose valid joinery settings for this cabinet style.');
@@ -34,6 +36,6 @@ export function applyProjectSettings(s,c){
  const shared=s.projectSettings;if(!shared)return c;
  if(shared.feet){if(typeof shared.feet!=='object'||Array.isArray(shared.feet)||feetKeys.some(k=>shared.feet[k]===undefined))throw Error('The shared feet settings are incomplete.');if(!Number.isFinite(shared.feet.feetHeight)||shared.feet.feetHeight<50||shared.feet.feetHeight>250)throw Error('Foot height must be 50–250 mm.');if(c.style!=='Wall')for(const k of feetKeys)c[k]=shared.feet[k];}
  if(shared.worktopThickness!==undefined){if(!Number.isFinite(shared.worktopThickness)||shared.worktopThickness<1||shared.worktopThickness>150)throw Error('Worktop thickness must be 1–150 mm.');c.installation.worktopThickness=shared.worktopThickness;}
- for(const group of ['hinges','banding','shelfDrilling','assemblyDrilling','handles','backPanel','joinery']){const values=byStyle(group)?shared[group]?.[c.style]:shared[group];if(!values)continue;if(typeof values!=='object'||Array.isArray(values)||commonGroups[group].some(k=>values[k]===undefined))throw Error('The common '+group+' settings are incomplete.');validateCommon(group,values,c.style);for(const k of commonGroups[group])c[k]=values[k];}
+ for(const group of ['plinth','hinges','banding','shelfDrilling','assemblyDrilling','handles','backPanel','joinery']){if(group==='plinth'&&c.style!=='Base')continue;const values=byStyle(group)?shared[group]?.[c.style]:shared[group];if(!values)continue;if(typeof values!=='object'||Array.isArray(values)||commonGroups[group].some(k=>values[k]===undefined))throw Error('The common '+group+' settings are incomplete.');validateCommon(group,values,c.style);for(const k of commonGroups[group])c[k]=values[k];}
  return c;
 }

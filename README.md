@@ -2,6 +2,18 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.31 — Plinths, print layouts and part labels
+
+New base cabinets include one removable front plinth strip. Existing saved cabinets retain their previous parts until enabled in Common features → Plinth. The shared base-only settings control thickness, front setback and floor gap. Height follows floor-to-side clearance minus the gap; counter and body targets stay unchanged. The plinth is selectable, nested, priced and STEP-exported as an independent part. End returns, continuous run-length merging and clip drilling are not generated.
+
+Parts uses the cabinet list in the left sidebar and a part dropdown with previous/next arrows in the main pane. All desktop pages split the content area equally, keeping the settings sidebar separate. Assembly checkboxes align at the top left; the cabinet name is in the lower information area. Both content surfaces are white without a grey dividing frame.
+
+Cutting PDFs use exact A4 landscape, with portrait stock rotated for a wider drawing while machining coordinates stay unchanged. Schedules use restrained typography and row rules. Part-label PDFs use exact A4 portrait with 64 × 34 mm labels in a 3 × 8 grid. Defaults are 6.5 mm left margin, 12.5 mm top margin, 2.5 mm column gap and zero row gap. These are adjustable to match the purchased paper; print the calibration PDF on plain paper at Actual size / 100%, with Fit and duplex disabled. A skip count supports partly used sheets. Paper calibration persists in the saved project.
+
+Each label contains the part ID, cabinet, name, CNC core dimensions, material, banding and a vector QR with a four-module quiet zone. Scanning opens a portable snapshot in the app even without that project loaded; when a matching part is loaded, Inspect opens its machining view. Printed labels describe the export-time snapshot and do not automatically follow later edits. Label PDFs are generated on download and included in Download all documents.
+
+Validation: geometry and persistence tests cover plinth clearances and shared settings; print checks cover exact label cells, page breaks, QR payloads and A4 sizes. PDF pages were rendered and inspected, and a label QR decoded from a 300 dpi PDF raster with an independent decoder.
+
 ## 0.30 — Drawing polish and hardware clearance
 
 Assembly controls are aligned labelled checkboxes; redundant elevation, assembly and pricing titles are removed. Parts explanations and nesting stock notes move to accessible info popups. Placement info has the same hover/focus tooltip and click-for-details pattern. Edge drilling uses compact diagrams and a hole schedule, with ascending hole numbers and display values rounded to 0.1 mm; exact export geometry is preserved. Elevation dimension typography follows the rendered drawing size.
