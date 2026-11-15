@@ -1,3 +1,5 @@
+import {continuousPlinths} from './plinth-runs.js';
+import {frontLayout} from './front-plan.js';
 import {checkedLabelPaper} from './part-labels.js';
 import {hoodDefaults} from './hood.js';
 import {applyProjectSettings} from './project-settings.js';
@@ -32,9 +34,17 @@ export function deserializeProject(data){
  const records=data.cabinets.map(r=>({id:r.id,...(r.x!==undefined?{x:r.x}:{}),config:enableInstallation(loadProject({format:data.format,version:1,cabinet:r.config,machine:data.machine}).cabinet,data.globals?.installation)}));const r=records.find(r=>r.id===data.activeCabinetId);if(!r)throw Error('The selected cabinet is missing.');
  const s={...(data.projectSettings?{projectSettings:copy(data.projectSettings)}:{}),...(data.costs?{costs:checkedCosts(data.costs)}:{}),...(data.independentCabinets?{independentCabinets:true}:{}),labelPaper:checkedLabelPaper(data.labelPaper),cabinet:r.config,cabinets:records,activeCabinetId:r.id,machine:machineSettings(data.machine),stock:checkedStock(data.stock),globals:{...globalsFrom(r.config),...data.globals}};return syncProject(s);
 }
-export function projectParts(s,{singleSide=s.machine.singleSide}={}){syncProject(s);const stock=checkedStock(s.stock);return s.cabinets.flatMap((r,i)=>manufacturingParts(cabinetParts(r.config),singleSide).map(p=>({...p,code:'C'+String(i+1).padStart(2,'0')+'-'+p.code,sourceCode:p.code,key:r.id+'/'+p.key,cabinetId:r.id,owner:r.config.name,material:partMaterial(p,stock),grain:!stock.rotate})));}
+export function projectParts(s,{singleSide=s.machine.singleSide}={}){syncProject(s);const stock=checkedStock(s.stock);return continuousPlinths(s.cabinets.flatMap((r,i)=>manufacturingParts(cabinetParts(r.config),singleSide).map(p=>({...p,code:'C'+String(i+1).padStart(2,'0')+'-'+p.code,sourceCode:p.code,key:r.id+'/'+p.key,cabinetId:r.id,owner:r.config.name,material:partMaterial(p,stock),grain:!stock.rotate}))),s.cabinets,stock);}
 export function projectLayout(s){const settings=checkedStock(s.stock),parts=projectParts(s),trials=['short','area','bottom'].flatMap(heuristic=>['longest','fronts','area','width','height'].map(order=>packParts(parts,settings,{order,heuristic}))).concat(Array.from({length:24},(_,i)=>packParts(parts,settings,{seed:i+1,heuristic:i%2?'area':'short'})));
  const score=l=>[l.unplaced.length,l.sheets.length,l.sheets.reduce((n,s)=>n+Math.max(...s.parts.map(a=>a.x+a.w))*Math.max(...s.parts.map(a=>a.y+a.h)),0),-l.sheets.reduce((n,s,i)=>n+s.utilization/(i+1),0)],less=(a,b)=>a.some((v,i)=>v<b[i]-1e-7&&a.slice(0,i).every((v,j)=>Math.abs(v-b[j])<1e-7));const layout=trials.reduce((a,b)=>less(score(b),score(a))?b:a);layout.searches=trials.length;layout.singleSide=s.machine.singleSide;return layout;
 }
 
 export function projectGlassCsv(s,parts){const rows=[['Cabinet','Door','Glass width mm','Glass height mm','Glass thickness mm','Total fit clearance mm','Notes']];for(const r of s.cabinets){const list=parts.filter(p=>p.cabinetId===r.id||(!p.cabinetId&&r.id===s.activeCabinetId));for(const g of glassSchedule(list,r.config))rows.push([r.config.name,g.name,g.width,g.height,g.thickness,g.clearance,'Bought glass; confirm routed fit; fit retainers; no glass CNC drilling']);}return rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');}
+
+export function reorderCabinet(s,id,direction){
+ if(![-1,1].includes(direction))throw Error('Choose left or right.');
+ const layout=frontLayout(s.cabinets),active=layout.items.find(a=>a.id===id);if(!active)throw Error('Choose a cabinet.');
+ const lane=layout.items.filter(a=>(a.style==='Wall')===(active.style==='Wall')).sort((a,b)=>a.x-b.x),i=lane.findIndex(a=>a.id===id),j=i+direction;if(j<0||j>=lane.length)return false;
+ const left=lane[Math.min(i,j)],right=lane[Math.max(i,j)],gap=Math.max(0,right.x-left.x-left.width),trial=s.cabinets.map(r=>({...r})),records=new Map(trial.map(r=>[r.id,r]));records.get(right.id).x=left.x;records.get(left.id).x=left.x+right.width+gap;
+ const collision=frontLayout(trial).overlaps.find(a=>[a.first,a.second].some(v=>v===id||v===lane[j].id));if(collision)throw Error(collision.message+' Adjust cabinet positions before reordering.');for(const r of s.cabinets)if(r.id===left.id||r.id===right.id)r.x=records.get(r.id).x;return true;
+}

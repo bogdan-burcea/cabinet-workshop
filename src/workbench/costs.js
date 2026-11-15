@@ -24,7 +24,7 @@ export function costRows(cabinets,parts,layout,costs={}){
 // exactly even when cabinets share sheets. Extras remain project-wide.
 export function cabinetCosts(cabinets,parts,layout,costs={}){
  const c=checkedCosts(costs),estimate=costRows(cabinets,parts,layout,c),local=cabinets.map(r=>{
-  const own=parts.filter(p=>p.cabinetId===r.id),quantities=costRows([r],own,{...layout,sheets:[],unplaced:[]},{...c,basis:'area',extras:[]}).rows;
+  const own=parts.flatMap(p=>{if(!p.plinthOwners)return p.cabinetId===r.id?[p]:[];const a=p.plinthOwners.find(a=>a.cabinetId===r.id);if(!a)return [];const ratio=a.width/p.plinthOwners.reduce((n,a)=>n+a.width,0);return [{...p,cabinetId:r.id,width:p.width*ratio,finishedWidth:(p.finishedWidth||p.width)*ratio,edgeBand:Object.fromEntries(Object.entries(p.edgeBand||{}).map(([k,v])=>[k,k.startsWith('x')?v*ratio:v]))}];}),quantities=costRows([r],own,{...layout,sheets:[],unplaced:[]},{...c,basis:'area',extras:[]}).rows;
   return {id:r.id,name:r.config.name,rows:[],total:0,missing:0,unplaced:layout.unplaced.filter(p=>p.cabinetId===r.id).length,quantities,parts:own};
  });
  for(const row of estimate.rows){
