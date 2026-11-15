@@ -313,3 +313,11 @@ Cabinet shows assembly and selectable kitchen elevation together. Automatic posi
 Cabinet settings now have separate Cabinet build and Common features spaces. Build holds dimensions, height targets, panel/front/top construction, shelves, joinery, drawer construction and door-specific hinge count/handing. Common features holds feet for base/tall units, worktop allowance, a matched hinge preset/plate, independent Base/Wall/Tall handle profiles, edge banding and shelf/assembly drilling dimensions. Editing a common group applies it to matching existing and future cabinets; saved projects and Undo retain these groups. Earlier independent values remain until the respective common group is edited. Individual machining overrides are cleared only for the common hardware being changed. Matched hinge/handle popups use the same sharing scope.
 
 The desktop canvas allocates 60% to elevation on the left and 40% to assembly on the right. Narrow screens stack the drawings. Position matches the active-cabinet component: compact label/actions above its value, with auto-placement, starter-build and information icons. Starter builds preserve common fittings and planned dimensions/position.
+
+## Version 0.35
+
+- Larger two-tone grayscale part-label previews, compact portable QR encoding and simplified printed identification. Existing QR snapshots remain readable; label grid and calibration stay unchanged. Thumbnail schematics now omit rear-facing outlines, clipped pocket floors and floating edge-drill marks.
+- Exploded plinth moves forward, clear of the lowered bottom. Base and tall cabinets share continuous compatible plinth runs for nesting, STEP and labels. Pieces split at cabinet boundaries according to sheet size, border and allowed rotation. Different heights, setbacks, materials, banding or gaps start another run. The assembly shows the local cabinet segment; exports contain actual run pieces.
+- Persistent horizontal centering for hood bottom cutouts, in both the sidebar and Parts editor. Front offset remains independent.
+- Elevation Move left/right controls swap physical neighbours within floor or wall rows, preserve cabinet and part codes, retain gaps and support Undo. Moves that collide with another row are rejected.
+- Removed orbit instruction text and left-aligned assembly dimensions.
