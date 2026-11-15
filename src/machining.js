@@ -1,3 +1,4 @@
+import {hoodOperations} from './workbench/hood.js';
 import {tandemOperations} from './workbench/tandem.js';
 import {isInset,glassDimensions} from './workbench/doors.js';
 // Millimetres. Ported from the tested CabinetBuilder 0.17 rules (originally cm).
@@ -12,7 +13,7 @@ export const hingePresets=[['none','Off'],['blum_71b3550','Blum CLIP top BLUMOTI
 export const platePresets={blum_71b3750:[[0,'173H7100 · 0 mm · inset']],none:[[0,'Select a hinge first']],blum_71b3550:[[0,'173H7100 · 0 mm'],[3,'173H7130 · 3 mm']],hafele_31104003:[[0,'311.70.610 · 0 mm'],[2,'311.70.612 · 2 mm'],[4,'311.70.614 · 4 mm']]};
 export const runnerPatterns={3832:{450:[[35,163,259,387],[35,163,355]],500:[[35,163,259,451],[35,163,355]]},'3832do':{450:[[35,163,387],[35,163,355]],500:[[35,163,451],[35,163,355]]}};
 const bools=['back','bottom','drawers','carcass','backFixings','drawerJoints','shelfPins'];
-export const machiningActive=c=>!!c.tandem||c.doorStyle==='glass'||(!!c.machining&&Object.entries(machineDefaults).some(([k,v])=>(bools.includes(k)?c.machining[k]===true:['hinge','runner','handle','feet'].includes(k)&&c.machining[k]!==undefined&&c.machining[k]!==v)));
+export const machiningActive=c=>!!c.hood?.enabled||!!c.tandem||c.doorStyle==='glass'||(!!c.machining&&Object.entries(machineDefaults).some(([k,v])=>(bools.includes(k)?c.machining[k]===true:['hinge','runner','handle','feet'].includes(k)&&c.machining[k]!==undefined&&c.machining[k]!==v)));
 export function machineSettings(c){if(c.machining!==undefined&&(!c.machining||typeof c.machining!=='object'||Array.isArray(c.machining)))throw Error('Invalid machining settings.');const m={...machineDefaults,...c.machining};for(const k of bools)if(typeof m[k]!=='boolean')throw Error('Invalid '+k+' switch.');for(const [k,v]of Object.entries(machineDefaults))if(typeof v==='number'&&(!Number.isFinite(m[k])||m[k]<0||m[k]>100000))throw Error('Invalid machining '+k+'.');
  if(!hingePresets.some(a=>a[0]===m.hinge)||!['none','3832','3832do'].includes(m.runner)||!['none','knob','horizontal','vertical'].includes(m.handle)||!['none','single','triangle','rectangle'].includes(m.feet)||!['Left','Right'].includes(m.hingeHand))throw Error('Unknown drilling preset.');
  if(m.clearance>1)throw Error('Groove clearance must be 0–1 mm.');for(const [enabled,depth,wall]of [[m.back,m.backDepth,c.thickness],[m.bottom,m.bottomDepth,c.thickness],[m.drawers,m.drawerDepth,12]])if(enabled&&(depth<=0||depth>wall-3))throw Error('Groove depth must leave at least 3 mm outer skin.');
@@ -33,7 +34,7 @@ export function adjustPanels(c,rows){const m=machineSettings(c);if(!machiningAct
   B[prefix+'left side']=[prefix+'left side',x,0,z,12,dep,wh];B[prefix+'right side']=[prefix+'right side',x+bw-12,0,z,12,dep,wh];B[prefix+'internal front']=[prefix+'internal front',x+12,0,z,bw-24,12,wh];B[prefix+'back']=[prefix+'back',x+12,dep-12,z,bw-24,12,wh];
   B[prefix+'bottom']=m.drawers?[prefix+'bottom',x+12-m.drawerDepth+m.clearance/2,12-m.drawerDepth+m.clearance/2,base+m.drawerLift,bw-24+2*m.drawerDepth-m.clearance,dep-24+2*m.drawerDepth-m.clearance,6]:[prefix+'bottom',x,0,base,bw,dep,6];
  }
- return rows.map(r=>B[r[0]]);
+ return rows.map(r=>B[r[0]]).filter(r=>!(c.hood?.enabled&&c.hood.hoodBottom==='remove'&&r[0]==='Bottom'));
 }
 export function localMachining(c,rows){const m=machineSettings(c),out=[];if(!machiningActive(c))return out;const b=Object.fromEntries(rows.map(r=>[r[0],r.slice(1)])),w=c.width,t=c.thickness,h=c.height,usable=c.depth-c.back-(m.back?m.backInset:0),count=c.front.includes('drawer')?Number(c.front[0]):0;
  const error=s=>{throw Error(c.label+': '+s);};
@@ -57,6 +58,7 @@ export function localMachining(c,rows){const m=machineSettings(c),out=[];if(!mac
  if(m.feet!=='none'&&['Base','Blind corner','Tall'].includes(c.kind)){if(![2,4,6].includes(m.feetCount)||m.feetDiameter<1||m.feetDiameter>10||(!m.feetThrough&&m.feetDepth>t-2)||m.feetX<=0||m.feetFront<=0||m.feetRear<=0)error('Invalid foot count, setback, or pilot depth.');const f=b.Bottom,xs=m.feetCount===6?[m.feetX,w/2,w-m.feetX]:[m.feetX,w-m.feetX],ys=m.feetCount===2?[f[1]+m.feetFront]:[f[1]+m.feetFront,f[1]+f[4]-m.feetRear],px=m.feetPitchX/2,py=m.feetPitchY/2,offsets=m.feet==='single'?[[0,0]]:m.feet==='triangle'?[[-px,-py],[px,-py],[0,py]]:[[-px,-py],[px,-py],[-px,py],[px,py]];if(xs.some((v,i)=>i&&v-xs[i-1]<=2*px+m.feetDiameter)||ys.length>1&&ys[1]-ys[0]<=2*py+m.feetDiameter)error('Foot patterns overlap or cross.');for(const x of xs)for(const y of ys)for(const [ox,oy]of offsets)bore('Bottom',m.feetThrough?'Foot plate through hole':'Foot plate pilot',2,[x+ox,y+oy,f[2]],1,m.feetDiameter,m.feetThrough?f[5]:m.feetDepth);}
  if(c.tandem)out.push(...tandemOperations(c.tandem,rows));
  // Deduplicate shared shelf-bank positions before collision validation.
+ const hoodCuts=hoodOperations(c,rows);for(const a of hoodCuts.filter(o=>o.type==='pocket'))for(const b of out.filter(o=>o.type==='pocket'&&o.part===a.part))if([0,1,2].every(k=>Math.min(a.box[k]+a.box[k+3],b.box[k]+b.box[k+3])-Math.max(a.box[k],b.box[k])>1e-6))error('Hood bottom opening meets '+b.label+'. Reduce the opening or adjust its front offset.');out.push(...hoodCuts);
  const unique=[...new Map(out.map(o=>[JSON.stringify([o.type,o.part,o.axis,o.point?.map(v=>Math.round(v*1e6)/1e6),o.sign,o.diameter,o.depth,o.box]),o])).values()];validateOperations(b,unique,error);return unique;
 }
 export function validateOperations(boxes,ops,error=s=>{throw Error(s);}){for(const o of ops){const a=boxes[o.part];if(o.type==='pocket'){if(o.box.some(v=>!Number.isFinite(v))||[0,1,2].some(k=>o.box[k+3]<=0||o.box[k]<a[k]-1e-6||o.box[k]+o.box[k+3]>a[k]+a[k+3]+1e-6))error(o.part+': '+o.label+' crosses a panel edge.');}else{for(let k=0;k<3;k++){const e=o.point[k]+(k===o.axis?o.sign*o.depth:0),r=k===o.axis?0:o.diameter/2;if(Math.min(o.point[k],e)-r<a[k]-1e-6||Math.max(o.point[k],e)+r>a[k]+a[k+3]+1e-6)error(o.part+': '+o.label+' crosses an edge. Reduce diameter/depth or change setback.');}}}

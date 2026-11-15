@@ -1,4 +1,5 @@
 import {checkedLabelPaper} from './part-labels.js';
+import {hoodDefaults} from './hood.js';
 import {applyProjectSettings} from './project-settings.js';
 import {checkedCosts} from './costs.js';
 import {glassSchedule} from './doors.js';
@@ -16,7 +17,7 @@ export function initializeProject(s){if(!s.cabinets?.length){const id=newId();s.
 export function syncProject(s){
  s.labelPaper=checkedLabelPaper(s.labelPaper);s.machine={...s.machine,singleSide:true};
  if(!Array.isArray(s.cabinets)||!s.cabinets.length||s.cabinets.length>100)throw Error('A project needs 1–100 cabinets.');
- const ids=new Set();for(const r of s.cabinets){if(typeof r.id!=='string'||!r.id||r.id.length>100||ids.has(r.id)||!r.config)throw Error('Invalid or duplicate cabinet ID.');if(r.x!==undefined&&(!Number.isFinite(r.x)||r.x<0||r.x>100000))throw Error('Cabinet position from left must be 0–100000 mm.');ids.add(r.id);}const active=s.cabinets.find(r=>r.id===s.activeCabinetId);if(!active)throw Error('The selected cabinet is missing.');active.config=s.cabinet;
+ const ids=new Set();for(const r of s.cabinets){if(typeof r.id!=='string'||!r.id||r.id.length>100||ids.has(r.id)||!r.config)throw Error('Invalid or duplicate cabinet ID.');if(r.x!==undefined&&(!Number.isFinite(r.x)||r.x<0||r.x>100000))throw Error('Cabinet position from left must be 0–100000 mm.');ids.add(r.id);}const active=s.cabinets.find(r=>r.id===s.activeCabinetId);if(!active)throw Error('The selected cabinet is missing.');active.config=s.cabinet;for(const r of s.cabinets)for(const [k,v]of Object.entries(hoodDefaults))if(r.config[k]===undefined)r.config[k]=v;
  if(s.costs)s.costs=checkedCosts(s.costs);if(s.independentCabinets)s.globals=globalsFrom(s.cabinet);else checkedGlobals(s.globals);for(const record of s.cabinets){try{if(!s.independentCabinets)applyGlobals(record.config,s.globals);else record.config.inheritGlobals=false;applyProjectSettings(s,record.config);resolveInstallation(record.config);cabinetProject(record.config);cabinetParts(record.config);}catch(e){const error=Error(e.message.startsWith(record.config.name+': ')?e.message:record.config.name+': '+e.message);error.cabinetId=record.id;error.field=e.field;throw error;}}
  s.cabinet=active.config;return s;
 }
