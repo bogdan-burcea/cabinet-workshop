@@ -2,6 +2,16 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.32 — Hood cabinets and illustrated part labels
+
+A thin separator divides the equal desktop content panes. Part labels now include a vector isometric preview with face holes, grooves, through openings and edge/underside indicators. Small pilots are enlarged for legibility. The larger QR modal preview uses geometry stored in the compressed QR snapshot, so the printed part remains inspectable without a loaded project. Old text-only QR labels still open; re-export to add their geometry. Label paper size and calibration remain unchanged; QR modules align with a 300 dpi laser grid.
+
+Wall cabinets have an Extractor hood section. Enabling it clears shelves/pin drilling and initializes fitting opening sizes. Choose a rectangular bottom through opening or remove the bottom panel entirely. Removal also disables the bottom dado and omits its assembly fixings. A circular duct exit can use the left side, right side, full top or back. Dimensions and centre offsets reference the assembled carcass, and Top selects a full top. The model, Parts, nesting, costing and STEP/DXF reflect the actual remaining solids and through cuts. The assembly preview displays those openings.
+
+Openings must leave a 12 mm panel border and avoid existing drilling/grooves. Use the appliance maker's cutout sizes, mounting requirements and clearances; the app does not model the appliance, heat shielding or mounting brackets. A cabinet without a bottom needs independent hood support/reinforcement. Hood options stay local to the selected wall cabinet, and old saved projects receive the disabled feature defaults.
+
+Validation covers CAD cut volumes, all duct exit panels, bottom removal/joints, border and missing-panel errors, compressed/legacy QR decoding and retained preview geometry. Label PDFs are rendered for layout review and decoded independently at 300 dpi.
+
 ## 0.31 — Plinths, print layouts and part labels
 
 New base cabinets include one removable front plinth strip. Existing saved cabinets retain their previous parts until enabled in Common features → Plinth. The shared base-only settings control thickness, front setback and floor gap. Height follows floor-to-side clearance minus the gap; counter and body targets stay unchanged. The plinth is selectable, nested, priced and STEP-exported as an independent part. End returns, continuous run-length merging and clip drilling are not generated.
