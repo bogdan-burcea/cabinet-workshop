@@ -2,6 +2,12 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.30 — Drawing polish and hardware clearance
+
+Assembly controls are aligned labelled checkboxes; redundant elevation, assembly and pricing titles are removed. Parts explanations and nesting stock notes move to accessible info popups. Placement info has the same hover/focus tooltip and click-for-details pattern. Edge drilling uses compact diagrams and a hole schedule, with ascending hole numbers and display values rounded to 0.1 mm; exact export geometry is preserved. Elevation dimension typography follows the rendered drawing size.
+
+A non-blocking warning checks current shelf positions against a conservative hinge-plate envelope (screw centres plus 8 mm each end, 12 mm fore/aft and 12 mm into the cabinet). It uses the actual edited plate drilling and shelf solids, supports inset/overlay and glass doors, and links to shelf/hinge settings. This planning warning is not a certified hardware interference simulation; verify the bought hardware and any alternative shelf positions. New STEP files explicitly use neutral grey instead of the CAD library's red default.
+
 ## 0.29 — Clearer assembly and edge drilling
 
 The assembled view uses a quarter-width right panel with aligned icon toggles for opening doors and exploding the assembly. The Cabinet centre pane is dedicated to the elevation, whose glass openings now follow each door's actual frame width and inset/overlay boundaries. Parts navigation switches cabinets; parts remain selectable directly from the list or drawing. Bottom workflow buttons and the Cabinet sidebar job summary are removed.
