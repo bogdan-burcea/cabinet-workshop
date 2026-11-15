@@ -1,7 +1,7 @@
 import {defaults} from './cabinet.js';
 export const wallDefaults={style:'Wall',name:'My wall cabinet',depth:320,shelves:2,bottomLift:6,feet:'none',handlePosition:'auto_bottom',handleAlignment:'top',handleHeight:1550,mountingHeight:1500};
 export const tallDefaults={style:'Tall',name:'My tall cabinet',depth:560,shelves:4,doors:1,hingeCount:4,handlePosition:'auto_middle',handleAlignment:'top',topConstruction:'full'};
-export const cabinetDefaults=(style='Base')=>({...structuredClone(defaults),plinth:style==='Base',...(style==='Wall'?wallDefaults:style==='Tall'?tallDefaults:{})});
+export const cabinetDefaults=(style='Base')=>({...structuredClone(defaults),plinth:style!=='Wall',...(style==='Wall'?wallDefaults:style==='Tall'?tallDefaults:{})});
 // Placement differs between bases and walls; the shared hardware pattern stays common.
 export const wallLocalKeys=['handlePosition','handleAlignment','handleHeight'];
 export const localKeysForStyle=style=>style==='Wall'?wallLocalKeys:style==='Tall'?[...wallLocalKeys,'hingeCount']:[];
