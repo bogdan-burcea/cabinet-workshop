@@ -33,7 +33,10 @@ export function stepSetupGuide(manifests,{unplaced=0}={}){
 let worker,serial=0;const pending=new Map();
 function resetWorker(message){for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error(message));}pending.clear();worker?.terminate();worker=undefined;}
 export function exportSheetStep(sheet,onProgress=()=>{}){
- const rows=sheetStepRows(sheet);
+ return requestCad('step',sheetStepRows(sheet),onProgress);
+}
+export const requestAssemblyMeshes=rows=>requestCad('mesh',rows);
+function requestCad(mode,rows,onProgress=()=>{}){
  if(!worker){const path=typeof __STEP_WORKER_URL__==='string'?__STEP_WORKER_URL__:'./step-worker.js';worker=new Worker(new URL(path,import.meta.url),{type:'module'});worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;if(data.progress){clearTimeout(p.timer);p.timer=setTimeout(()=>resetWorker('STEP export timed out. Try a smaller sheet or reload the page.'),180000);p.progress(data.progress);return;}clearTimeout(p.timer);pending.delete(data.id);data.error?p.reject(Error(data.error)):p.resolve(data.result);};worker.onerror=()=>resetWorker('The solid CAD engine could not load. Check the connection, reload and retry.');}
- return new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>resetWorker('STEP export timed out. Check the connection and retry.'),180000);pending.set(id,{resolve,reject,progress:onProgress,timer});try{worker.postMessage({id,mode:'step',rows});}catch(e){clearTimeout(timer);pending.delete(id);reject(e);}});
+ return new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>resetWorker('CAD processing timed out. Check the connection and retry.'),180000);pending.set(id,{resolve,reject,progress:onProgress,timer});try{worker.postMessage({id,mode,rows});}catch(e){clearTimeout(timer);pending.delete(id);reject(e);}});
 }
