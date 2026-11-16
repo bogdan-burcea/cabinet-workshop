@@ -2,14 +2,14 @@ import {maxBandThickness} from './banding-settings.js';
 import {plinthDefaults} from './plinth.js';
 import {cabinetDefaults} from './styles.js';
 import {hingePresets,platePresets} from '../machining.js';
-export const feetKeys=['feet','feetCount','feetThrough','feetHeight','feetX','feetFront','feetRear','feetPitchX','feetPitchY','feetDiameter','feetDepth'];
+export const feetKeys=['support','feet','feetCount','feetThrough','feetHeight','feetX','feetFront','feetRear','feetPitchX','feetPitchY','feetDiameter','feetDepth'];
 export const commonGroups={plinth:Object.keys(plinthDefaults),feet:feetKeys,hinges:['hinge','plate','hingeEnd'],handles:['handle','handlePosition','handlePitch','handleDiameter','handleEdge','handleAlignment','handleHeight','drawerHandlePosition'],backPanel:['back'],joinery:['backGroove','bottomDado','grooveDepth','bottomLift','backInset','clearance','assembly','screwPilot','screwClearance','screwDepth','screwSetback'],banding:['edgeBand','bandDoors','bandFronts'],shelfDrilling:['pinDepth','pinFront','pinRear'],assemblyDrilling:['screwPilot','screwClearance','screwDepth','screwSetback']};
 const byStyle=group=>['handles','joinery'].includes(group);
 export const commonGroupForKey=key=>commonGroups.joinery.includes(key)?'joinery':Object.keys(commonGroups).find(g=>commonGroups[g].includes(key))||(key==='worktopThickness'?'worktop':null);
 export function commonValues(s,group,style=s.cabinet.style){
  const shared=s.projectSettings||{},saved=byStyle(group)?shared[group]?.[style]:shared[group],source=byStyle(group)?(s.cabinet.style===style?s.cabinet:s.cabinets.find(r=>r.config.style===style)?.config)||cabinetDefaults(style):group==='feet'?(s.cabinet.style!=='Wall'?s.cabinet:s.cabinets.find(r=>r.config.style!=='Wall')?.config)||cabinetDefaults():s.cabinet;
  if(group==='plinth'){const c=(s.cabinet.style!=='Wall'?s.cabinet:s.cabinets.find(r=>r.config.style!=='Wall')?.config)||{};return {...plinthDefaults,...Object.fromEntries(Object.keys(plinthDefaults).filter(k=>c[k]!==undefined).map(k=>[k,c[k]])),...saved};}if(group==='worktop')return {worktopThickness:shared.worktopThickness??source.installation?.worktopThickness??38};
- return {...Object.fromEntries(commonGroups[group].map(k=>[k,source[k]])),...saved};
+ return {...(group==='feet'?{support:'feet'}:{}),...Object.fromEntries(commonGroups[group].map(k=>[k,source[k]??(k==='support'?'feet':source[k])])),...saved};
 }
 function clearCommonOverrides(c,group){
  if(group==='banding'){if(c.featureEdits)c.featureEdits.bands={};return;}
@@ -35,7 +35,7 @@ export function setProjectFeet(s){s.projectSettings??={};s.projectSettings.feet=
 export function setProjectWorktop(s){s.projectSettings??={};s.projectSettings.worktopThickness=s.cabinet.installation.worktopThickness;}
 export function applyProjectSettings(s,c){
  const shared=s.projectSettings;if(!shared)return c;
- if(shared.feet){if(typeof shared.feet!=='object'||Array.isArray(shared.feet)||feetKeys.some(k=>shared.feet[k]===undefined))throw Error('The shared feet settings are incomplete.');if(!Number.isFinite(shared.feet.feetHeight)||shared.feet.feetHeight<50||shared.feet.feetHeight>250)throw Error('Foot height must be 50–250 mm.');if(c.style!=='Wall')for(const k of feetKeys)c[k]=shared.feet[k];}
+ if(shared.feet){if(typeof shared.feet!=='object'||Array.isArray(shared.feet)||feetKeys.some(k=>shared.feet[k]===undefined&&k!=='support'))throw Error('The shared feet settings are incomplete.');if(!Number.isFinite(shared.feet.feetHeight)||shared.feet.feetHeight<50||shared.feet.feetHeight>250)throw Error('Foot height must be 50–250 mm.');if(c.style!=='Wall')for(const k of feetKeys)c[k]=shared.feet[k]??(k==='support'?'feet':c[k]);}
  if(shared.worktopThickness!==undefined){if(!Number.isFinite(shared.worktopThickness)||shared.worktopThickness<1||shared.worktopThickness>150)throw Error('Worktop thickness must be 1–150 mm.');c.installation.worktopThickness=shared.worktopThickness;}
  for(const group of ['plinth','hinges','banding','shelfDrilling','assemblyDrilling','handles','backPanel','joinery']){if(group==='plinth'&&c.style==='Wall')continue;const values=byStyle(group)?shared[group]?.[c.style]:shared[group];if(!values)continue;if(typeof values!=='object'||Array.isArray(values)||commonGroups[group].some(k=>values[k]===undefined))throw Error('The common '+group+' settings are incomplete.');validateCommon(group,values,c.style);for(const k of commonGroups[group])c[k]=values[k];}
  return c;

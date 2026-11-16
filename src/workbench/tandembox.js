@@ -1,0 +1,25 @@
+// Blum TANDEMBOX antaro M, chipboard back, 30 kg 578M cabinet profiles.
+// Official planning: BEC003 me57421162, pp.44–45 and66. Metal sides are bought hardware.
+export const isTandembox=c=>c.drawerSystem==='tandembox_m';
+export const tandemboxLengths=[270,350,400,450,500,550];
+export function tandemboxPlan(c){
+ const fail=s=>{throw Error('TANDEMBOX antaro M: '+s);},n=c.drawerCount;
+ if(!Number.isInteger(n)||n<1||n>4)fail('Choose 1–4 drawers.');
+ const available=c.depth-c.back-(c.backGroove?c.backInset:0),length=c.drawerLength||[...tandemboxLengths].reverse().find(n=>n+3<=available);
+ if(!tandemboxLengths.includes(length)||length+3>available)fail('Choose a 270, 350, 400, 450, 500 or 550 mm runner that fits before the back, with 3 mm clearance.');
+ if(c.drawerStock!==16||c.drawerBottom!==16)fail('This preset needs 16 mm wooden bottoms and backs. Select the preset again to set both automatically.');
+ if(c.thickness<16)fail('Cabinet stock must be at least 16 mm for the specified runner screws.');
+ const inner=c.width-2*c.thickness,usable=c.height-4-2*(n-1),heights=[];let remain=usable;
+ for(let i=0;i<n-1;i++){const h=c['drawerFront'+(i+1)]||usable/n;heights.push(h);remain-=h;}heights.push(remain);
+ if(inner-87<120||heights.some(h=>h<130))fail('Each front needs at least 130 mm, and the wooden back at least 120 mm width. Reduce drawer count or increase the cabinet size.');
+ const floor=(c.bottomDado?c.bottomLift:0)+c.thickness,boxes=[];let top=c.height-2;
+ for(let i=0;i<n;i++){const h=heights[i],z=top-h,reference=Math.max(z+2,floor+38),bottomZ=reference+9,sideZ=reference;
+ if(reference+95.5>Math.min(top-3,c.height-c.thickness-3))fail('Drawer '+(i+1)+' needs more height. Reduce drawer count or bottom lift.');
+ boxes.push({index:i+1,frontZ:z,frontHeight:h,bottomZ,sideZ,height:95.5,fixingZ:reference-33,reference});top=z-2;}
+ return {family:'TANDEMBOX antaro M',partNumber:'578.'+length+'1M',sidePart:'378M'+length+'2SA',length,inner,outer:inner-12,depth:length-24,x:c.thickness+37.5,stock:16,bottom:16,backWidth:inner-87,heights,boxes,capacity:30};
+}
+export function tandemboxRows(c){const p=tandemboxPlan(c);return p.boxes.flatMap(a=>[['Drawer '+a.index+' overlay front',2,-20,a.frontZ,c.width-4,18,a.frontHeight],['Drawer '+a.index+' bottom',p.x,0,a.bottomZ,p.inner-75,p.depth,16],['Drawer '+a.index+' back',c.thickness+43.5,p.depth,a.bottomZ,p.backWidth,16,84]]);}
+export const tandemboxFixings=n=>n<=350?[37,133]:n===400?[37,229]:[37,261];
+export function tandemboxOperations(c,rows){const p=tandemboxPlan(c),ops=[];for(const a of p.boxes)for(const left of [true,false])for(const y of tandemboxFixings(p.length))ops.push({type:'bore',part:left?'Left side':'Right side',label:'TANDEMBOX 578M runner pilot',axis:0,point:[left?c.thickness:c.width-c.thickness,y,a.fixingZ],sign:left?-1:1,diameter:2.5,depth:10});return ops;}
+export function tandemboxHardware(c){const p=tandemboxPlan(c),n=c.drawerCount;return [[c.name,p.partNumber,'BLUMOTION runner pair · 30 kg',n],[c.name,p.sidePart,'Antaro M metal side pair',n],[c.name,'Z30M000S.04','Wooden back fixing pair',n],[c.name,'ZSF.35A2','Screw-on front bracket',2*n],[c.name,'Ø4 × 15 mm','Runner fixing screws',2*n*tandemboxFixings(p.length).length]];}
+export function tandemboxGuide(c){const p=tandemboxPlan(c);return `${c.name}: TANDEMBOX antaro M, 30 kg, NL ${p.length} mm. Buy matching ${p.sidePart} metal sides, ${p.partNumber} runners, Z30M000S.04 back fixings and two ZSF.35A2 screw-on front brackets per drawer.\nCut 16 mm bottoms: ${p.inner-75} × ${p.depth} mm; backs: ${p.backWidth} × 84 mm. Only these wooden pieces and the overlay fronts are nested. Metal sides are not wood parts.\nRunner pilots are included. Front-bracket, back-bracket and base-to-metal fixings must be prepared with the matching Blum assembly template and instructions; those jig operations are deliberately not inferred as CNC bores. Trial-fit the bought components before batch cutting. No gallery, inner-drawer, TIP-ON or other drawer height is implied.\nReference: https://d2.blum.com/services/BEC003/me57421162_ep_dok_bau_%24sen-ca_%24aof_%24v1.pdf (planning pp.44–45,66).\n`;}

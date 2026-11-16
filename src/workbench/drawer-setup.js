@@ -1,8 +1,10 @@
+import {isTandembox,tandemboxLengths,tandemboxPlan} from './tandembox.js';
 import {cabinetParts} from './cabinet.js';
 import {drawerPlan,tandemDefaults,tandemLengths,isDrawers} from './tandem.js';
 // Reconcile dependent settings before validating the whole cabinet. Do not resize the carcass.
 export function streamlineDrawers(input,key='frontMode'){
  const c={...structuredClone(input)},notes=[];if(!isDrawers(c))return {cabinet:c,notes};
+ if(isTandembox(c)){c.drawerStock=16;c.drawerBottom=16;if(c.drawerLength&&!tandemboxLengths.includes(c.drawerLength))c.drawerLength=0;for(let i=1;i<=3;i++)if(key==='drawerSystem')c['drawerFront'+i]=0;if(key==='drawerSystem'||key==='frontMode'){const original=c.drawerCount;while(c.drawerCount>1){try{tandemboxPlan(c);break;}catch{c.drawerCount--;}}if(c.drawerCount!==original)notes.push('Drawer count reduced to fit the Antaro M clearance.');}return {cabinet:c,notes:[...notes,'Antaro M uses 16 mm bottoms and backs. Metal sides and brackets are bought hardware.']};}
  const set=(k,v,note)=>{if(c[k]!==v){c[k]=v;if(note&&!notes.includes(note))notes.push(note);}};
  if(key==='drawerRunner'&&c.drawerRunner!=='auto'){if(c.drawerRunner==='560H'&&(c.drawerStock>16||c.drawerStock<11))set('drawerStock',16,'Drawer stock set to 16 mm for 560H.');if(c.drawerRunner==='560F'&&(c.drawerStock<17||c.drawerStock>19))set('drawerStock',18,'Drawer stock set to 18 mm for 560F.');}
  if(!Number.isFinite(c.drawerStock)||c.drawerStock<11||c.drawerStock>19||c.drawerStock>16&&c.drawerStock<17)set('drawerStock',18,'Drawer stock set to 18 mm.');
