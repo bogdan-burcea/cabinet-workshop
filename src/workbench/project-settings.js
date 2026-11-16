@@ -1,3 +1,4 @@
+import {maxBandThickness} from './banding-settings.js';
 import {plinthDefaults} from './plinth.js';
 import {cabinetDefaults} from './styles.js';
 import {hingePresets,platePresets} from '../machining.js';
@@ -17,12 +18,12 @@ function clearCommonOverrides(c,group){
 }
 function validateCommon(group,values,style){
  if(group==='plinth'&&typeof values.plinth!=='boolean')throw Error('Choose whether to include a plinth.');
- const ranges={plinthThickness:[6,30],plinthSetback:[0,1000],plinthGap:[0,20],hingeEnd:[1,1000],handlePitch:[1,1000],handleDiameter:[1,12],handleEdge:[1,1000],handleHeight:[0,3000],edgeBand:[0,3],pinDepth:[.1,40],pinFront:[1,1000],pinRear:[1,1000],screwPilot:[.1,10],screwClearance:[.1,20],screwDepth:[1,100],screwSetback:[1,1000]};
+ const ranges={plinthThickness:[6,30],plinthSetback:[0,1000],plinthGap:[0,20],hingeEnd:[1,1000],handlePitch:[1,1000],handleDiameter:[1,12],handleEdge:[1,1000],handleHeight:[0,3000],edgeBand:[0,maxBandThickness],pinDepth:[.1,40],pinFront:[1,1000],pinRear:[1,1000],screwPilot:[.1,10],screwClearance:[.1,20],screwDepth:[1,100],screwSetback:[1,1000]};
  for(const [k,[lo,hi]]of Object.entries(ranges))if(k in values&&(!Number.isFinite(values[k])||values[k]<lo||values[k]>hi))throw Error(k+' must be '+lo+'–'+hi+' mm.');
  for(const [k,lo,hi]of [['back',3,30],['grooveDepth',.1,37],['bottomLift',0,1000],['backInset',3,1000],['clearance',0,1]])if(k in values&&(!Number.isFinite(values[k])||values[k]<lo||values[k]>hi))throw Error(k+' must be '+lo+'–'+hi+' mm.');
- if(group==='joinery'&&(!['Base','Wall','Tall'].includes(style)||['backGroove','bottomDado','assembly'].some(k=>typeof values[k]!=='boolean')))throw Error('Choose valid joinery settings for this cabinet style.');
+ if(group==='joinery'&&(!['Base','Wall','Tall','Pantry'].includes(style)||['backGroove','bottomDado','assembly'].some(k=>typeof values[k]!=='boolean')))throw Error('Choose valid joinery settings for this cabinet style.');
  if(group==='hinges'&&(!hingePresets.some(([id])=>id===values.hinge)||!platePresets[values.hinge]?.some(([id])=>id===values.plate)))throw Error('Choose a compatible common hinge and mounting plate.');
- if(group==='handles'&&(!['Base','Wall','Tall'].includes(style)||!['none','knob','horizontal','vertical'].includes(values.handle)||!['top','floor'].includes(values.handleAlignment)||!(style==='Wall'?['auto_bottom','bottom_center']:['auto_top','top_center','auto_middle','auto_bottom','bottom_center']).includes(values.handlePosition)||!['top_center','middle_center','bottom_center'].includes(values.drawerHandlePosition)))throw Error('Choose valid handle settings for this cabinet style.');
+ if(group==='handles'&&(!['Base','Wall','Tall','Pantry'].includes(style)||!['none','knob','horizontal','vertical'].includes(values.handle)||!['top','floor'].includes(values.handleAlignment)||!(style==='Wall'?['auto_bottom','bottom_center']:['auto_top','top_center','auto_middle','auto_bottom','bottom_center']).includes(values.handlePosition)||!['top_center','middle_center','bottom_center'].includes(values.drawerHandlePosition)))throw Error('Choose valid handle settings for this cabinet style.');
 }
 export function setCommonGroup(s,group,values,style=s.cabinet.style){
  if(group==='worktop'){s.projectSettings??={};s.projectSettings.worktopThickness=values.worktopThickness;return;}

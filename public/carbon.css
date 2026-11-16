@@ -175,3 +175,8 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 #controls .height-result { font:400 12px/18px 'IBM Plex Sans',sans-serif; color:var(--cds-text-secondary); letter-spacing:.16px; margin:0 0 16px; }
 .tip-trigger .tooltip { display:none!important; }
 .steps[role=tablist] .small-workflow-note { line-height:2px; align-self:center; }
+
+/* 0.38: bring workflow subtitles directly beneath the title, not the old fixed row. */
+.steps[role=tablist] [role=tab] { grid-template-rows:18px 2px; row-gap:5px; align-content:center; }
+.steps[role=tablist] .small-workflow-note { line-height:2px; margin:0; align-self:start; }
+.style-tabs button { flex:1; min-width:0; padding-left:8px; padding-right:8px; }

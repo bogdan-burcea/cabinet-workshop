@@ -1,3 +1,4 @@
+import {pantryPlan} from './pantry.js';
 import {isDrawers,drawerPlan,tandemFixings} from './tandem.js';
 import {glassSchedule} from './doors.js';
 export const emptyCosts=()=>({currency:'RON',basis:'sheet',prices:{},extras:[]});
@@ -9,7 +10,7 @@ export function costRows(cabinets,parts,layout,costs={}){
  for(const sheet of layout.sheets){const g=groups.get(JSON.stringify([sheet.material,sheet.thickness]));if(g)g.sheets++;}
  for(const g of groups.values())add('Material',`${g.material} · ${g.t} mm`+(c.basis==='sheet'?` · ${g.width} × ${g.height} mm`:''),c.basis==='sheet'?'sheet':'m²',c.basis==='sheet'?g.sheets:g.area,[g.material,g.t,c.basis,...(c.basis==='sheet'?[g.width,g.height]:[])]);
  for(const r of cabinets){const a=r.config||r,ps=parts.filter(p=>p.cabinetId===r.id||!p.cabinetId),cups=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Hinge cup').length;
-  if(isDrawers(a)){const p=drawerPlan(a),n=a.drawerCount;add('Hardware',`${p.partNumber} · L/R runner pair`,'pair',n,p.partNumber);add('Hardware','T51.1700.04 · L/R locking-device pair','pair',n,'T51.1700.04');add('Hardware','Runner screws · Ø4 × 15 mm','each',2*n*tandemFixings(p.length).length,'runner-screw');}
+  if(isDrawers(a)||a.style==='Pantry'){const p=a.style==='Pantry'?pantryPlan(a):drawerPlan(a),n=a.drawerCount;add('Hardware',`${p.partNumber} · L/R runner pair`,'pair',n,p.partNumber);add('Hardware','T51.1700.04 · L/R locking-device pair','pair',n,'T51.1700.04');add('Hardware','Runner screws · Ø4 × 15 mm','each',2*n*tandemFixings(p.length).length,'runner-screw');}
   if(cups){add('Hardware',a.hinge+' · hinge','each',cups,a.hinge);add('Hardware',a.hinge+' · '+a.plate+' mm mounting plate','each',cups,a.hinge+'-plate-'+a.plate);}
   const handles=new Set(ps.filter(p=>p.flatOperations.some(o=>o.label==='Handle through hole')).map(p=>p.glassDoor?.name||p.key||p.code)).size;if(handles)add('Hardware',a.handle==='knob'?'Knob':a.handle+' pull · '+a.handlePitch+' mm','each',handles,a.handle==='knob'?'knob':a.handle+'-'+a.handlePitch);
   if(a.style!=='Wall'&&a.feet!=='none')add('Hardware',a.feet+' foot plate / adjustable foot','each',a.feetCount,a.feet);

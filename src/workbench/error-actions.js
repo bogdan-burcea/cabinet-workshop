@@ -2,7 +2,7 @@ export function correctionActions(error,context={}){
  const message=String(error.message??error),actions=[];const add=(scope,key,label)=>{if(!actions.some(a=>a.scope===scope&&a.key===key))actions.push({scope,key,label,id:scope+'-'+key});};
  if(context.id){const i=context.id.indexOf('-');if(i>0)add(context.id.slice(0,i),context.id.slice(i+1),'Edit '+(context.label||'entered value'));}
  if(error.field)add('machine',error.field,'Edit '+({tool:'contour / hinge cutter',dadoTool:'dado cutter',pilotTool:'small-hole cutter',sheetTool:'sheet cutter',flute:'cutting length',dadoFlute:'dado cutting length',pilotFlute:'pilot cutting length',bedX:'machine travel X',bedY:'machine travel Y',tabWidth:'holding-tab width'}[error.field]||error.field));
- const height=context.style==='Wall'||context.style==='Tall'?'wallTopHeight':'counterHeight';
+ const height=['Wall','Tall','Pantry'].includes(context.style)?'wallTopHeight':'counterHeight';
  for(const [pattern,targets]of [
   [/tab width|tabs do not fit|holding tabs/i,[['machine','tabWidth','Edit holding-tab width'],['machine','tool','Edit contour cutter']]],
   [/tab height/i,[['machine','tabHeight','Edit holding-tab height']]],

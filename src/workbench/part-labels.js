@@ -1,7 +1,7 @@
 import {deflateSync,inflateSync} from 'fflate';
 import {previewSnapshot,partThumbnailPdf} from './part-thumbnail.js';
 import QRCode from 'qrcode';
-import {mm,pdfNumber,pdfText,pdfRect,fitText,vectorPdf} from '../pdf-writer.js';
+import {mm,pdfNumber,pdfText,pdfRect,fitText,textWidth,vectorPdf} from '../pdf-writer.js';
 export const labelDefaults={left:6.5,top:12.5,gapX:2.5,gapY:0,start:0};
 export function checkedLabelPaper(input={}){if(!input||typeof input!=='object'||Array.isArray(input))throw Error('Label paper settings must be an object.');const s={...labelDefaults,...input};for(const [key,max]of [['left',18],['top',25],['gapX',9],['gapY',3],['start',23]])if(!Number.isFinite(s[key])||s[key]<0||s[key]>max)throw Error('Label '+key+' must be 0–'+max+'.');if(!Number.isInteger(s.start)||s.left+192+2*s.gapX>210+.00001||s.top+272+7*s.gapY>297+.00001)throw Error('The 3 × 8 label grid must fit A4 (210 × 297 mm). Reduce margins or gaps.');return s;}
 const round=n=>Number(n.toFixed(1));
@@ -11,6 +11,7 @@ export function partLabelUrl(p,base='https://bogdan-burcea.github.io/cabinet-wor
 export function readPartLabel(hash){const compact=hash.startsWith('#p='),compressed=compact||hash.startsWith('#label2=');if(!compressed&&!hash.startsWith('#label='))return null;if(hash.length>12000)throw Error('This part label is too long.');const raw=atob(hash.slice(compact?3:compressed?8:7).replaceAll('-','+').replaceAll('_','/')),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0)),json=compressed?inflateSync(bytes,{out:new Uint8Array(64000)}):bytes,parsed=JSON.parse(new TextDecoder().decode(json)),a=compact?{v:2,c:parsed[0],o:parsed[1],n:parsed[2],d:parsed[3],m:parsed[4],b:parsed[5],f:parsed[6],h:parsed[7]}:parsed;if(![1,2].includes(a?.v)||!Array.isArray(a.d)||a.d.length!==3||a.d.some(n=>!Number.isFinite(n)||n<=0||n>100000)||['c','o','n','m','b'].some(k=>typeof a[k]!=='string'||a[k].length>300))throw Error('This part label is invalid.');if(a.v===2){if(!Array.isArray(a.f)||a.f.length>500||a.f.some(o=>!Array.isArray(o)||o.length!==(o[0]===0?8:9)||![0,1].includes(o[0])||![0,1,2].includes(o[1])||![-1,1].includes(o[2])||o.some(n=>!Number.isFinite(n)||Math.abs(n)>100000))||!Array.isArray(a.h)||a.h.length>100||a.h.some(h=>!Array.isArray(h)||h.length!==4||h.some(n=>!Number.isFinite(n)||n<0||n>100000)))throw Error('This label has invalid feature geometry.');}return a;}
 
 export function labelSlots(count,input={}){const s=checkedLabelPaper(input);return Array.from({length:count},(_,i)=>{const slot=i+s.start;return {page:Math.floor(slot/24),x:s.left+(slot%3)*(64+s.gapX),y:s.top+(Math.floor(slot/3)%8)*(34+s.gapY),width:64,height:34};});}
+export function labelNameLine(p){const dimensions=round(p.width)+' x '+round(p.height)+' mm',size=7,name=fitText(p.row[0],59*mm-textWidth(dimensions,size)-3*mm,size);return name+'   '+dimensions;}
 export function partLabelsPdf(parts,input={},base,calibration=false){
  const slots=labelSlots(calibration?24:parts.length,calibration?{...input,start:0}:input),pages=Array.from({length:Math.max(1,...slots.map(s=>s.page+1))},()=>''),W=210*mm,H=297*mm;
  for(const [i,slot]of slots.entries()){const x=slot.x*mm,y=H-(slot.y+34)*mm,w=64*mm,h=34*mm;let c='q\n0 g\n';
@@ -18,7 +19,7 @@ export function partLabelsPdf(parts,input={},base,calibration=false){
   else{const p=parts[i],a=labelSnapshot(p),qr=QRCode.create(partLabelUrl(p,base),{errorCorrectionLevel:'L'}),size=qr.modules.size,pixel=72/300,box=22*mm,unit=Math.floor(box/(size+8)/pixel)*pixel,extent=unit*(size+8),qx=Math.round((x+40.5*mm+(box-extent)/2)/pixel)*pixel,qy=Math.round((y+2*mm+(22*mm-extent)/2)/pixel)*pixel;
    // Four blank modules on every side are the mandatory quiet zone.
    for(let row=0;row<size;row++)for(let col=0;col<size;col++)if(qr.modules.get(row,col))c+=pdfRect(qx+(col+4)*unit,qy+(size-row+3)*unit,unit+.003,unit+.003,'f');
-   const tx=x+2.5*mm,limit=59*mm;c+=pdfText(tx,y+29*mm,8.5,a.c+' | '+fitText(a.n,40*mm,8.5,'F2'),'F2')+pdfText(tx,y+25*mm,7,fitText(a.o,limit,7));c+=partThumbnailPdf(p,tx,y+2*mm,36*mm,21*mm);
+   const tx=x+2.5*mm,limit=59*mm;c+=pdfText(tx,y+29*mm,8.5,fitText(a.c+' | '+a.o,limit,8.5,'F2'),'F2')+pdfText(tx,y+25*mm,7,labelNameLine(p));c+=partThumbnailPdf(p,tx,y+2*mm,36*mm,21*mm);
   }pages[slot.page]+=c+'Q\n';
  }
  return vectorPdf(pages,W,H);

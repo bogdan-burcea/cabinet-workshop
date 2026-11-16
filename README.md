@@ -2,6 +2,15 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.38 — Pantry cabinets and shared validation
+
+- Pantry is a tall, hinged-door cabinet with one to four recessed TANDEM wooden trays. Drawer zone height, box stock, floor, runner, setback and optional side spacers are editable. Closed doors remain in the elevation; the orbit view opens doors and trays together. Parts, nesting, costs, labels and STEP include the trays.
+- Blum 71B7550 155° zero-protrusion overlay hinge: Ø35 × 11.7 mm cup, 45/9.5 mm screw pattern, 0 mm mounting plate. Pantry defaults to this hinge and omits spacer blocks. Other hinges use dimensioned blocks with runner pilots and mounting holes. Hinges are moved into gaps between tray wall levels. Open doors fully and trial-fit bought hardware; the orbit door motion is illustrative, not a manufacturer kinematic simulation.
+- Shared, legacy and per-edge band validators use the same 0–20 mm limit. Hardware/core clearance remains validated.
+- Part labels show CNC core width × length beside the name, retaining the A4 64 × 34 mm grid. Workflow subtitles keep a 2 px line height and now use a compact grid without the former top margin.
+
+Hinge planning: https://publications.blum.com/2026/catalogue/en/78/ and https://publications.blum.com/2026/catalogue/en/79/ . TANDEM pantry planning: https://publications.blum.com/2026/catalogue/en/462/ .
+
 ## 0.37 — Wood lipping and quieter controls
 
 - Global and per-edge banding accept 0–20 mm, including solid-wood strips. Finished sizes and hardware references stay fixed; invalid core/hole intersections remain checked.
