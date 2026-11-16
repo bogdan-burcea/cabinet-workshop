@@ -7,7 +7,7 @@ export class SoftwareRenderer {
  setClearColor(){}
  setSize(w,h){w=Math.max(1,Math.round(w));h=Math.max(1,Math.round(h));if(this.domElement.width===w&&this.domElement.height===h)return;this.domElement.width=w;this.domElement.height=h;this.pixels=this.context.createImageData(w,h);this.depth=new Float32Array(w*h);}
  render(scene,camera){const w=this.domElement.width,h=this.domElement.height;if(!this.pixels)return;const pixels=this.pixels.data,depth=this.depth;pixels.fill(0);depth.fill(Infinity);scene.updateMatrixWorld();camera.updateMatrixWorld();const vp=new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse),point=new THREE.Vector3(),light=new THREE.Vector3(1,1.6,1.2).normalize(),meshes=[],lines=[];
-  scene.traverse(o=>{if(!o.visible)return;if(o.isMesh)meshes.push(o);if(o.isLineSegments)lines.push(o);});meshes.sort((a,b)=>Number(a.material.transparent)-Number(b.material.transparent));
+  scene.traverse(o=>{if(!o.visible)return;if(o.isMesh&&o.material.visible!==false)meshes.push(o);if(o.isLineSegments)lines.push(o);});meshes.sort((a,b)=>Number(a.material.transparent)-Number(b.material.transparent));
   const project=(x,y,z,m)=>{point.set(x,y,z).applyMatrix4(m);return [(point.x+1)*w/2,(1-point.y)*h/2,point.z];};
   const blend=(i,rgb,opacity)=>{const j=i*4,old=pixels[j+3]/255,alpha=opacity+old*(1-opacity);for(let k=0;k<3;k++)pixels[j+k]=(rgb[k]*opacity+pixels[j+k]*old*(1-opacity))/alpha;pixels[j+3]=alpha*255;};
   for(const mesh of meshes){const g=mesh.geometry,a=g.getAttribute('position'),indices=g.index?.array,m=new THREE.Matrix4().multiplyMatrices(vp,mesh.matrixWorld),normalMatrix=new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld),count=indices?.length??a.count,material=mesh.material,opacity=material.opacity??1;
