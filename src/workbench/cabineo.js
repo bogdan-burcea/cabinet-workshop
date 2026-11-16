@@ -1,0 +1,30 @@
+// Lamello Operating_instructions_Cabineo.pdf, 26 February 2024, p.2:
+// surface-mounted collar, option 1 (three Ø15 bores). Not flush/HPL/M6/X.
+export const cabineoDefaults={assemblyConnector:'screws',cabineoSetback:50};
+export const cabineoVariants={cabineo8:{name:'Lamello Cabineo 8',length:8,article:'267.91.251'},cabineo12:{name:'Lamello Cabineo 12',length:12,article:'267.91.252'}};
+export function checkedCabineo(c){
+ const connector=c.assemblyConnector??'screws';
+ if(!['screws',...Object.keys(cabineoVariants)].includes(connector))throw Error('Choose screws, Cabineo 8 or Cabineo 12 for assembly.');
+ if(!Number.isFinite(c.cabineoSetback??50)||(c.cabineoSetback??50)<20||(c.cabineoSetback??50)>300)throw Error('Cabineo end setback must be 20–300 mm.');
+ return c.assembly?cabineoVariants[connector]:undefined;
+}
+export function cabineoOperations(c,rows){
+ const variant=checkedCabineo(c);if(!variant)return [];
+ if(c.bottomDado)throw Error('Cabineo requires butt joints. Disable Bottom in dados.');
+ const t=c.thickness;if(t<variant.length+1)throw Error(variant.name+' needs a side panel at least '+(variant.length+1)+' mm thick.');
+ const usable=c.depth-c.back-(c.backGroove?c.backInset:0),out=[];
+ for(const row of rows.filter(r=>['Bottom','Top','Front rail','Rear rail','Fixed shelf'].includes(r[0]))){
+  const [name,x,y,z,w,d,h]=row,upper=name==='Top'||name.endsWith('rail'),face=upper?z:z+h,sign=upper?1:-1;
+  if(h<12)throw Error(variant.name+' housing needs a horizontal panel at least 12 mm thick.');
+  const front=y,back=Math.min(y+d,usable),span=back-front;
+  if(span<40)throw Error(variant.name+' needs at least 40 mm of usable panel depth for end clearance.');
+  const setback=Math.min(c.cabineoSetback??50,span/2),first=front+setback,last=back-setback,steps=Math.max(1,Math.ceil((last-first)/300));
+  const positions=last-first<1e-6?[first]:Array.from({length:steps+1},(_,i)=>first+(last-first)*i/steps);
+  for(const [side,edge,inward]of [['Left side',x,1],['Right side',x+w,-1]])for(const [index,along]of positions.entries()){
+   const group=name+'/'+side+'/'+index;
+   for(const [j,offset]of [3.6,14.8,26].entries())out.push({type:'bore',part:name,label:variant.name+' housing',axis:2,sign,point:[edge+inward*offset,along,face],diameter:15,depth:11,cabineoGroup:group,...(j===0?{edgeOpening:[-inward,0,0]}:{})});
+   out.push({type:'bore',part:side,label:variant.name+' fixing',axis:0,sign:-inward,point:[edge,along,face+sign*5],diameter:5,depth:variant.length});
+  }
+ }
+ return out;
+}
