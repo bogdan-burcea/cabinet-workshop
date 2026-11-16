@@ -3,12 +3,12 @@
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
 
-## Version 0.41
+## Version 0.41.1
 
 - Separate per-cabinet Door thickness and Shelf thickness (6–40 mm, subject to machining/hardware fit). Door stock also controls decorative exterior drawer fronts; system drawer boxes keep their own stock. Shelf stock controls adjustable shelves and fixed dividers. Existing projects retain 18 mm defaults.
 - Actual thickness propagates through glass frames, hinge/handle drilling, inset shelf clearance, shelf spacing, nesting, costs, labels and nested STEP exports. Hinge cups must retain at least 2 mm of wood; select hardware suitable for the real door stock.
 - Cabinet elevation restores cabinet widths and total run width without names or prices. Documents remains a text-free selection drawing. Dimension spacing scales with the run size.
-- Equal input columns, full-width height target labels, aligned field labels, consistent input typography and direct stock correction buttons.
+- Equal input columns, full-width height target labels, compact 24 px field-help buttons, single-line dimension/stock labels, consistent input typography and direct stock correction buttons.
 
 
 ## 0.40 — Pantry TANDEMBOX and simpler controls
