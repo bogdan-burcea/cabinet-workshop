@@ -2,6 +2,12 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.37 — Wood lipping and quieter controls
+
+- Global and per-edge banding accept 0–20 mm, including solid-wood strips. Finished sizes and hardware references stay fixed; invalid core/hole intersections remain checked.
+- Parts list each edge in the operations table with its editable band thickness. The separate edge-button strip is removed; drawing edges remain selectable.
+- Selects share a chevron, position stays white, height information uses the standard note typography, and help opens only in dialogs. Header tags are removed, sidebar modes read Cabinet / Global, and workflow subtitles use the requested compact line height.
+
 ## 0.36 — Connected arrangements, direct dragging and a consistent productive UI
 
 - Cabinet rows store order rather than absolute offsets. Existing projects migrate their visible order into connected runs. Width edits move following cabinets automatically. Wall units avoid tall units. Position is derived/read-only; legacy x data remains in saved files for compatibility.
