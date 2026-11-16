@@ -31,3 +31,9 @@ test('nested sheet STEP round-trips as separate named solids with unchanged volu
  await ready;const layout=projectLayout(fixture()),sheet=layout.sheets.find(s=>s.parts.some(p=>p.row[0].startsWith('Door')))||layout.sheets[0],rows=sheetStepRows(sheet);let volume=0;for(const r of rows){const solid=buildPart(r);volume+=measureVolume(solid);solid.delete();}
  const text=await cadStep(rows);assert.match(text,/ISO-10303-21/);assert.match(text,/CYLINDRICAL_SURFACE/);assert.equal((text.match(/MANIFOLD_SOLID_BREP\(/g)||[]).length,rows.length);assert(text.includes(sheet.parts[0].code));const imported=await importSTEP(new Blob([text]));try{near(measureVolume(imported),volume,.01);const solids=imported.solids;try{assert.equal(solids.length,rows.length);}finally{solids.forEach(s=>s.delete());}const box=imported.boundingBox;try{near(box.bounds[0][2],-sheet.thickness,.0001);near(box.bounds[1][2],0,.0001);}finally{box.delete();}}finally{imported.delete();}
 });
+
+test('independent front and shelf stock survives nested CAD and STEP with real machining',async()=>{
+ await ready;const s=fixture();s.cabinet.doorThickness=22;s.cabinet.shelfThickness=25;const layout=projectLayout(s);assert.equal(layout.unplaced.length,0);
+ for(const thickness of [22,25]){const sheet=layout.sheets.find(a=>a.thickness===thickness);assert(sheet);const rows=sheetStepRows(sheet);let expected=0;for(const r of rows){const solid=buildPart(r);try{const vol=measureVolume(solid);assert(vol>0);assert(vol<=r.row[4]*r.row[5]*thickness+.001);if(r.operations.length)assert(vol<r.row[4]*r.row[5]*thickness-.01);expected+=vol;}finally{solid.delete();}}
+ const text=await cadStep(rows),imported=await importSTEP(new Blob([text]));try{near(measureVolume(imported),expected,.01);const box=imported.boundingBox;try{near(box.bounds[0][2],-thickness,.0001);near(box.bounds[1][2],0,.0001);}finally{box.delete();}}finally{imported.delete();}}
+});
