@@ -27,7 +27,7 @@ test('wall hangers create four side pilots and two through back notches; floor c
 
 test('fixed shelf inherits front lipping without changing the finished depth',()=>{const a=cabinetParts(c({split:true,edgeBand:2})).find(p=>p.row[0]==='Fixed shelf');assert.equal(a.edgeBand[a.frontEdge],2);assert.equal(a.finishedHeight-a.height,2);});
 
-test('changing a metal-drawer cabinet to Pantry restores its supported wooden inner trays',async()=>{const {switchCabinetStyle}=await import('../src/workbench/styles.js');const cfg=enableInstallation(switchCabinetStyle(box,'Pantry'),undefined,{fresh:true});assert.equal(cfg.drawerSystem,'tandem');assert.doesNotThrow(()=>cabinetParts(cfg));});
+test('changing a metal-drawer cabinet to Pantry retains its supported metal inner trays',async()=>{const {switchCabinetStyle}=await import('../src/workbench/styles.js');const cfg=enableInstallation(switchCabinetStyle(box,'Pantry'),undefined,{fresh:true});assert.equal(cfg.drawerSystem,'tandembox_m');assert.doesNotThrow(()=>cabinetParts(cfg));});
 
 test('TANDEMBOX runner fixing lines stay inside side panels for wall and low-bottom cabinets',()=>{for(const cfg of [{...box,style:'Wall',depth:320,bottomLift:6},{...box,bottomDado:false},{...box,bottomLift:4}])assert.doesNotThrow(()=>cabinetParts(cfg));});
 
