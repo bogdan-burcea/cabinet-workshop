@@ -1,5 +1,5 @@
 import {continuousPlinths} from './plinth-runs.js';
-import {frontLayout} from './front-plan.js';
+import {frontLayout,connectCabinetLayout} from './front-plan.js';
 import {checkedLabelPaper} from './part-labels.js';
 import {hoodDefaults} from './hood.js';
 import {applyProjectSettings} from './project-settings.js';
@@ -19,9 +19,9 @@ export function initializeProject(s){if(!s.cabinets?.length){const id=newId();s.
 export function syncProject(s){
  s.labelPaper=checkedLabelPaper(s.labelPaper);s.machine={...s.machine,singleSide:true};
  if(!Array.isArray(s.cabinets)||!s.cabinets.length||s.cabinets.length>100)throw Error('A project needs 1–100 cabinets.');
- const ids=new Set();for(const r of s.cabinets){if(typeof r.id!=='string'||!r.id||r.id.length>100||ids.has(r.id)||!r.config)throw Error('Invalid or duplicate cabinet ID.');if(r.x!==undefined&&(!Number.isFinite(r.x)||r.x<0||r.x>100000))throw Error('Cabinet position from left must be 0–100000 mm.');ids.add(r.id);}const active=s.cabinets.find(r=>r.id===s.activeCabinetId);if(!active)throw Error('The selected cabinet is missing.');active.config=s.cabinet;for(const r of s.cabinets)for(const [k,v]of Object.entries(hoodDefaults))if(r.config[k]===undefined)r.config[k]=v;
+ const ids=new Set();for(const r of s.cabinets){if(typeof r.id!=='string'||!r.id||r.id.length>100||ids.has(r.id)||!r.config)throw Error('Invalid or duplicate cabinet ID.');if(r.layoutOrder!==undefined&&(!Number.isInteger(r.layoutOrder)||r.layoutOrder<0||r.layoutOrder>100))throw Error('Invalid cabinet arrangement order.');if(r.x!==undefined&&(!Number.isFinite(r.x)||r.x<0||r.x>100000))throw Error('Cabinet position from left must be 0–100000 mm.');ids.add(r.id);}const active=s.cabinets.find(r=>r.id===s.activeCabinetId);if(!active)throw Error('The selected cabinet is missing.');active.config=s.cabinet;for(const r of s.cabinets)for(const [k,v]of Object.entries(hoodDefaults))if(r.config[k]===undefined)r.config[k]=v;
  if(s.costs)s.costs=checkedCosts(s.costs);if(s.independentCabinets)s.globals=globalsFrom(s.cabinet);else checkedGlobals(s.globals);for(const record of s.cabinets){try{if(!s.independentCabinets)applyGlobals(record.config,s.globals);else record.config.inheritGlobals=false;applyProjectSettings(s,record.config);resolveInstallation(record.config);cabinetProject(record.config);cabinetParts(record.config);}catch(e){const error=Error(e.message.startsWith(record.config.name+': ')?e.message:record.config.name+': '+e.message);error.cabinetId=record.id;error.field=e.field;throw error;}}
- s.cabinet=active.config;return s;
+ connectCabinetLayout(s.cabinets);s.cabinet=active.config;return s;
 }
 export function selectCabinet(s,id){const r=s.cabinets.find(r=>r.id===id);if(!r)throw Error('Choose a cabinet in this project.');s.activeCabinetId=id;s.cabinet=r.config;return s;}
 export function addCabinet(s,{duplicate=false,style=s.cabinet.style}={}){syncProject(s);if(s.cabinets.length>=100)throw Error('A project supports up to 100 cabinets.');const config=duplicate?copy(s.cabinet):enableInstallation(cabinetDefaults(style),s.globals.installation,{fresh:true});config.name=duplicate?s.cabinet.name+' copy':style+' cabinet '+(s.cabinets.length+1);if(s.independentCabinets)config.inheritGlobals=false;const record={id:newId(),config};s.cabinets.push(record);selectCabinet(s,record.id);return syncProject(s);}
@@ -31,7 +31,7 @@ export function deserializeProject(data){
  if(data?.version!==2){const loaded=loadProject(data);loaded.cabinet=enableInstallation(loaded.cabinet,loaded.globals?.installation);loaded.stock=checkedStock(loaded.stock);loaded.globals={...globalsFrom(loaded.cabinet),...loaded.globals};return initializeProject(loaded);}
  if(data.format!=='cabinet-workbench'||!Array.isArray(data.cabinets)||!data.cabinets.length||data.cabinets.length>100)throw Error('Choose a Cabinet Workshop project with 1–100 cabinets.');
  const seen=new Set();for(const r of data.cabinets){if(!r||typeof r.id!=='string'||!r.id||r.id.length>100||seen.has(r.id))throw Error('Invalid or duplicate cabinet ID.');seen.add(r.id);}
- const records=data.cabinets.map(r=>({id:r.id,...(r.x!==undefined?{x:r.x}:{}),config:enableInstallation(loadProject({format:data.format,version:1,cabinet:r.config,machine:data.machine}).cabinet,data.globals?.installation)}));const r=records.find(r=>r.id===data.activeCabinetId);if(!r)throw Error('The selected cabinet is missing.');
+ const records=data.cabinets.map(r=>({id:r.id,...(r.x!==undefined?{x:r.x}:{}),...(r.layoutOrder!==undefined?{layoutOrder:r.layoutOrder}:{}),config:enableInstallation(loadProject({format:data.format,version:1,cabinet:r.config,machine:data.machine}).cabinet,data.globals?.installation)}));const r=records.find(r=>r.id===data.activeCabinetId);if(!r)throw Error('The selected cabinet is missing.');
  const s={...(data.projectSettings?{projectSettings:copy(data.projectSettings)}:{}),...(data.costs?{costs:checkedCosts(data.costs)}:{}),...(data.independentCabinets?{independentCabinets:true}:{}),labelPaper:checkedLabelPaper(data.labelPaper),cabinet:r.config,cabinets:records,activeCabinetId:r.id,machine:machineSettings(data.machine),stock:checkedStock(data.stock),globals:{...globalsFrom(r.config),...data.globals}};return syncProject(s);
 }
 export function projectParts(s,{singleSide=s.machine.singleSide}={}){syncProject(s);const stock=checkedStock(s.stock);return continuousPlinths(s.cabinets.flatMap((r,i)=>manufacturingParts(cabinetParts(r.config),singleSide).map(p=>({...p,code:'C'+String(i+1).padStart(2,'0')+'-'+p.code,sourceCode:p.code,key:r.id+'/'+p.key,cabinetId:r.id,owner:r.config.name,material:partMaterial(p,stock),grain:!stock.rotate}))),s.cabinets,stock);}
@@ -41,10 +41,8 @@ export function projectLayout(s){const settings=checkedStock(s.stock),parts=proj
 
 export function projectGlassCsv(s,parts){const rows=[['Cabinet','Door','Glass width mm','Glass height mm','Glass thickness mm','Total fit clearance mm','Notes']];for(const r of s.cabinets){const list=parts.filter(p=>p.cabinetId===r.id||(!p.cabinetId&&r.id===s.activeCabinetId));for(const g of glassSchedule(list,r.config))rows.push([r.config.name,g.name,g.width,g.height,g.thickness,g.clearance,'Bought glass; confirm routed fit; fit retainers; no glass CNC drilling']);}return rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');}
 
-export function reorderCabinet(s,id,direction){
- if(![-1,1].includes(direction))throw Error('Choose left or right.');
- const layout=frontLayout(s.cabinets),active=layout.items.find(a=>a.id===id);if(!active)throw Error('Choose a cabinet.');
- const lane=layout.items.filter(a=>(a.style==='Wall')===(active.style==='Wall')).sort((a,b)=>a.x-b.x),i=lane.findIndex(a=>a.id===id),j=i+direction;if(j<0||j>=lane.length)return false;
- const left=lane[Math.min(i,j)],right=lane[Math.max(i,j)],gap=Math.max(0,right.x-left.x-left.width),trial=s.cabinets.map(r=>({...r})),records=new Map(trial.map(r=>[r.id,r]));records.get(right.id).x=left.x;records.get(left.id).x=left.x+right.width+gap;
- const collision=frontLayout(trial).overlaps.find(a=>[a.first,a.second].some(v=>v===id||v===lane[j].id));if(collision)throw Error(collision.message+' Adjust cabinet positions before reordering.');for(const r of s.cabinets)if(r.id===left.id||r.id===right.id)r.x=records.get(r.id).x;return true;
+export function moveCabinet(s,id,targetIndex){
+ connectCabinetLayout(s.cabinets);const record=s.cabinets.find(r=>r.id===id);if(!record)throw Error('Choose a cabinet.');const wall=record.config.style==='Wall',lane=s.cabinets.filter(r=>(r.config.style==='Wall')===wall).sort((a,b)=>a.layoutOrder-b.layoutOrder),index=lane.indexOf(record);
+ if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=lane.length)throw Error('Choose a position within this cabinet row.');if(index===targetIndex)return false;lane.splice(index,1);lane.splice(targetIndex,0,record);lane.forEach((r,i)=>r.layoutOrder=i);return true;
 }
+export function reorderCabinet(s,id,direction){if(![-1,1].includes(direction))throw Error('Choose left or right.');connectCabinetLayout(s.cabinets);const a=s.cabinets.find(r=>r.id===id);if(!a)throw Error('Choose a cabinet.');const lane=s.cabinets.filter(r=>(r.config.style==='Wall')===(a.config.style==='Wall')).sort((a,b)=>a.layoutOrder-b.layoutOrder),target=lane.indexOf(a)+direction;return target<0||target>=lane.length?false:moveCabinet(s,id,target);}

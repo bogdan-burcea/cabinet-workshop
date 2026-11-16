@@ -9,7 +9,7 @@ const workerResult=await build({entryPoints:['src/cad-worker.js'],bundle:true,fo
 const workerScript=Object.keys(workerResult.metafile.outputs).find(p=>p.endsWith('.js')).split('/').at(-1);
 const result=await build({entryPoints:['src/workbench/app.js'],bundle:true,format:'esm',outdir:'dist',entryNames:'app-[hash]',minify:true,sourcemap:false,metafile:true,define:{__STEP_WORKER_URL__:JSON.stringify('./'+workerScript)}});
 const script=Object.keys(result.metafile.outputs).find(p=>p.endsWith('.js')).split('/').at(-1);
-const css=await readFile('public/cabinet.css','utf8'),style='style-'+createHash('sha256').update(css).digest('hex').slice(0,10)+'.css';
+const css=(await Promise.all(['public/cabinet.css','public/carbon.css'].map(p=>readFile(p,'utf8')))).join('\n'),style='style-'+createHash('sha256').update(css).digest('hex').slice(0,10)+'.css';
 const html=(await readFile('public/cabinet.html','utf8')).replace('/cabinet-app.js','./'+script).replace('/cabinet.css','./'+style);
 await writeFile('dist/'+style,css);await writeFile('dist/index.html',html);
 await writeFile('dist/_headers','/\n  Cache-Control: no-cache\n/index.html\n  Cache-Control: no-cache\n');

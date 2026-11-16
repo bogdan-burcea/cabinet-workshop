@@ -2,6 +2,14 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.36 — Connected arrangements, direct dragging and a consistent productive UI
+
+- Cabinet rows store order rather than absolute offsets. Existing projects migrate their visible order into connected runs. Width edits move following cabinets automatically. Wall units avoid tall units. Position is derived/read-only; legacy x data remains in saved files for compatibility.
+- Drag a cabinet horizontally in either elevation to reorder its row. A drop marker shows the target; Alt + Left/Right is the keyboard equivalent. Cancelled gestures do not change the project. Undo, save/open and stable part IDs remain supported.
+- Wireframe joins Open doors and Exploded as a checkbox. Actual CAD edges remain visible through unfilled panels; selectable solids, orbit pose and machining geometry are retained. Works in WebGL and the depth-buffered software fallback without reloading CAD.
+- A shared Carbon productive UI layer aligns Plex type, role-based colors, spacing, 40 px fields, buttons, tabs, checkboxes, notifications, modals, tables and document tiles. Cabinet/price text in elevations adapts after layout so it remains readable. Equal workspace panes and the persistent assembly remain in place.
+
+
 ## 0.34 — Carbon print documents and conservative DXF exchange
 
 All generated PDFs embed IBM Plex Sans Regular/SemiBold and Plex Mono. Cutting sheets use the approved full-width A4 landscape drawing with compact stock/face metadata and a small legend. Part, banding and machining schedules share aligned typography, subtle line icons, repeated headers, pagination and horizontal row rules, with no alternating row fills. Cabinet ownership and core/finished dimensions remain explicit. Drawing-only rotation of portrait sheets keeps original schedule coordinates. Direct downloads and document/STEP bundles use the same PDF renderer.

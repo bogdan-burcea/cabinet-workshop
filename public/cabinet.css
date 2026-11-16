@@ -183,5 +183,3 @@ body[data-step="1"] .viewer .view-controls{top:10px;right:10px;left:auto;justify
 @media(max-width:900px){#assembly-panel .assembly-drawing,.orbit-view{min-height:220px}}
 
 .assembly-dimensions{text-align:left!important;justify-content:flex-start;}
-.elevation-reorder{display:flex;align-items:center;gap:8px;padding:12px 0;}
-.elevation-reorder span{flex:1;font-size:14px;}
