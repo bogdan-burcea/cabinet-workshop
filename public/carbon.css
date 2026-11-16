@@ -188,3 +188,6 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 .steps[role=tablist] .small-workflow-note{line-height:8px}
 /* A drawing-wide SVG selector must not stretch notification pictograms. */
 #assembly-panel svg.notification-icon,#controls svg.notification-icon,.workspace svg.notification-icon{width:16px;height:16px;min-width:16px;max-width:16px;min-height:16px;max-height:16px;flex:none;display:inline-block}
+
+/* Consistent field proportions across cabinet and feature forms. */
+.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid>.field{min-width:0}.field-label{min-height:24px;line-height:16px}.field-label>.field-info,.field-label>.tip-trigger{flex-shrink:0}.cabinet-build .field-grid>.field:has(#cabinet-thickness){grid-column:1/-1}.field input,.field select{font-family:inherit;font-weight:400}.height-result{font-family:inherit;font-size:12px;line-height:16px}
