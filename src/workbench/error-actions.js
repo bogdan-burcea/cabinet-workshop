@@ -4,6 +4,8 @@ export function correctionActions(error,context={}){
  if(error.field)add('machine',error.field,'Edit '+({tool:'contour / hinge cutter',dadoTool:'dado cutter',pilotTool:'small-hole cutter',sheetTool:'sheet cutter',flute:'cutting length',dadoFlute:'dado cutting length',pilotFlute:'pilot cutting length',bedX:'machine travel X',bedY:'machine travel Y',tabWidth:'holding-tab width'}[error.field]||error.field));
  const height=['Wall','Tall','Pantry'].includes(context.style)?'wallTopHeight':'counterHeight';
  for(const [pattern,targets]of [
+  [/doorThickness|door thickness|hinge pilots/i,[["cabinet","doorThickness","Edit door thickness"]]],
+  [/shelfThickness|shelf thickness|shelves do not fit/i,[["cabinet","shelfThickness","Edit shelf thickness"]]],
   [/fixed shelf|section/i,[['cabinet','splitHeight','Edit fixed shelf height'],['cabinet','lowerType','Edit lower section'],['cabinet','upperType','Edit upper section']]],
   [/wall hanger|suspension/i,[['cabinet','wallHanger','Edit wall hanger'],['cabinet','backInset','Edit back inset']]],
   [/tab width|tabs do not fit|holding tabs/i,[['machine','tabWidth','Edit holding-tab width'],['machine','tool','Edit contour cutter']]],
