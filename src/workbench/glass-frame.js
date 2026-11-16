@@ -13,8 +13,8 @@ export function frameDoorParts(row,operations,c){
  for(const o of operations){const matches=pieces.filter(p=>contains(p,o));if(matches.length!==1)throw Error(name+': '+o.label+' crosses a frame joint or the glass opening. Move the handle/hinge fixing onto one stile or rail, or increase frame width.');matches[0].operations.push({...o,part:matches[0].row[0]});}
  const rebate=[x+f-g.lap,y+t-g.rebateDepth,z+f-g.lap,g.openingWidth+2*g.lap,g.rebateDepth,g.openingHeight+2*g.lap];
  for(const p of pieces){const a=p.row.slice(1),lo=a.slice(0,3).map((v,k)=>Math.max(v,rebate[k])),hi=a.slice(0,3).map((v,k)=>Math.min(v+a[k+3],rebate[k]+rebate[k+3]));p.operations.push({type:'pocket',part:p.row[0],label:'Glass rebate',axis:1,sign:-1,box:[...lo,...hi.map((v,k)=>v-lo[k])],maxToolDiameter:6});}
- for(const [railIndex,rz]of [[2,z],[3,z+h-f]])for(const dz of [f/3,2*f/3])for(const left of [true,false]){
-  const rail=pieces[railIndex],stile=pieces[left?0:1],px=left?x+f:x+w-f,py=y+(t-g.rebateDepth)/2;
+ for(const [railIndex,rz]of [[2,z],[3,z+h-f]])for(const dz of [Math.round(f/3/5)*5,Math.round(f-Math.round(f/3/5)*5)])for(const left of [true,false]){
+  const rail=pieces[railIndex],stile=pieces[left?0:1],px=left?x+f:x+w-f,py=y+Math.round((t-g.rebateDepth)/2);
   for(const [p,sign]of [[rail,left?1:-1],[stile,left?-1:1]])p.operations.push({type:'bore',part:p.row[0],label:'Frame dowel',axis:0,point:[px,py,rz+dz],sign,diameter,depth});
  }
  for(const p of pieces)validateOperations({[p.row[0]]:p.row.slice(1)},p.operations,e=>{throw Error(e);});

@@ -1,3 +1,4 @@
+import {sectionConfigs,sectionPart,fixedShelfRow} from './workbench/sections.js';
 import {pantryRows} from './workbench/pantry.js';
 import {tandemRows} from './workbench/tandem.js';
 import {frameDoorParts} from './workbench/glass-frame.js';
@@ -65,7 +66,7 @@ export function panels(p,c,local=false){
    rows.push([prefix+'overlay front',2,-20,fz,w-4,18,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
   }
  }
- const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry)adjusted.push(...pantryRows(c.pantry));rows.splice(0,rows.length,...adjusted);
+ const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry)adjusted.push(...pantryRows(c.pantry));if(c.sections){adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...adjusted);
  if(w<=2*t||h<=2*t||cd<=0||b<=0||t<=0)throw Error('Panel thickness leaves no usable cabinet space.');
  if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=2*r)throw Error('Base depth must leave space between its two support rails.');
  if(!count&&c.shelves&&(h-2*t<=c.shelves*18||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');
@@ -158,7 +159,7 @@ export function generateWorktops(p){const runs=new Map(),result=[];for(const c o
  }return result;
 }
 export function cabinetOperations(p,c){if(!isCab(c)||!machiningActive(c))return [];const [ox,oy,ux,uy,vx,vy]=frame(p,c);return localMachining(c,panels(p,c,true)).map(o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]));}
-export function thicknessAxis(p,c,name){if(c.kind==='Worktop')return 2;let local;if(c.kind==='Filler')local=1;else if(c.kind==='End panel')local=0;else if(/^(Left side|Right side)$|^Drawer .* (left side|right side)$|^Runner spacer /.test(name))local=0;else if(/^(Bottom|Top|Shelf |Front rail|Rear rail)|^Drawer .*bottom$/.test(name))local=2;else local=1;if(local===2)return 2;const f=frame(p,c);return (local===0?Math.abs(f[2]):Math.abs(f[4]))>.5?0:1;}
+export function thicknessAxis(p,c,name){if(c.kind==='Worktop')return 2;let local;if(c.kind==='Filler')local=1;else if(c.kind==='End panel')local=0;else if(/^(Left side|Right side)$|^Drawer .* (left side|right side)$|^Runner spacer /.test(name))local=0;else if(/^(Fixed shelf|Bottom|Top|Shelf |Front rail|Rear rail)|^Drawer .*bottom$/.test(name))local=2;else local=1;if(local===2)return 2;const f=frame(p,c);return (local===0?Math.abs(f[2]):Math.abs(f[4]))>.5?0:1;}
 export function partRows(p){return [...p.cabinets,...p.worktops,...(p.finishing||[])].flatMap(c=>{
  if(c.doorStyle==='glass'&&isCab(c)){
   const local=panels(p,c,true),ops=localMachining(c,local),[ox,oy,ux,uy,vx,vy]=frame(p,c),transform=o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]);

@@ -2,6 +2,16 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.39 — Divided cabinets, floor support and hardware options
+
+- Fixed stock-thickness shelf with independently configured upper/lower doors, drawers or open shelves. The divider centre is measured from the carcass bottom. Sides/back stay continuous; assembly drilling adds divider pilots. Section drawer fronts are equal heights; door sections use two hinges with adapted setbacks. Standard Base, Wall and Tall styles support the divider; Pantry retains its existing full-door inner-tray layout.
+- Edge drilling drawings shorten a long empty middle span with break marks. Paired frame dowels use 5 mm-grid end setbacks and whole-mm face offsets, with matching rail/stile bores. Assembly rail setbacks are rounded to 5 mm. Actual coordinates change together, rather than just rounding text. Manufacturer hinge pitches are retained.
+- Common support choice: adjustable feet or directly on the floor. Direct-floor sides start at floor level; height targets compensate the carcass. Feet drilling/costs and plinths are omitted, while the saved foot settings remain available.
+- Blum TANDEMBOX antaro M /578M 30 kg, with nominal lengths 270/350/400/450/500/550. 16 mm bases use LW−75 by NL−24; backs use LW−87 by 84. Metal sides are bought hardware and appear schematically in assembly only. Runner pilots, cut lists and hardware costs are included. Front/back brackets and base-to-metal fixings require the matching Blum assembly template; these secondary operations are not inferred as CNC bores. Other heights, galleries and inner metal drawers are not included.
+- Wall suspension option: screw-on 48N0510.03S left /48N0510.02S right. Includes paired side pilots (32 mm pitch, 33 mm below top) and 18 × 41 mm back access notches. A captured-back inset of 19–31 mm reserves hanger space. Verify supplied hanger screws and wall anchors against the bought hardware and wall substrate.
+
+Planning sources: [TANDEMBOX booklet, pp.44–45 and66](https://d2.blum.com/services/BEC003/me57421162_ep_dok_bau_%24sen-ca_%24aof_%24v1.pdf), [Blum wall hangers, printed p.616](https://publications.blum.com/2026/catalogue/en/612/). First-unit hardware trial assembly remains required before batch machining.
+
 ## 0.38 — Pantry cabinets and shared validation
 
 - Pantry is a tall, hinged-door cabinet with one to four recessed TANDEM wooden trays. Drawer zone height, box stock, floor, runner, setback and optional side spacers are editable. Closed doors remain in the elevation; the orbit view opens doors and trays together. Parts, nesting, costs, labels and STEP include the trays.
