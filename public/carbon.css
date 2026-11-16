@@ -177,6 +177,14 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 .steps[role=tablist] .small-workflow-note { line-height:2px; align-self:center; }
 
 /* 0.38: bring workflow subtitles directly beneath the title, not the old fixed row. */
-.steps[role=tablist] [role=tab] { grid-template-rows:18px 2px; row-gap:5px; align-content:center; }
+.steps[role=tablist] [role=tab] { grid-template-rows:16px 8px; row-gap:8px; align-content:center; }
 .steps[role=tablist] .small-workflow-note { line-height:2px; margin:0; align-self:start; }
 .style-tabs button { flex:1; min-width:0; padding-left:8px; padding-right:8px; }
+
+/* Cabinet build controls stay compact; common/global controls retain their spacing. */
+#controls .cabinet-build .field:not(.check){gap:0}
+#controls .cabinet-picker{border-bottom:0;padding-bottom:0}
+#controls .cabinet-picker .picker-top{margin-bottom:0}
+.steps[role=tablist] .small-workflow-note{line-height:8px}
+/* A drawing-wide SVG selector must not stretch notification pictograms. */
+#assembly-panel svg.notification-icon,#controls svg.notification-icon,.workspace svg.notification-icon{width:16px;height:16px;min-width:16px;max-width:16px;min-height:16px;max-height:16px;flex:none;display:inline-block}
