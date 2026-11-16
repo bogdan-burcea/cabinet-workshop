@@ -191,3 +191,6 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 
 /* Consistent field proportions across cabinet and feature forms. */
 .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid>.field{min-width:0}.field-label{min-height:24px;line-height:16px}.field-label>.field-info,.field-label>.tip-trigger{flex-shrink:0}.cabinet-build .field-grid>.field:has(#cabinet-thickness){grid-column:1/-1}.field input,.field select{font-family:inherit;font-weight:400}.height-result{font-family:inherit;font-size:12px;line-height:16px}
+
+/* Label help is a compact 24 px target, independent of action-button sizing. */
+.field .field-label>button{width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;padding:4px;flex:0 0 24px}.field-grid .field-label{gap:4px;letter-spacing:0}
