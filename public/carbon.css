@@ -52,7 +52,7 @@ p { line-height:20px; }
 }
 #controls .field select,.feature-editor-form select,.cabinet-picker select { padding-right:40px; }
 #controls input:not([type=checkbox]):hover,#controls select:hover,.feature-editor-form input:not([type=checkbox]):hover,.feature-editor-form select:hover { background-color:#e8e8e8; }
-input[readonly],.position-picker input[readonly] { background:transparent; border-bottom-color:#c6c6c6; color:var(--cds-text-secondary); cursor:default; }
+input[readonly],.position-picker input[readonly] { background-color:var(--cds-field); border-bottom-color:#c6c6c6; color:var(--cds-text-secondary); cursor:default; }
 input:focus-visible,select:focus-visible,textarea:focus-visible { outline:2px solid var(--cds-focus); outline-offset:-2px; }
 input[aria-invalid=true],select[aria-invalid=true] { outline:2px solid var(--cds-support-error); outline-offset:-2px; }
 #controls input:disabled,#controls select:disabled,.feature-editor-form input:disabled,.feature-editor-form select:disabled { background:#e0e0e0; color:var(--cds-text-disabled); border-bottom-color:transparent; cursor:not-allowed; }
@@ -165,3 +165,13 @@ input[readonly]::-webkit-inner-spin-button { appearance:none; }
 .document-downloads .step-download:hover { background:#e8e8e8; }
 .document-downloads .step-download .ui-icon { color:var(--cds-interactive); }
 .document-downloads .step-download:disabled,.document-downloads .step-download:disabled .ui-icon { color:var(--cds-text-disabled); }
+
+/* 0.37: consistent selects, modal-only help and concise cabinet controls. */
+select,#controls select,.feature-editor-form select,.cabinet-picker select,.selection-nav .job-select {
+ appearance:none; -webkit-appearance:none; padding-right:40px;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 11 3 6l.7-.7L8 9.6l4.3-4.3.7.7Z' fill='%23161616'/%3E%3C/svg%3E");
+ background-position:right 16px center; background-size:16px 16px; background-repeat:no-repeat;
+}
+#controls .height-result { font:400 12px/18px 'IBM Plex Sans',sans-serif; color:var(--cds-text-secondary); letter-spacing:.16px; margin:0 0 16px; }
+.tip-trigger .tooltip { display:none!important; }
+.steps[role=tablist] .small-workflow-note { line-height:2px; align-self:center; }
