@@ -1,3 +1,4 @@
+import {openDoorPoint} from './door-motion.js';
 import {pantryConfig,pantrySideSpacer} from './pantry.js';
 import {isTandembox,tandemboxPlan} from './tandembox.js';
 import {sectionDrawerConfigs} from './sections.js';
@@ -18,7 +19,7 @@ export function assemblyRows(cabinet){const result=cabinetParts(cabinet).map(p=>
 export function assemblyPoint(point,part,cabinet,{open=true,exploded=false}={}){
  let [x,y,z]=point;const name=part.row[0],door=name.startsWith('Door');
  if(/^Drawer /.test(name)&&open)y+=Math.min(250,cabinet.depth*.45);
- if(door&&open){const doorName=part.glassDoor?.name||name,right=doorName.endsWith(' right')||(!doorName.endsWith(' left')&&cabinet.hand==='Right'),b=part.glassDoor?.bounds||part.row.slice(1),hx=b[0]+(right?b[3]:0),hy=b[1],a=(right?-1:1)*Math.PI*(cabinet.hinge==='blum_71b7550'?155/180:cabinet.style==='Pantry'?.61:.42),dx=x-hx,dy=y-hy;x=hx+dx*Math.cos(a)-dy*Math.sin(a);y=hy+dx*Math.sin(a)+dy*Math.cos(a);}
+ if(door&&open)[x,y,z]=openDoorPoint([x,y,z],part,cabinet);
  if(exploded){const shift=explodedOffset(name,cabinet);x+=shift[0];y+=shift[1];z+=shift[2];}
  return [x,z,y];
 }

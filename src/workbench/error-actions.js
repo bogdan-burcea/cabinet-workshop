@@ -3,6 +3,9 @@ export function correctionActions(error,context={}){
  if(context.id){const i=context.id.indexOf('-');if(i>0)add(context.id.slice(0,i),context.id.slice(i+1),'Edit '+(context.label||'entered value'));}
  if(error.field)add('machine',error.field,'Edit '+({tool:'contour / hinge cutter',dadoTool:'dado cutter',pilotTool:'small-hole cutter',sheetTool:'sheet cutter',flute:'cutting length',dadoFlute:'dado cutting length',pilotFlute:'pilot cutting length',bedX:'machine travel X',bedY:'machine travel Y',tabWidth:'holding-tab width'}[error.field]||error.field));
  const height=['Wall','Tall','Pantry'].includes(context.style)?'wallTopHeight':'counterHeight';
+ if(context.style==='Pantry'&&/pantry shel|shelf bank crosses/i.test(message)){add('cabinet','pantryShelfCount','Edit upper shelf quantity');add('cabinet','pantryDrawerZone','Edit drawer zone height');add('cabinet','pantryShelfGap','Edit drawer-to-shelf clearance');}
+ if(/Cabineo/i.test(message)){add('cabinet','assemblyConnector','Edit connector system');add('cabinet','cabineoSetback','Edit connector setback');add('cabinet','bottomDado','Edit bottom joint');}
+ if(/wall rail|wallRail/i.test(message)){add('cabinet','wallRailProjection','Edit rail projection');add('cabinet','wallRailHeight','Edit rail height');add('cabinet','wallRailClearance','Edit rail clearance');}
  for(const [pattern,targets]of [
   [/doorThickness|door thickness|hinge pilots/i,[["cabinet","doorThickness","Edit door thickness"]]],
   [/shelfThickness|shelf thickness|shelves do not fit/i,[["cabinet","shelfThickness","Edit shelf thickness"]]],

@@ -45,7 +45,8 @@ p { line-height:20px; }
 #controls { background:var(--cds-layer-01); padding:24px; }
 #controls h1,#controls h2,.cabinet-heading h1 { font-size:20px; line-height:28px; font-weight:400; margin:0 0 8px; }
 #controls>p { margin-top:0; margin-bottom:24px; font-size:12px; line-height:18px; }
-#controls .field,.feature-editor-form .field { margin-bottom:16px; gap:8px; }
+.field { margin-bottom:var(--cds-spacing-05); gap:var(--cds-spacing-03); }
+.field:not(.check)>span { display:flex; align-items:center; min-height:24px; }
 .field>span,.field .field-label,.extra-cost-row label,.picker-top label,.picker-top>span { font-size:12px; line-height:16px; font-weight:400; color:var(--cds-text-secondary); }
 #controls .field input:not([type=checkbox]),#controls .field select,.feature-editor-form input:not([type=checkbox]),.feature-editor-form select,.cabinet-picker select,.position-picker input,.cost-table input,.extra-cost-row input {
  height:40px; min-height:40px; padding:0 16px; border:0; border-bottom:1px solid var(--cds-border-strong); border-radius:0; background-color:var(--cds-field); color:var(--cds-text-primary); font:400 14px/18px 'IBM Plex Sans',sans-serif; letter-spacing:.16px; min-width:0; font-variant-numeric:tabular-nums;
@@ -56,7 +57,7 @@ input[readonly],.position-picker input[readonly] { background-color:var(--cds-fi
 input:focus-visible,select:focus-visible,textarea:focus-visible { outline:2px solid var(--cds-focus); outline-offset:-2px; }
 input[aria-invalid=true],select[aria-invalid=true] { outline:2px solid var(--cds-support-error); outline-offset:-2px; }
 #controls input:disabled,#controls select:disabled,.feature-editor-form input:disabled,.feature-editor-form select:disabled { background:#e0e0e0; color:var(--cds-text-disabled); border-bottom-color:transparent; cursor:not-allowed; }
-#controls .field.check { min-height:40px; gap:16px; }
+.field.check,#controls .field.check { min-height:40px; gap:var(--cds-spacing-03); }
 #controls .field.check>span { font-size:14px; line-height:18px; color:var(--cds-text-primary); }
 input[type=checkbox],.field input[type=checkbox],#assembly-panel .assembly-actions input[type=checkbox] { width:16px; height:16px; min-height:16px; padding:0; flex:none; }
 #controls details { border-top:1px solid #c6c6c6; }
@@ -64,7 +65,7 @@ input[type=checkbox],.field input[type=checkbox],#assembly-panel .assembly-actio
 #controls details>div { padding:0 0 8px; }
 #controls details[open]>summary { margin-bottom:8px; }
 .field-grid { gap:0 16px; }
-.cabinet-picker { margin-bottom:24px; padding-bottom:16px; border-bottom-color:#c6c6c6; }
+.cabinet-picker { margin-bottom:16px; padding-bottom:16px; border-bottom-color:#c6c6c6; }
 .picker-top,.position-picker .picker-top { margin-bottom:8px; gap:8px; }
 .cabinet-picker .cabinet-actions .picker-icon { width:32px!important; height:32px!important; min-height:32px!important; }
 .cabinet-picker select { margin:0; }
@@ -181,10 +182,9 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 .steps[role=tablist] .small-workflow-note { line-height:2px; margin:0; align-self:start; }
 .style-tabs button { flex:1; min-width:0; padding-left:8px; padding-right:8px; }
 
-/* Cabinet build controls stay compact; common/global controls retain their spacing. */
-#controls .cabinet-build .field:not(.check){gap:0}
+/* Picker fields share the form rhythm without adding separators. */
 #controls .cabinet-picker{border-bottom:0;padding-bottom:0}
-#controls .cabinet-picker .picker-top{margin-bottom:0}
+#controls .cabinet-picker .picker-top{margin-bottom:var(--cds-spacing-03)}
 .steps[role=tablist] .small-workflow-note{line-height:8px}
 /* A drawing-wide SVG selector must not stretch notification pictograms. */
 #assembly-panel svg.notification-icon,#controls svg.notification-icon,.workspace svg.notification-icon{width:16px;height:16px;min-width:16px;max-width:16px;min-height:16px;max-height:16px;flex:none;display:inline-block}
@@ -193,4 +193,36 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid>.field{min-width:0}.field-label{min-height:24px;line-height:16px}.field-label>.field-info,.field-label>.tip-trigger{flex-shrink:0}.cabinet-build .field-grid>.field:has(#cabinet-thickness){grid-column:1/-1}.field input,.field select{font-family:inherit;font-weight:400}.height-result{font-family:inherit;font-size:12px;line-height:16px}
 
 /* Label help is a compact 24 px target, independent of action-button sizing. */
-.field .field-label>button{width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;padding:4px;flex:0 0 24px}.field-grid .field-label{gap:4px;letter-spacing:0}
+.field .field-label>button{width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;padding:4px;flex:0 0 24px}.field-grid .field-label{gap:8px;letter-spacing:0}
+
+/* Form rows use the same rhythm in panels, hardware editors and costs. */
+.field-label { gap:var(--cds-spacing-03); min-width:0; }
+.field-label>.field-info,.field-label>.tip-trigger { align-self:center; display:inline-grid; place-items:center; }
+.field-label .ui-icon { display:block; width:16px; height:16px; }
+.extra-cost-row { margin-bottom:var(--cds-spacing-05); }
+.extra-cost-row label { display:flex; flex-direction:column; gap:var(--cds-spacing-03); }
+.extra-cost-row label span { display:flex; align-items:center; min-height:24px; margin-bottom:0; }
+
+/* Keep picker actions beneath their own field, in keyboard reading order. */
+.cabinet-picker>.cabinet-actions { justify-content:flex-end; gap:var(--cds-spacing-02); margin-top:var(--cds-spacing-03); }
+.cabinet-picker>.picker-top { min-height:24px; }
+
+.position-picker .picker-top>.position-info { display:inline-grid; place-items:center; width:24px; height:24px; min-width:24px; min-height:24px; padding:4px; flex:0 0 24px; }
+
+/* Half-width outlined add action; secondary cabinet actions stay at the right. */
+.cabinet-picker>.cabinet-actions>.picker-add { display:inline-flex; align-items:center; justify-content:space-between; gap:var(--cds-spacing-05); width:50%; flex:0 0 50%; min-width:0; margin-right:auto; min-height:32px; padding:6px 12px; border:1px solid currentColor; background:transparent; color:var(--cds-text-primary); }
+.cabinet-picker>.cabinet-actions>.picker-add:hover { background:var(--cds-layer-hover); }
+.cabinet-picker>.cabinet-actions>.picker-add:focus-visible { outline-color:var(--cds-focus); }
+
+.global-settings-separator { border:0; border-top:1px solid #c6c6c6; margin:0 0 var(--cds-spacing-05); }
+
+/* Parts cabinet selection retains its accent against a white surface. */
+#controls .part-button.active { background:var(--cds-background); }
+
+.label-calibration { width:100%; text-align:left; justify-content:space-between; }
+
+
+/* Labels activate their explicitly associated inputs, never their help buttons. */
+.field.check { cursor:pointer; }
+.field-label>button { cursor:pointer; position:relative; }
+.field.check input[type=checkbox] { cursor:pointer; }

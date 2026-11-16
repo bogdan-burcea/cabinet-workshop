@@ -1,3 +1,4 @@
+import {wallSuspensionApplies} from './wall-hangers.js';
 import {cabinetParts} from './cabinet.js';
 import {isDrawers,drawerPlan} from './tandem.js';
 import {floorClearance,resolveInstallation} from './installation.js';
@@ -6,7 +7,7 @@ export function frontGeometry(c){const parts=cabinetParts(c);return {...(c.split
 export const frontHandleHoles=c=>frontGeometry(c).handleHoles;
 export function frontLayout(records){
  const connected=records.length>0&&records.every(r=>Number.isFinite(r.layoutOrder)),items=[],configs=records.map(r=>({...r,config:resolveInstallation(structuredClone(r.config))}));let floorX=0,wallX=0;const lane=wall=>configs.filter(r=>(r.config.style==='Wall')===wall).sort((a,b)=>connected?a.layoutOrder-b.layoutOrder:0);
- function item(r,x){const c=r.config,bottom=floorClearance(c);return {id:r.id,name:c.name,style:c.style,x,width:c.width,height:c.height,bottom,top:bottom+c.height,doors:c.split||isDrawers(c)||c.frontMode==='open'?0:c.doors,...(isDrawers(c)&&!c.split?{drawerFronts:drawerPlan(c).heights}:{}),glass:c.doorStyle==='glass',manual:r.positionMode==='manual'||!connected&&r.x!==undefined,plinth:c.style!=='Wall'&&c.support!=='floor'&&c.plinth?{height:bottom-(c.plinthGap??3),gap:c.plinthGap??3}:null,...frontGeometry(c)};}
+ function item(r,x){const c=r.config,bottom=floorClearance(c);return {id:r.id,name:c.name,style:c.style,x,width:c.width,height:c.height,bottom,top:bottom+c.height,doors:c.split||isDrawers(c)||c.frontMode==='open'?0:c.doors,...(isDrawers(c)&&!c.split?{drawerFronts:drawerPlan(c).heights}:{}),glass:c.doorStyle==='glass',manual:r.positionMode==='manual'||!connected&&r.x!==undefined,plinth:!wallSuspensionApplies(c)&&c.support!=='floor'&&c.plinth?{height:bottom-(c.plinthGap??3),gap:c.plinthGap??3}:null,...frontGeometry(c)};}
  for(const r of lane(false)){const a=item(r,connected&&r.positionMode!=='manual'?floorX:r.x??floorX);items.push(a);floorX=Math.max(floorX,a.x+a.width);}
  for(const r of lane(true)){let x=connected&&r.positionMode!=='manual'?wallX:r.x??wallX;let a=item(r,x);if(r.positionMode!=='manual'&&(connected||r.x===undefined)){for(let k=0;k<items.length+1;k++){const tall=items.find(b=>['Tall','Pantry'].includes(b.style)&&a.x<b.x+b.width-.01&&a.x+a.width>b.x+.01&&a.bottom<b.top-.01);if(!tall)break;x=tall.x+tall.width;a=item(r,x);}}items.push(a);wallX=Math.max(wallX,a.x+a.width);}
  const overlaps=[];for(let i=0;i<items.length;i++)for(let j=0;j<i;j++){const a=items[i],b=items[j];if(Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)>.01&&Math.min(a.top,b.top)-Math.max(a.bottom,b.bottom)>.01)overlaps.push({first:a.id,second:b.id,message:a.name+' overlaps '+b.name+' in the front elevation.'});}
