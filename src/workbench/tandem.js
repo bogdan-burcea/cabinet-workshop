@@ -31,7 +31,7 @@ export function drawerPlan(c){if(isTandembox(c))return tandemboxPlan(c);
  return {family,length,partNumber:family+length+'0B',inner,outer,depth,x,stock:s,bottom:b,groove,recess,clear,heights,boxes,capacity:30};
 }
 export function tandemRows(c){if(isTandembox(c))return tandemboxRows(c);const p=drawerPlan(c),rows=[],s=p.stock;for(const a of p.boxes){const pre='Drawer '+a.index+' ',z=a.sideZ,top=z+a.height;
- rows.push([pre+'overlay front',2,-20,a.frontZ,c.width-4,18,a.frontHeight],
+ rows.push([pre+'overlay front',2,-(c.doorThickness??18)-2,a.frontZ,c.width-4,c.doorThickness??18,a.frontHeight],
  [pre+'left side',p.x,0,z,s,p.depth,a.height],[pre+'right side',p.x+p.outer-s,0,z,s,p.depth,a.height],
  [pre+'internal front',p.x+s,0,z,p.inner,s,a.height],
  [pre+'back',p.x+s,p.depth-s,a.bottomZ+p.bottom,p.inner,s,top-a.bottomZ-p.bottom],
