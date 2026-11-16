@@ -46,30 +46,30 @@ export function panels(p,c,local=false){
    if(c.kind==='Window')rows.push(['Bottom frame',t,0,0,w-2*t,30,t]);rows.push([c.kind==='Window'?'Glass':'Door leaf',t,10,t,w-2*t,10,h-2*t]);return rows.map(r=>oriented(p,c,r));
   }return [oriented(p,c,[c.kind,0,0,0,c.width,c.depth,c.height])];
  }
- const w=c.width,h=c.height,d=c.depth,t=c.thickness,b=c.back,cd=d-b,r=c.rail_width??100;
+ const w=c.width,h=c.height,d=c.depth,t=c.thickness,b=c.back,cd=d-b,r=c.rail_width??100,dt=c.doorThickness??18,st=c.shelfThickness??18;
  const rows=[['Left side',0,0,0,t,cd,h],['Right side',w-t,0,0,t,cd,h],['Bottom',t,0,0,w-2*t,cd,t]];
  if((c.top_construction??(isBase(c)?'rails':'full'))==='rails')rows.push(['Front rail',t,0,h-t,w-2*t,r,t],['Rear rail',t,cd-r,h-t,w-2*t,r,t]);
  else rows.push(['Top',t,0,h-t,w-2*t,cd,t]);
  rows.push(['Back',0,cd,0,w,b,h]);
  const count=c.front.includes('drawer')?Number(c.front[0]):0;
- if(!count){const n=c.shelves,gap=(h-2*t-n*18)/(n+1);for(let i=1;i<=n;i++)rows.push(['Shelf '+i,t,20,t+i*gap+(i-1)*18,w-2*t,cd-20,18]);}
+ if(!count){const n=c.shelves,gap=(h-2*t-n*st)/(n+1);for(let i=1;i<=n;i++)rows.push(['Shelf '+i,t,20,t+i*gap+(i-1)*st,w-2*t,cd-20,st]);}
  if(c.kind==='Blind corner'){
   const left=c.blind_side==='Left',blindX=left?2:w-c.blind_width,doorX=left?c.blind_width+2:2;
-  rows.push(['Blind front',blindX,-20,2,c.blind_width-2,18,h-4]);
-  if(c.front==='One door')rows.push(['Access door',doorX,-20,2,w-c.blind_width-4,18,h-4]);
+  rows.push(['Blind front',blindX,-dt-2,2,c.blind_width-2,dt,h-4]);
+  if(c.front==='One door')rows.push(['Access door',doorX,-dt-2,2,w-c.blind_width-4,dt,h-4]);
  }
- else if(c.front==='One door')rows.push(['Door',2,-20,2,w-4,18,h-4]);
- if(c.front==='Two doors'){const dw=(w-6)/2;rows.push(['Door left',2,-20,2,dw,18,h-4],['Door right',4+dw,-20,2,dw,18,h-4]);}
+ else if(c.front==='One door')rows.push(['Door',2,-dt-2,2,w-4,dt,h-4]);
+ if(c.front==='Two doors'){const dw=(w-6)/2;rows.push(['Door left',2,-dt-2,2,dw,dt,h-4],['Door right',4+dw,-dt-2,2,dw,dt,h-4]);}
  if(count&&!c.tandem){const fh=(h-4-(count-1)*2)/count,dep=Math.min(450,cd-10),x=t+12.7,bw=w-2*t-25.4;
   for(let i=0;i<count;i++){const prefix='Drawer '+(i+1)+' ',fz=2+i*(fh+2),base=fz+10+(i===0?t-2:0),wh=i===count-1?75:120,z=base+6;
    if(z+wh>Math.min(fz+fh-10,h-t-10)+1e-7)throw Error('Drawer boxes are too tall for these fronts. Increase cabinet height or reduce drawer count.');
-   rows.push([prefix+'overlay front',2,-20,fz,w-4,18,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
+   rows.push([prefix+'overlay front',2,-dt-2,fz,w-4,dt,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
   }
  }
  const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry)adjusted.push(...pantryRows(c.pantry));if(c.sections){adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...adjusted);
  if(w<=2*t||h<=2*t||cd<=0||b<=0||t<=0)throw Error('Panel thickness leaves no usable cabinet space.');
  if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=2*r)throw Error('Base depth must leave space between its two support rails.');
- if(!count&&c.shelves&&(h-2*t<=c.shelves*18||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');
+ if(!count&&c.shelves&&(h-2*t<=c.shelves*st||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');
  if(rows.some(r=>r.slice(4).some(v=>v<=0||!Number.isFinite(v))))throw Error('These dimensions leave an empty or invalid panel.');
  if(local)return rows;
  return rows.map(([name,x,y,z,w,dep,h])=>oriented(p,c,[name,x,d-y-dep,z,w,dep,h]));
