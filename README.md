@@ -2,6 +2,16 @@
 
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
+## 0.40 — Pantry TANDEMBOX and simpler controls
+
+- Pantry → Interior drawers offers TANDEM wooden trays or TANDEMBOX antaro M inner drawers. The metal system automatically uses 16 mm bottoms/backs. Aluminium inner fronts use ZIF.71M0 fittings, Z31L1036A profiles cut to runner opening minus 132 mm and ZIF.80M5 plain handles. The hardware list, estimate and preparation guide include each cut length. Bought metal components appear in assembly; only wooden pieces enter nesting and STEP.
+- All Pantry cabinets now use Blum 71B7550 155° zero-protrusion hinges and 0 mm plates. Legacy spacer settings are ignored; no spacer controls, blocks or spacer fixings remain. Global hinge changes apply to other cabinet styles without replacing the Pantry fitting.
+- Position from left is editable. A manual position remains fixed through width edits and save/open; the alignment icon returns that cabinet to its connected automatic row. Dragging reconnects the moved cabinet. Overlap warnings remain visible. Automatic cabinets retain connected width-driven placement.
+- Height targets and stock thickness sit directly with body width/depth. Cabinet build fields remove the label gap; Global fields retain their spacing. Picker separators are removed. Workflow tabs use 16 px /8 px rows with an 8 px row gap.
+- Elevation drawings are text-free selectors/highlighters, retaining accessible cabinet names, keyboard selection and dragging. Names and prices remain in the adjacent lists. Notification icons have fixed 16 px dimensions, including the Documents side panel.
+
+Primary planning: [Blum TANDEMBOX booklet, Inner drawer M, pp.46–47; fixing chart p.66](https://d2.blum.com/services/BEC003/me57421162_ep_dok_bau_%24sen-ca_%24aof_%24v1.pdf). Bracket/base-to-metal fixings still use the matching Blum assembly template. One aluminium profile stock piece per tray is allowed in costs; offcut reuse is not optimised.
+
 ## 0.39 — Divided cabinets, floor support and hardware options
 
 - Fixed stock-thickness shelf with independently configured upper/lower doors, drawers or open shelves. The divider centre is measured from the carcass bottom. Sides/back stay continuous; assembly drilling adds divider pilots. Section drawer fronts are equal heights; door sections use two hinges with adapted setbacks. Standard Base, Wall and Tall styles support the divider; Pantry retains its existing full-door inner-tray layout.

@@ -1,6 +1,6 @@
 import {sectionDrawerConfigs} from './sections.js';
 import {isTandembox,tandemboxHardware} from './tandembox.js';
-import {pantryPlan} from './pantry.js';
+import {pantryPlan,pantryConfig} from './pantry.js';
 import {isDrawers,drawerPlan,tandemFixings} from './tandem.js';
 import {glassSchedule} from './doors.js';
 export const emptyCosts=()=>({currency:'RON',basis:'sheet',prices:{},extras:[]});
@@ -12,7 +12,7 @@ export function costRows(cabinets,parts,layout,costs={}){
  for(const sheet of layout.sheets){const g=groups.get(JSON.stringify([sheet.material,sheet.thickness]));if(g)g.sheets++;}
  for(const g of groups.values())add('Material',`${g.material} · ${g.t} mm`+(c.basis==='sheet'?` · ${g.width} × ${g.height} mm`:''),c.basis==='sheet'?'sheet':'m²',c.basis==='sheet'?g.sheets:g.area,[g.material,g.t,c.basis,...(c.basis==='sheet'?[g.width,g.height]:[])]);
  for(const r of cabinets){const a=r.config||r,ps=parts.filter(p=>p.cabinetId===r.id||!p.cabinetId),cups=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Hinge cup').length;
-  for(const drawer of (a.split?sectionDrawerConfigs(a):[a])){const a=drawer;if(isDrawers(a)&&isTandembox(a)){for(const [,number,label,n]of tandemboxHardware(a))add('Hardware',number+' · '+label,'each',n,number);}
+  for(const drawer of (a.split?sectionDrawerConfigs(a):[a])){const a=drawer;if((isDrawers(a)||a.style==='Pantry')&&isTandembox(a)){for(const [,number,label,n]of tandemboxHardware(a.style==='Pantry'?pantryConfig(a):a))add('Hardware',number+' · '+label,'each',n,number==='Z31L1036A'?[number,label]:number);}
   else if(isDrawers(a)||a.style==='Pantry'){const p=a.style==='Pantry'?pantryPlan(a):drawerPlan(a),n=a.drawerCount;add('Hardware',`${p.partNumber} · L/R runner pair`,'pair',n,p.partNumber);add('Hardware','T51.1700.04 · L/R locking-device pair','pair',n,'T51.1700.04');add('Hardware','Runner screws · Ø4 × 15 mm','each',2*n*tandemFixings(p.length).length,'runner-screw');}
   }
   if(a.style==='Wall'&&a.wallHanger==='blum_48n0510'){add('Hardware','48N0510.03S /48N0510.02S · Blum screw-on wall hanger pair','pair',1,'blum_48n0510');add('Hardware','Wall hanger fixing screws · match bought hanger','each',4,'wall-hanger-screw');}
