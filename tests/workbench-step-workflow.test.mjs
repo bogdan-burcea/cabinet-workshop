@@ -7,10 +7,10 @@ import {globalsFrom} from '../src/workbench/globals.js';
 import {machineDefaults} from '../src/workbench/cam.js';
 import {stockDefaults} from '../src/workbench/production.js';
 import {costRows} from '../src/workbench/costs.js';
-test('glass frame costs count two panes, sixteen dowels, four hinges and two handles',()=>{
+test('glass frame costs count two panes, no dowels, four hinges and two handles',()=>{
  const cabinet={...cabinetDefaults(),doorStyle:'glass'},s=initializeProject({cabinet,globals:globalsFrom(cabinet),machine:{...machineDefaults},stock:{...stockDefaults}}),layout=projectLayout(s),costs=costRows(s.cabinets,layout.parts,layout);
  assert.equal(layout.parts.filter(p=>p.glassFramePart).length,8);
- assert.equal(costs.rows.find(r=>r.label.startsWith('Frame dowel')).quantity,16);
+ assert(!costs.rows.some(r=>r.label.startsWith('Frame dowel')));
  assert.equal(costs.rows.find(r=>r.label.endsWith(' · hinge')).quantity,4);
  assert.equal(costs.rows.find(r=>/pull ·|Knob/.test(r.label)).quantity,2);
  const restored=deserializeProject(serializeProject(s));assert.deepEqual(projectLayout(restored).parts,layout.parts);

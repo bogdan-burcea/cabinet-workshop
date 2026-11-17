@@ -1,3 +1,4 @@
+import {golaFrontRows} from './workbench/gola.js';
 import {sectionConfigs,sectionPart,fixedShelfRow} from './workbench/sections.js';
 import {pantryRows} from './workbench/pantry.js';
 import {tandemRows} from './workbench/tandem.js';
@@ -66,12 +67,12 @@ export function panels(p,c,local=false){
    rows.push([prefix+'overlay front',2,-dt-2,fz,w-4,dt,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
   }
  }
- const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry)adjusted.push(...pantryRows(c.pantry));if(c.sections){adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...adjusted);
+ const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry){adjusted.push(...pantryRows(c.pantry));if(c.pantry.style==='Tall'&&c.pantry.splitShelf)adjusted.push(fixedShelfRow({...c,sections:c.pantry}));}if(c.sections){if(c.sections.splitShelf!==false)adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...adjusted);
  if(w<=2*t||h<=2*t||cd<=0||b<=0||t<=0)throw Error('Panel thickness leaves no usable cabinet space.');
  if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=2*r)throw Error('Base depth must leave space between its two support rails.');
  if(!count&&c.shelves&&(h-2*t<=c.shelves*st||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');
  if(rows.some(r=>r.slice(4).some(v=>v<=0||!Number.isFinite(v))))throw Error('These dimensions leave an empty or invalid panel.');
- if(local)return rows;
+ const fronts=golaFrontRows(c,rows);rows.splice(0,rows.length,...fronts);if(local)return rows;
  return rows.map(([name,x,y,z,w,dep,h])=>oriented(p,c,[name,x,d-y-dep,z,w,dep,h]));
 }
 export function bounds(p,c){const boxes=panels(p,c);return [1,2,3].map(i=>Math.min(...boxes.map(b=>b[i]))).concat([1,2,3].map(i=>Math.max(...boxes.map(b=>b[i]+b[i+3]))));}
@@ -161,10 +162,10 @@ export function generateWorktops(p){const runs=new Map(),result=[];for(const c o
 export function cabinetOperations(p,c){if(!isCab(c)||!machiningActive(c))return [];const [ox,oy,ux,uy,vx,vy]=frame(p,c);return localMachining(c,panels(p,c,true)).map(o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]));}
 export function thicknessAxis(p,c,name){if(c.kind==='Worktop')return 2;let local;if(c.kind==='Filler')local=1;else if(c.kind==='End panel')local=0;else if(/^(Left side|Right side)$|^Drawer .* (left side|right side)$|^Runner spacer /.test(name))local=0;else if(/^(Fixed shelf|Bottom|Top|Shelf |Front rail|Rear rail)|^Drawer .*bottom$/.test(name))local=2;else local=1;if(local===2)return 2;const f=frame(p,c);return (local===0?Math.abs(f[2]):Math.abs(f[4]))>.5?0:1;}
 export function partRows(p){return [...p.cabinets,...p.worktops,...(p.finishing||[])].flatMap(c=>{
- if(c.doorStyle==='glass'&&isCab(c)){
+ if((['glass','shaker'].includes(c.doorStyle)||c.drawerFrontStyle==='shaker')&&isCab(c)){
   const local=panels(p,c,true),ops=localMachining(c,local),[ox,oy,ux,uy,vx,vy]=frame(p,c),transform=o=>transformOperation(o,([x,y,z])=>[ox+ux*x+vx*(c.depth-y),oy+uy*x+vy*(c.depth-y),c.elevation+z],([x,y,z])=>[ux*x-vx*y,uy*x-vy*y,z]);
   const orient=r=>oriented(p,c,[r[0],r[1],c.depth-r[2]-r[5],r[3],...r.slice(4)]);
-  return local.flatMap(row=>{const own=ops.filter(o=>o.part===row[0]),pieces=/^Door|^Access door/.test(row[0])?frameDoorParts(row,own,c):[{row,operations:own}];return pieces.map(a=>({...a,owner:c.label,id:c.id,kind:c.kind,row:orient(a.row),...(a.glassDoor?{glassDoor:{...a.glassDoor,bounds:orient([a.glassDoor.name,...a.glassDoor.bounds]).slice(1)}}:{}),thicknessAxis:thicknessAxis(p,c,a.row[0]),holes:[],operations:a.operations.map(transform)}));});
+  return local.flatMap(row=>{const own=ops.filter(o=>o.part===row[0]),pieces=/^Door|^Access door/.test(row[0])&&['glass','shaker'].includes(c.doorStyle)?frameDoorParts(row,own,c):/^Drawer .*overlay front$/.test(row[0])&&c.drawerFrontStyle==='shaker'?frameDoorParts(row,own,{...c,doorStyle:'shaker'}):[{row,operations:own}];return pieces.map(a=>({...a,owner:c.label,id:c.id,kind:c.kind,row:orient(a.row),...(a.glassDoor?{glassDoor:{...a.glassDoor,bounds:orient([a.glassDoor.name,...a.glassDoor.bounds]).slice(1)}}:{}),thicknessAxis:thicknessAxis(p,c,a.row[0]),holes:[],operations:a.operations.map(transform)}));});
  }
  const ops=cabinetOperations(p,c);return panels(p,c).map(row=>({owner:c.label,id:c.id,kind:c.kind,row,thicknessAxis:thicknessAxis(p,c,row[0]),holes:c.kind==='Worktop'?cutoutsFor(p,c):[],operations:ops.filter(o=>o.part===row[0])}));});}
 export function csv(p){const quote=v=>'"'+String(v).replaceAll('"','""')+'"';return '\ufeff'+[['Cabinet / Worktop / Finishing','Part','X mm','Y mm','Z mm','Size X mm','Size Y mm','Size Z mm','Cutout count'],...partRows(p).map(({owner,row,holes})=>[owner,...row.map(v=>typeof v==='number'?Number(v.toFixed(4)):v),holes.length])].map(r=>r.map(quote).join(',')).join('\r\n');}

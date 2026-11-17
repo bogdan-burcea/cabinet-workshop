@@ -3,7 +3,79 @@
 Browser-based cabinet design, nesting and STEP preparation for external CAM.
 
 
+## Version 0.42.0
+
+Reusable IndexedDB cabinet library with portable templates, local/preserved instance settings, reviewed project-default adoption and compatible project loading. Adds Shaker and inset drawer fronts, configurable GOLA/shared rails, Tall pantry layouts, corrected rounded frame joinery, Cabineo/back-connector and elevation-placement refinements, and consistent Carbon controls.
+
+Release dependency maintenance updates fflate to 0.8.3 to address the malformed ZIP64 decompression advisory.
+
+Project autosave and library database names remain unchanged. Template schemas 1–4 migrate explicitly to schema 5; unreadable/future library records remain recoverable by raw export. Library data is browser/origin-local and is not uploaded by deployment. The pending Blum 155° inset hinge/9 mm plate combination is not included.
+
+Known manufacturing limits: GOLA rails are generic editable envelopes with no inferred bracket drilling; dovetails require STEP and external CAM; non-zero-protrusion inner-tray hinges use conservative editable spacers and require trial fitting. Appliance model/cutouts in the generated example projects remain unspecified.
+
 ## Workshop updates
+
+- Exposed fixed dividers between separate inset fronts now reach the cabinet face. Upper/lower inset doors use the real shelf faces for 2 mm reveals, and Align with base retains its front-height target. Shelves behind a single full-height inset door stay recessed to clear it. Template schema/generator revision 5 explicitly migrates revision 4 with this geometry correction.
+
+- Rear rails use one Cabineo at each end. Front rails retain two per end at ≥100 mm depth, otherwise one.
+- Exposed drawers now offer inset placement and Shaker fronts. Drawer frames share the door frame width and Shaker panel thickness. Runner depth/pilots, box positions, front fixing pilots, 2 mm reveals and section-divider clearances follow the placement. Knob/pull drilling remains in solid frame wood; inset drawer fronts explicitly reject GOLA.
+- Tall full-height-door layouts now retain the chosen hinge. Removed the silent 155° override for Tall; legacy Pantry still retains its compatibility preset. Inset doors and the fixed shelf use the existing inset geometry. Non-zero-protrusion hinges add wooden runner spacers with at least 25 mm side clearance, editable in Construction. This is a conservative clearance allowance, not a simulated hinge linkage or manufacturer-certified tray application; trial-fit the bought hinge/runner assembly and prepare spacer attachment separately. [Blum inset hinge reference](https://publications.blum.com/2022/catalogue/en/74/).
+- Template schema 4 migrates earlier records with explicit overlay/slab drawer defaults. Material bindings now explain their role in Parts, nesting and estimates, separately from thickness. Fixed recursive Tall drawer-preparation export and Shaker drawer handle editor ownership.
+
+- Tall now offers independently configured sections with an optional fixed divider and full-height doors over recessed lower trays and upper shelves. New cabinet choices are Base, Wall and Tall; existing Pantry projects/templates still load through their compatibility path.
+- Drawer cabinets use horizontal GOLA rails. Select a shared adjacent drawer pair to pull its upper drawer from below; three drawers can use two rails. Matching front gaps, box clearances, carcass cuts, costs and STEP update together. Inner trays require at least 3 mm clearance behind the rail recess.
+- Cabineo rail fittings measure from the surviving edge after GOLA cuts. Rails at least 100 mm deep use two fittings at each end; narrower rails use one per end. Insufficient remaining wood is reported before generating drilling.
+- Portable template schema 3 adds explicit divider/full-door/shared-rail settings and migrations from schemas 1/2. Older Cabineo layouts regenerate with the corrected rail fitting arrangement; retained overrides must validate.
+
+- Save to Library is an icon beside Duplicate; Library is in the black header. Make unique captures instance settings; unchecking reviews adoption of project defaults.
+- Glass previews now use the full rebated cut size, also listed in Parts. Shaker doors add an editable-thickness recessed wooden panel to the existing rounded frame joinery. Feature edits retain the 3D camera.
+- GOLA is a recessed aluminium rail option: editable envelope/access gap, matching carcass cuts, drawer clearances, rail cut-length costs and generic rail bodies in assembly STEP. The initial 56.5 × 27.2 mm envelope follows the [Scilm catalogue](https://www.scilm.it/media/download/ctg_scilm_2024.pdf); this is a configurable L/channel representation, without proprietary extrusion details or inferred mounting holes. Notched front edges are excluded from automatic banding. Confirm the chosen rail and mounting method before manufacture.
+- Portable schema 2 introduced a tested schema 1 migration that adds inert Shaker/GOLA settings without changing old geometry.
+
+- Repaired cross-instance settings bugs: Global profile fallback and connector calculations exclude preserved peers regardless of active selection. Global shows which project-controlled cabinets it changes and a local-settings shortcut when a preserved cabinet is selected. Legacy save/load now deep-clones nested defaults and payloads.
+- Cabinet style changes are previewed before commit. Converting drawer Bases to Wall offers the Wall door-front preset, or Keep drawers with an explicit fitting pass for the new dimensions. Resulting runner/handle changes are reviewed and fitted runner sizes pinned; peer instances, saved templates and overrides remain protected. Invalid conversions leave the previous project intact.
+- Parts handle editing follows the clicked front: divided drawers edit drawer placement without changing upper-door placement/floor references. Error corrections stay in the owning cabinet’s local/Global scope, identify its C-code and avoid unrelated drawer controls for handle errors.
+
+
+- Cabinet library Stage 1 is implemented as a portable template API with schema/generator version checks, deep-cloned JSON capture/import/export and isolated insertion preparation. Preserved instances keep saved settings and material-role bindings across project defaults; Use project defaults is explicit. Base alignment becomes standalone values, and automatic drawer runners are captured as the selected fitting. Orphaned overrides and invalid references block insertion. See [Portable API and inheritance integration](docs/cabinet-library-stage-1.md).
+- Cabinet library Stage 2 is implemented locally: Save to Library, searchable/category-filtered thumbnails, metadata editing/rename, duplicate/delete and single/batch JSON import/export, backed by IndexedDB. Preserved instances have local fittings/material controls and scoped Parts editors; Global profiles exclude them. Insertion and explicit policy adoption are reviewed/validated and Undoable. See [the library guide](docs/cabinet-library.md). Existing projects without the new policy retain their previous behavior. Nothing published.
+
+
+- Tall/Pantry door handles offer “Align with base top handles” under Vertical reference, in Global and the Parts handle modal. It follows the highest actual handle centre on the first undivided Base cabinet; with no Base handle drilling, it uses that Base’s top setback (or the default Base when absent). Counter/support/handle changes update the reference.
+- Divided cabinets have handle style, pitch, position and height-reference controls in Construction. Floor targets outside a section now fit to that door’s nearest safe position instead of producing drilling-outside-panel errors. Section drawer pulls stay horizontal and clear the drawer bottom; doors can use vertical pulls. Physically impossible handle spacing gets a short, specific correction message. Shared style hardware and Undo remain in effect.
+- The front alignment option is labeled “Align with base”. The mounting-row separator follows the last accordion directly, without an extra outer spacer.
+
+
+- Add cabinet is an icon-only control at the left of the cabinet actions. Wall mounting is below the cabinet accordions with a separate spacer. Plinth, foot, rail-notch and hinge settings stay visible but disabled when inactive.
+- Divided cabinets offer “Align lower fronts with base cabinets”, off by default. It follows the first undivided Base drawer cabinet (otherwise first undivided Base): the top and bottom edges of the lower-section fronts track the actual Base front span, including inset/overlay differences. Lower drawer count and individual heights remain independent. Changes to the Base/counter update alignment automatically; manual section settings remain available with alignment off.
+- Global Shelf drilling offers 1–15 holes per vertical bank, at 32 mm pitch with a hole at the shelf bearing; even counts add the extra position below. Existing projects keep five. Banks must still fit clear of the carcass and drawer zone.
+- Connector system includes None in place of the assembly checkbox. Required back grooves and incompatible bottom dados are locked according to the selected system, including Parts joinery modals. Missing unit prices use a borderless yellow field; the subtotal notice retains its explanation without an icon or repeated field tags.
+
+
+- Elevation pointer dragging now uses horizontal positioning with edge snapping, allowing Base/Wall stacking and closing gaps after width changes. Only colliding drops use column insertion; Alt + arrows still reorder columns. Position-field placement remains available.
+- Divided cabinets support custom lower-section drawer front heights, counted from the top, for both wooden and metal drawer systems. Zero retains an equal share and the final front fills the remaining height. Fixed-divider Cabineo housings are machined from below with matching side bores. Removed Equal front heights and the blue drawer notices; fitting guidance remains in neutral text/help.
+
+
+- Worktop allowance accepts 0 mm (no worktop); shared feet accept 1–250 mm. Choosing feet lower than a raised bottom automatically disables incompatible bottom dados while preserving counter/top height targets. Plinths require at least 40 mm actual clearance under the sides; below that the checkbox is inactive with an explanation, and its saved preference is retained.
+- Cabinet wall fixing sits beneath the cabinet type. Construction uses compact section headings and separators, the shelf field reads “Shelf centre above floor”, and door-style helper prose is removed. Global feet are titled Feet.
+- Ixconnect back fixings now include one centered top/rear-rail connector and one centered bottom connector in addition to the per-side count. Default two per side therefore means six total. Bores maintain 50 mm clearance from actual wall-suspension notch edges; configurations without sufficient room are rejected. Counts and machining propagate to Parts, costs and STEP.
+
+
+### Local refinements awaiting review
+
+- Dovetail rails and stile sockets now share complementary rounded seams with 4.5 mm nominal radii for the 8 mm end mill. Joint play follows the shared clearance. Separate drilled joint reliefs are removed; glass rebate corner reliefs remain. The same profiles reach Parts, labels, nesting and STEP.
+- Wall fixing no longer disables floor support. Base, Tall and Pantry retain their selected feet and plinth, with normal floor-referenced body heights, even when Wall mounted is checked. Wall-style cabinets remain suspended. The obsolete separate bottom-height value is retained in old files but does not lift floor cabinets.
+- Elevation dragging reorders physical columns across floor and Wall cabinets. Neighboring stacked cabinets stay aligned and shift to make room; pulling one cabinet out of a stack creates a new column. Gaps below Wall cabinets and existing horizontal spacing remain allowed. This replaces two-coordinate swaps, which could reject a Tall cabinet moved past a Base/Wall stack. Undo and saved projects retain the resulting positions.
+- The Parts cabinet list uses code/type, name and dimensions on three lines. The plinth accordion is titled Plinth.
+- Global → Joinery & assembly offers Häfele Ixconnect RPC S 15/25 (260.09.765), disabled by default, with a count per vertical side (default two). Requires stock ≥15 mm, a 2.5–3.5 mm captured back (choose 3 mm in this app), groove depth ≤6 mm and bore centre ≥12 mm from the rear edge. Adds Ø15 × 12.5 mm side bores; the back needs no machining. Selecting it reserves the minimum back inset. The user-selected count is evenly laid out with 50 mm end setbacks and at least 30 mm pitch; these layout choices are not a manufacturer load rating. Parts drawing edits update the matched settings, and hardware/cost/STEP exports include the chosen quantity.
+
+Ixconnect dimensions: [Häfele Furniture Fittings catalog, FF 2.56](https://hafelethailand.com/wp-content/uploads/2025/12/02-connector-technology-shelf-supports.pdf#page=56). Physical fitting remains for local review. Earlier local-change notes below describe the superseded drilled dovetail reliefs and floating floor cabinets.
+
+- Feet fixing holes are always through holes, including legacy blind-depth choices and overrides. The Global option and depth input are removed. Stock labels use “thick.”; Global worktop/back stock shares one row without help buttons. Cabinet stock/door thickness helpers are removed, placement matches normal fields, Add new has its plus first and no border, and plinth guidance is in its help modal.
+- Fixed shelf sections stay inside Front & top construction, with editable hinge count applied to each section door. Tall cabinets regain the default plinth when switched from Wall; Wall-style/direct-floor cabinets omit it.
+- Glass frames now have flat through-dovetails cut face-up with an 8 mm straight end mill. Rails extend 20 mm into matching stile sockets; matched rounded joint corners accommodate the round cutter; extra blind rebate-corner reliefs preserve the existing square glass dimensions. Joint play follows shared joinery clearance (default 0.2 mm total). Side-mounted automatic handles clear the rail joints. Edge dowels and their hardware quantities are removed. Parts, nesting drawings, QR labels and STEP retain actual polygon cuts; legacy rectangular NC generation directs these profiles to external CAM using STEP. Dry-fit measured stock before glue-up.
+
+The flat dovetail geometry is a project design rather than a rated proprietary fitting. Cutter relief principle: [Vectric Create Fillets](https://docs.vectric.com/docs/V12.0/VCarvePro/ENU/Help/form/Create%20Fillets/index.html). Historical release notes below describe the earlier dowelled frames.
 
 - Field labels explicitly target their inputs: checkbox rows toggle across the label area while help activates only within the info button. Shared suspension settings remain in Global; cabinet settings contain local on/off controls (including a Wall suspension toggle for Wall cabinets).
 - Fixed shelf centre height is entered above the finished floor. A newly entered floor target remains fixed through support/mounting changes; legacy projects retain their existing shelf positions until edited. For a shelf surface aligned with a countertop, subtract half the shelf stock thickness from the countertop height.

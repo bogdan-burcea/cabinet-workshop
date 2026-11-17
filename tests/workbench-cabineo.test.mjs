@@ -39,7 +39,7 @@ test('Cabineo connector spacing covers long joints and fixed shelves without exc
  const parts=cabinetParts(c);assert(parts.find(p=>p.row[0]==='Fixed shelf').flatOperations.some(o=>o.cabineoGroup));
  const rows=[['Bottom',18,0,0,564,1000,18]],ops=cabineoOperations({...c,backGroove:false},rows),ys=ops.filter(o=>o.part==='Left side').map(o=>o.point[1]);
  assert(ys.length>=4);for(let i=1;i<ys.length;i++)assert(ys[i]-ys[i-1]<=300);assert.equal(ys[0],50);assert.equal(ys.at(-1),944);
- const small=cabineoOperations({...c,depth:106,back:6,backGroove:false},[['Front rail',18,0,100,564,100,18]]);assert.equal(small.filter(o=>o.part==='Left side').length,1);
+ const small=cabineoOperations({...c,depth:106,back:6,backGroove:false},[['Front rail',18,0,100,564,100,18]]);assert.equal(small.filter(o=>o.part==='Left side').length,2);
 });
 test('Cabineo rejects unsuitable joints, stock, gaps, edge bands and hardware conflicts',()=>{
  const c=config('Base',{assembly:true,bottomDado:false,assemblyConnector:'cabineo12'});

@@ -1,3 +1,5 @@
+import {drawerFrontGeometry,drawerFrontRow} from './drawer-fronts.js';
+import {golaDrawerSpacing,golaBoxTop,golaBoxBottom} from './gola.js';
 // Blum TANDEMBOX antaro M, chipboard back, 30 kg 578M cabinet profiles.
 // Official planning: BEC003 me57421162, pp.44–45 and66. Metal sides are bought hardware.
 export const isTandembox=c=>c.drawerSystem==='tandembox_m';
@@ -5,22 +7,22 @@ export const tandemboxLengths=[270,350,400,450,500,550];
 export function tandemboxPlan(c){
  const fail=s=>{throw Error('TANDEMBOX antaro M: '+s);},n=c.drawerCount;
  if(!Number.isInteger(n)||n<1||n>4)fail('Choose 1–4 drawers.');
- const available=c.depth-c.back-(c.backGroove?c.backInset:0),length=c.drawerLength||[...tandemboxLengths].reverse().find(n=>n+3<=available);
+ const front=drawerFrontGeometry(c),available=c.depth-front.setback-c.back-(c.backGroove?c.backInset:0),length=c.drawerLength||[...tandemboxLengths].reverse().find(n=>n+3<=available);
  if(!tandemboxLengths.includes(length)||length+3>available)fail('Choose a 270, 350, 400, 450, 500 or 550 mm runner that fits before the back, with 3 mm clearance.');
  if(c.drawerStock!==16||c.drawerBottom!==16)fail('This preset needs 16 mm wooden bottoms and backs. Select the preset again to set both automatically.');
  if(c.thickness<16)fail('Cabinet stock must be at least 16 mm for the specified runner screws.');
- const inner=c.width-2*c.thickness,frontCutLength=inner-132,innerDrawer=c.innerDrawer===true,usable=c.height-4-2*(n-1),heights=[];let remain=usable;
+ const {gaps,topGap,bottomGap}=golaDrawerSpacing(c),inner=c.width-2*c.thickness,frontCutLength=inner-132,innerDrawer=c.innerDrawer===true,usable=front.top-front.bottom-topGap-bottomGap-gaps.reduce((a,b)=>a+b,0),heights=[];let remain=usable;
  for(let i=0;i<n-1;i++){const h=c['drawerFront'+(i+1)]||usable/n;heights.push(h);remain-=h;}heights.push(remain);
  if(inner-87<120||heights.some(h=>h<130))fail('Each front needs at least 130 mm, and the wooden back at least 120 mm width. Reduce drawer count or increase the cabinet size.');
  if(innerDrawer&&frontCutLength>1036.3)fail('The inner aluminium front exceeds its 1036.3 mm stock length. Reduce cabinet width.');
- const floor=(c.bottomDado?c.bottomLift:0)+c.thickness,boxes=[];let top=c.height-2;
- for(let i=0;i<n;i++){const h=heights[i],z=top-h,reference=Math.max(z+2,floor+38),bottomZ=reference+9,sideZ=reference;
- if(reference+(innerDrawer?106:95.5)>Math.min(top-3,c.height-c.thickness-3))fail('Drawer '+(i+1)+' needs more height. Reduce drawer count or bottom lift.');
- boxes.push({index:i+1,frontZ:z,frontHeight:h,bottomZ,sideZ,height:innerDrawer?106:95.5,fixingZ:reference-33,reference});top=z-2;}
+ const floor=(c.bottomDado?c.bottomLift:0)+c.thickness,boxes=[];let top=front.top-topGap;
+ for(let i=0;i<n;i++){const h=heights[i],z=top-h,reference=Math.max(z+2,floor+38,golaBoxBottom(c,z,i,n)-9),bottomZ=reference+9,sideZ=reference;
+ if(reference+(innerDrawer?106:95.5)>Math.min(top-3,c.height-c.thickness-3,golaBoxTop(c,top,i)))fail('Drawer '+(i+1)+' needs more height. Reduce drawer count or bottom lift.');
+ boxes.push({index:i+1,frontZ:z,frontHeight:h,bottomZ,sideZ,height:innerDrawer?106:95.5,fixingZ:reference-33,reference});top=z-(gaps[i]??0);}
  return {innerDrawer,frontCutLength,family:'TANDEMBOX antaro M',partNumber:'578.'+length+'1M',sidePart:'378M'+length+'2SA',length,inner,outer:inner-12,depth:length-24,x:c.thickness+37.5,stock:16,bottom:16,backWidth:inner-87,heights,boxes,capacity:30};
 }
-export function tandemboxRows(c){const p=tandemboxPlan(c);return p.boxes.flatMap(a=>[...(!p.innerDrawer?[['Drawer '+a.index+' overlay front',2,-(c.doorThickness??18)-2,a.frontZ,c.width-4,c.doorThickness??18,a.frontHeight]]:[]),['Drawer '+a.index+' bottom',p.x,0,a.bottomZ,p.inner-75,p.depth,16],['Drawer '+a.index+' back',c.thickness+43.5,p.depth,a.bottomZ,p.backWidth,16,84]]);}
+export function tandemboxRows(c){const p=tandemboxPlan(c);return p.boxes.flatMap(a=>[...(!p.innerDrawer?[drawerFrontRow(c,a)]:[]),['Drawer '+a.index+' bottom',p.x,0,a.bottomZ,p.inner-75,p.depth,16],['Drawer '+a.index+' back',c.thickness+43.5,p.depth,a.bottomZ,p.backWidth,16,84]]).map(r=>/overlay front$/.test(r[0])?r:[r[0],r[1],r[2]+drawerFrontGeometry(c).setback,...r.slice(3)]);}
 export const tandemboxFixings=n=>n<=350?[37,133]:n===400?[37,229]:[37,261];
-export function tandemboxOperations(c,rows){const p=tandemboxPlan(c),ops=[];for(const a of p.boxes)for(const left of [true,false])for(const y of tandemboxFixings(p.length))ops.push({type:'bore',part:left?'Left side':'Right side',label:'TANDEMBOX 578M runner pilot',axis:0,point:[left?c.thickness:c.width-c.thickness,y,a.fixingZ],sign:left?-1:1,diameter:2.5,depth:10});return ops;}
+export function tandemboxOperations(c,rows){const p=tandemboxPlan(c),ops=[];for(const a of p.boxes)for(const left of [true,false])for(const y of tandemboxFixings(p.length))ops.push({type:'bore',part:left?'Left side':'Right side',label:'TANDEMBOX 578M runner pilot',axis:0,point:[left?c.thickness:c.width-c.thickness,y+drawerFrontGeometry(c).setback,a.fixingZ],sign:left?-1:1,diameter:2.5,depth:10});return ops;}
 export function tandemboxHardware(c){const p=tandemboxPlan(c),n=c.drawerCount;return [[c.name,p.partNumber,'BLUMOTION runner pair · 30 kg',n],[c.name,p.sidePart,'Antaro M metal side pair',n],[c.name,'Z30M000S.04','Wooden back fixing pair',n],...(p.innerDrawer?[[c.name,'ZIF.71M0','Inner front fixing set · left/right with locking piece',n],[c.name,'Z31L1036A','Aluminium inner front · cut to '+p.frontCutLength+' mm',n],[c.name,'ZIF.80M5','Inner drawer handle · without door latch',n]]:[[c.name,'ZSF.35A2','Screw-on front bracket',2*n]]),[c.name,'Ø4 × 15 mm','Runner fixing screws',2*n*tandemboxFixings(p.length).length]];}
 export function tandemboxGuide(c){const p=tandemboxPlan(c);return `${c.name}: TANDEMBOX antaro M ${p.innerDrawer?'INNER drawers behind hinged doors':'overlay drawers'}, 30 kg, NL ${p.length} mm. Buy matching ${p.sidePart} metal sides, ${p.partNumber} runners and Z30M000S.04 back fixings per drawer.\n`+(p.innerDrawer?`INNER FRONT: ${c.drawerCount} × Z31L1036A aluminium profile, each cut to ${p.frontCutLength} mm (effective runner opening ${p.inner} − 132). Buy one ZIF.71M0 L/R front fixing set with locking piece and one ZIF.80M5 plain handle per tray. No door latch, exterior front brackets, wooden inner fronts or exterior drawer fronts. One profile stock piece is allowed per tray in the estimate; profile offcut reuse is not optimised.\n`:`Buy two ZSF.35A2 screw-on front brackets per drawer.\n`)+`Cut 16 mm bottoms: ${p.inner-75} × ${p.depth} mm; backs: ${p.backWidth} × 84 mm. Only these wooden pieces${p.innerDrawer?'':' and the overlay fronts'} are nested. Metal sides${p.innerDrawer?' and inner fronts':''} are bought hardware, shown schematically in assembly and excluded from CNC sheets and STEP.\nRunner pilots are included. Bracket and base-to-metal fixings must be prepared with the matching Blum assembly template and instructions; those jig operations are not inferred as CNC bores. Trial-fit the bought components before batch cutting. No gallery, TIP-ON or other drawer height is implied.\nReference: https://d2.blum.com/services/BEC003/me57421162_ep_dok_bau_%24sen-ca_%24aof_%24v1.pdf (planning pp.${p.innerDrawer?'46–47':'44–45'},66).\n`;}

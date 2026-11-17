@@ -23,17 +23,17 @@ test('glass doors make four frame parts with a single glass pane and preserved h
  assert.equal(gs.length,doors);assert.equal(frames.length,4*doors);
  assert.equal(frames.flatMap(p=>p.flatOperations).filter(o=>o.label==='Hinge cup').length,doors*c.hingeCount);
  assert.equal(frames.flatMap(p=>p.flatOperations).filter(o=>o.label==='Handle through hole').length,doors*(c.handle==='knob'?1:c.handle==='none'?0:2));
- for(const p of frames){assert.equal(p.flatOperations.filter(o=>o.innerProfile).length,0);assert.equal(p.flatOperations.filter(o=>o.label==='Glass rebate').length,1);assert.equal(p.flatOperations.filter(o=>o.label==='Frame dowel').length,4);assert(p.flatOperations.every(o=>o.axis!==2||o.sign===-1));}
+ for(const p of frames){assert.equal(p.flatOperations.filter(o=>o.innerProfile).length,0);assert.equal(p.flatOperations.filter(o=>o.label==='Glass rebate').length,1);assert.equal(p.flatOperations.filter(o=>o.label==='Frame dowel').length,0);assert(p.flatOperations.some(o=>o.cutPolygon));assert(p.flatOperations.every(o=>o.axis!==2||o.sign===-1));}
  for(const g of gs){const p=frames.find(p=>p.glassDoor.name===g.name);close(g.width,p.glassDoor.width-2*c.glassFrame+14);close(g.height,p.glassDoor.height-2*c.glassFrame+14);}
  const loaded=loadProject(saveProject(c,machineDefaults));assert.deepEqual(cabinetParts(loaded.cabinet),raw);const faces=previewFaces(c);assert(faces.some(f=>f.glass));assert.equal(new Set(faces.filter(f=>f.name.startsWith('Door')).map(f=>f.code)).size,4*doors);
  }
 });
-test('each frame dowel has exactly two aligned mating bores in the assembled model',()=>{
- const c={...defaults,doorStyle:'glass'},parts=cabinetRows(c).filter(p=>p.glassFramePart),groups=new Map();
- for(const p of parts)for(const o of p.operations.filter(o=>o.label==='Frame dowel')){const key=JSON.stringify(o.point);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);}
- assert.equal(groups.size,16);for(const pair of groups.values()){assert.equal(pair.length,2);assert.equal(pair[0].sign,-pair[1].sign);assert.equal(pair[0].diameter,6);assert.equal(pair[0].depth+pair[1].depth,30);}
+test('each dovetail group spans one rail and one stile without edge drilling',()=>{
+ const parts=cabinetRows({...defaults,doorStyle:'glass'}).filter(p=>p.glassFramePart),groups=new Map();
+ for(const p of parts)for(const o of p.operations.filter(o=>o.dovetailGroup)){assert.equal(o.axis,1);if(!groups.has(o.dovetailGroup))groups.set(o.dovetailGroup,new Set());groups.get(o.dovetailGroup).add(p.row[0]);}
+ assert.equal(groups.size,8);for(const members of groups.values())assert.equal(members.size,2);
 });
-test('band deductions affect external frame edges and leave butt joint edges unbanded',()=>{
+test('band deductions affect external frame edges and leave dovetail joint edges unbanded',()=>{
  const c={...defaults,doorStyle:'glass',edgeBand:1},parts=cabinetParts(c).filter(p=>p.glassFramePart);
  for(const p of parts){const role=p.glassFramePart,b=p.edgeBand;assert(b);if(role==='left stile'){assert.equal(b.xMin,1);assert.equal(b.xMax,0);}if(role==='right stile'){assert.equal(b.xMin,0);assert.equal(b.xMax,1);}if(role.includes('rail')){assert.equal(b.xMin,0);assert.equal(b.xMax,0);close(p.width,p.finishedWidth);close(p.height,p.finishedHeight-1);}else close(p.height,p.finishedHeight-2);}
  assert.equal(glassSchedule(parts,c).length,2);
