@@ -25,7 +25,7 @@ test('a full nested glass-door sheet preserves raw part volumes, bores, dados, b
   const placed=sheet.parts[i],source=raw.get(placed.sourceCode),original=buildPart({row:['Original',0,0,0,source.width,source.height,source.thickness],operations:source.flatOperations,holes:source.flatHoles.map(h=>({x:h.x,y:h.y,width:h.width,depth:h.height}))}),solid=buildPart(row);
   try{near(measureVolume(solid),measureVolume(original),.001);const box=solid.boundingBox;try{near(box.bounds[0][2],-sheet.thickness,.0001);near(box.bounds[1][2],0,.0001);near(box.width,placed.w,.0001);near(box.height,placed.h,.0001);}finally{box.delete();}}finally{solid.delete();original.delete();}secondary+=(placed.secondaryOperations||[]).length;checked++;
  }
- assert.equal(checked,layout.parts.length);assert(secondary>0);
+ assert.equal(checked,layout.parts.length);assert.equal(secondary,0);
 });
 test('nested sheet STEP round-trips as separate named solids with unchanged volume and placement',async()=>{
  await ready;const layout=projectLayout(fixture()),sheet=layout.sheets.find(s=>s.parts.some(p=>p.row[0].startsWith('Door')))||layout.sheets[0],rows=sheetStepRows(sheet);let volume=0;for(const r of rows){const solid=buildPart(r);volume+=measureVolume(solid);solid.delete();}

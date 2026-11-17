@@ -9,7 +9,7 @@ export function streamlineDrawers(input,key='frontMode'){
  if(key==='drawerRunner'&&c.drawerRunner!=='auto'){if(c.drawerRunner==='560H'&&(c.drawerStock>16||c.drawerStock<11))set('drawerStock',16,'Drawer stock set to 16 mm for 560H.');if(c.drawerRunner==='560F'&&(c.drawerStock<17||c.drawerStock>19))set('drawerStock',18,'Drawer stock set to 18 mm for 560F.');}
  if(!Number.isFinite(c.drawerStock)||c.drawerStock<11||c.drawerStock>19||c.drawerStock>16&&c.drawerStock<17)set('drawerStock',18,'Drawer stock set to 18 mm.');
  if(c.drawerRunner==='560H'&&c.drawerStock>16||c.drawerRunner==='560F'&&c.drawerStock<17||!['auto','560H','560F'].includes(c.drawerRunner))set('drawerRunner','auto','Runner family now follows drawer stock.');
- const available=c.depth-c.back-(c.backGroove?c.backInset:0);if(c.drawerLength!==0&&(!tandemLengths.includes(c.drawerLength)||c.drawerLength+3>available))set('drawerLength',0,'Runner length changed to automatic to fit the back clearance.');
+ const available=c.depth-c.back-(c.backGroove?c.backInset:0)-(c.drawerInset?(c.doorThickness??18)+4:0);if(c.drawerLength!==0&&(!tandemLengths.includes(c.drawerLength)||c.drawerLength+3>available))set('drawerLength',0,'Runner length changed to automatic to fit the back clearance.');
  if(!Number.isFinite(c.drawerBottom)||c.drawerBottom<6||c.drawerBottom>12)set('drawerBottom',6,'Drawer floor reset to the 6 mm starter.');
  if(!Number.isFinite(c.drawerBoxHeight)||c.drawerBoxHeight<60||c.drawerBoxHeight>400)set('drawerBoxHeight',140,'Box height now fits automatically, up to 140 mm.');
  const topMin=Math.max(120,c.thickness+84),lastMin=Math.max(topMin,(c.bottomDado?c.bottomLift:0)+c.thickness+82);
@@ -20,14 +20,14 @@ export function streamlineDrawers(input,key='frontMode'){
  if(balanced)notes.push('Front heights balanced to keep every drawer usable; the last fills the remainder.');
  if(!['top_center','middle_center','bottom_center'].includes(c.drawerHandlePosition))set('drawerHandlePosition','top_center');
  let p;try{p=drawerPlan(c);}catch{return {cabinet:c,notes};}
- if(c.handle!=='none'){
+ if(!['none','gola'].includes(c.handle)){
   const short=Math.min(...p.heights),diam=c.handleDiameter||5,span=c.handle==='vertical'?short:c.width-4;
   const edge=Math.max(15,Math.min(c.handleEdge||40,(short-diam-20)/2));set('handleEdge',edge,'Handle setback adjusted to fit the drawer fronts.');
   if(c.handle!=='knob'){const limit=c.handle==='vertical'?short-2*edge-diam:p.inner-30-diam;if(c.handlePitch>limit||c.handlePitch<1){const pitch=[320,256,224,192,160,128,96,64,32].find(x=>x<=limit);if(pitch)set('handlePitch',pitch,'Handle spacing adjusted to fit the fronts.');else set('handle','knob','Handle changed to one-hole fixing for this narrow front.');}}
  }
  // Keep carcass edits; drawer geometry changes invalidate only drawer-specific overrides.
  const edits=c.featureEdits||{operations:{},bands:{}};if(['frontMode','style','width','depth','height','thickness','back','bottomLift','bottomDado','backInset','backGroove','clearance'].includes(key)||key.startsWith('drawer'))for(const group of ['operations','bands'])for(const id of Object.keys(edits[group]||{}))if(id.includes('Drawer '))delete edits[group][id];c.featureEdits=edits;
- try{cabinetParts(c);}catch(e){if(/handle/i.test(e.message)&&c.handle!=='none'){
+ try{cabinetParts(c);}catch(e){if(/handle/i.test(e.message)&&!['none','gola'].includes(c.handle)){
   const original={handle:c.handle,position:c.drawerHandlePosition,edge:c.handleEdge};let fitted=false;
   outer:for(const handle of [...new Set([c.handle,'knob'])])for(const position of ['top_center','middle_center','bottom_center'])for(const edge of [30,40,25,50,20,60]){const trial={...c,handle,drawerHandlePosition:position,handleEdge:edge};try{cabinetParts(trial);Object.assign(c,trial);fitted=true;break outer;}catch{}}
   if(fitted)notes.push(c.handle!==original.handle?'Handle changed to one-hole fixing to clear the drawer box.':'Handle setback and placement adjusted to clear the drawer box.');

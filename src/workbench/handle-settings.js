@@ -1,7 +1,7 @@
 import {isDrawers} from './tandem.js';
 import {localKeysForStyle} from './styles.js';
 const keys=['handle','handlePosition','handlePitch','handleDiameter','handleEdge','handleAlignment','handleHeight','drawerHandlePosition'];
-export const handleStyles=[['none','No handle holes'],['knob','Knob · one hole'],['horizontal','Pull · horizontal pair'],['vertical','Pull · vertical pair']];
+export const handleStyles=[['none','No handle holes'],['gola','GOLA · recessed aluminium rail'],['knob','Knob · one hole'],['horizontal','Pull · horizontal pair'],['vertical','Pull · vertical pair']];
 export const handlePositions=wall=>wall?[['auto_bottom','Free edge · bottom'],['bottom_center','Bottom · centre of door']]:[['auto_top','Free edge · top'],['top_center','Top · centre of door'],['auto_middle','Free edge · middle'],['auto_bottom','Free edge · bottom'],['bottom_center','Bottom · centre of door']];
 export function withHandleSettings(cabinet,globals,values){
  const c=structuredClone(cabinet),g=structuredClone(globals);
@@ -12,3 +12,5 @@ export function withHandleSettings(cabinet,globals,values){
  if(c.inheritGlobals!==false)for(const k of keys)if(k!=='drawerHandlePosition'&&!localKeysForStyle(c.style).includes(k))g[k]=c[k];
  return {cabinet:c,globals:g};
 }
+
+export function handleEditorTarget(cabinet,part){const drawer=/^Drawer .*overlay front$/.test(part.glassDoor?.name??part.row[0]);return{drawer,positionKey:drawer?'drawerHandlePosition':'handlePosition',positions:drawer?[['top_center','Top · centre'],['middle_center','Middle · centre'],['bottom_center','Bottom · centre']]:handlePositions(cabinet.style==='Wall'),floorReference:!drawer&&cabinet.style!=='Wall'};}

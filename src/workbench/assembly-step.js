@@ -15,7 +15,7 @@ export function assemblyStepRows(state){
   const owner='C'+String(index).padStart(2,'0')+' '+c.name;
   const point=([x,y,z])=>[x+p.x,y,z+p.bottom];
   const parts=assemblyRows(c);
-  for(const part of [...parts])if(part.glassFramePart==='left stile'){
+  for(const part of [...parts])if(part.frameStyle==='glass'&&part.glassFramePart==='left stile'){
    const [x,y,z,w,,h]=part.glassDoor.bounds,g=glassDimensions(w,h,c),inset=g.frame-g.lap+g.clearance/2;
    parts.push({row:[part.glassDoor.name+' glass',x+inset,y+g.rebateDepth-g.thickness,z+inset,g.width,g.thickness,g.height],operations:[],purchased:true});
   }

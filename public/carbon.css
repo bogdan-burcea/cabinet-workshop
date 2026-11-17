@@ -56,7 +56,7 @@ p { line-height:20px; }
 input[readonly],.position-picker input[readonly] { background-color:var(--cds-field); border-bottom-color:#c6c6c6; color:var(--cds-text-secondary); cursor:default; }
 input:focus-visible,select:focus-visible,textarea:focus-visible { outline:2px solid var(--cds-focus); outline-offset:-2px; }
 input[aria-invalid=true],select[aria-invalid=true] { outline:2px solid var(--cds-support-error); outline-offset:-2px; }
-#controls input:disabled,#controls select:disabled,.feature-editor-form input:disabled,.feature-editor-form select:disabled { background:#e0e0e0; color:var(--cds-text-disabled); border-bottom-color:transparent; cursor:not-allowed; }
+#controls input:not([type=checkbox]):disabled,#controls select:disabled,.feature-editor-form input:not([type=checkbox]):disabled,.feature-editor-form select:disabled { background:#e0e0e0; color:var(--cds-text-disabled); border-bottom-color:transparent; cursor:not-allowed; }
 .field.check,#controls .field.check { min-height:40px; gap:var(--cds-spacing-03); }
 #controls .field.check>span { font-size:14px; line-height:18px; color:var(--cds-text-primary); }
 input[type=checkbox],.field input[type=checkbox],#assembly-panel .assembly-actions input[type=checkbox] { width:16px; height:16px; min-height:16px; padding:0; flex:none; }
@@ -205,6 +205,7 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 
 /* Keep picker actions beneath their own field, in keyboard reading order. */
 .cabinet-picker>.cabinet-actions { justify-content:flex-end; gap:var(--cds-spacing-02); margin-top:var(--cds-spacing-03); }
+.cabinet-picker>.cabinet-actions>.picker-icon:first-child { margin-right:auto; }
 .cabinet-picker>.picker-top { min-height:24px; }
 
 .position-picker .picker-top>.position-info { display:inline-grid; place-items:center; width:24px; height:24px; min-width:24px; min-height:24px; padding:4px; flex:0 0 24px; }
@@ -226,3 +227,89 @@ select,#controls select,.feature-editor-form select,.cabinet-picker select,.sele
 .field.check { cursor:pointer; }
 .field-label>button { cursor:pointer; position:relative; }
 .field.check input[type=checkbox] { cursor:pointer; }
+
+/* Open settings follow Carbon's white layer with contrasting gray controls. */
+#controls details[open] { background:#fff; }
+#controls details[open]>summary,#controls details[open]>div { padding-left:16px; padding-right:16px; }
+#controls details[open] .field input:not([type=checkbox]),#controls details[open] .field select { background-color:#f4f4f4; }
+.cabinet-identity { margin-bottom:16px; }
+#controls .cabinet-identity .field { margin-bottom:8px; }
+#controls .cabinet-identity .field:last-child { margin-bottom:0; }
+/* Native checkboxes must not inherit numeric field padding/borders in editors. */
+.feature-editor-form .field input[type=checkbox] { appearance:none; padding:0; margin:0; border:1px solid #161616; background:#fff; border-radius:0; align-self:center; }
+.estimate-summary.needs-prices { border-left:3px solid #f1c21b; background:#fff8e1; padding:16px; position:relative; }
+.estimate-summary.needs-prices>.ui-icon { flex:none; width:20px; height:20px; margin-right:8px; }
+.price-missing:focus-visible { outline-color:var(--cds-focus); }
+
+.feature-editor-form .field input[type=checkbox]:checked { border-color:#0f62fe; background:#0f62fe url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='m6.5 11.2-3.7-3.7 1-1 2.7 2.7 5.7-5.7 1 1z'/%3E%3C/svg%3E") center/14px no-repeat; }
+.feature-editor-form .field input[type=checkbox]:disabled { border-color:#c6c6c6; background-color:transparent; cursor:not-allowed; }
+.feature-editor-form .field input[type=checkbox]:checked:disabled { background-color:#c6c6c6; }
+
+.global-stock-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.cabinet-picker .cabinet-actions .picker-add { border:0; justify-content:flex-start; gap:8px; }
+#controls .position-picker { border:0; padding:0; margin-bottom:16px; }
+#controls .position-picker>.field-label { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+#controls .position-picker>.field-label label { flex:1; font-size:12px; line-height:16px; }
+.part-button .cabinet-list-text { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.part-button .cabinet-list-name { font-size:14px; line-height:20px; overflow-wrap:anywhere; }
+.part-button .cabinet-list-text small { line-height:16px; }
+
+.part-button .cabinet-list-name,.part-button .cabinet-list-text small { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#controls [data-section=fronts] .construction-section-title { font-size:13px; line-height:20px; font-weight:600; margin:0 0 16px; }
+#controls [data-section=fronts] .construction-separator { border:0; border-top:1px solid #e0e0e0; margin:8px 0 16px; }
+#controls .plinth-unavailable { margin-top:8px; }
+#controls .field.check:has(input:disabled) { cursor:not-allowed; }
+#controls .field.check:has(input:disabled)>.field-label { color:var(--cds-text-disabled); }
+
+.cabinet-mounting { margin-top:0; padding-top:8px; border-top:1px solid #c6c6c6; }
+.cabinet-mounting>.field { margin-bottom:0; }
+.cost-table input.price-missing,.extra-cost-row input.price-missing { outline:none; border:0; background:#fff8e1; }
+.price-missing:focus-visible { outline:2px solid var(--cds-focus); }
+.field:has(input:disabled), .field:has(select:disabled) { color:#8d8d8d; }
+
+#controls .field input:disabled:not([type=checkbox]),#controls .field select:disabled { color:#8d8d8d !important; background:#f4f4f4 !important; border-bottom-color:transparent !important; }
+.field:has(input:disabled)>.field-label,.field:has(select:disabled)>.field-label { color:#8d8d8d; }
+
+/* Disabled checkbox states retain the tick image and all four border edges. */
+#controls input[type=checkbox]:disabled { border:1px solid #c6c6c6; background-color:transparent; cursor:not-allowed; }
+#controls input[type=checkbox]:checked:disabled { background-color:#c6c6c6; }
+
+.cabinet-library-actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+.cabinet-library-actions button { padding:8px 12px; min-height:40px; flex:1; white-space:nowrap; }
+.cabinet-library-dialog { width:min(1000px,calc(100vw - 32px)); max-width:1000px; max-height:calc(100dvh - 32px); overflow:auto; padding:24px; }
+.cabinet-library-dialog .field { gap:8px; margin-bottom:16px; }
+.cabinet-library-dialog .field input:not([type=checkbox]),.cabinet-library-dialog .field select,.cabinet-library-dialog .field textarea { width:100%; min-width:0; padding:0 16px; min-height:40px; border:0; border-bottom:1px solid #8d8d8d; background-color:#f4f4f4; font:14px/20px 'IBM Plex Sans',sans-serif; }
+.cabinet-library-dialog .field textarea { min-height:96px; padding:12px 16px; resize:vertical; }
+.cabinet-library-dialog input:focus-visible,.cabinet-library-dialog select:focus-visible,.cabinet-library-dialog textarea:focus-visible { outline:2px solid #0f62fe; outline-offset:-2px; }
+.library-toolbar,.library-actions,.library-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.library-actions { justify-content:flex-end; }
+.library-filters { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-top:16px; }
+.library-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; }
+.library-card { border:1px solid #e0e0e0; padding:16px; min-width:0; background:#fff; }
+.library-card img { display:block; width:100%; height:180px; object-fit:contain; background:#f4f4f4; }
+.library-card h3 { font-size:16px; line-height:24px; margin:16px 0 8px; overflow-wrap:anywhere; }
+.library-card .note { overflow-wrap:anywhere; }
+.library-card-actions button { min-height:32px; padding:6px 10px; }
+.library-error { border-left:3px solid #da1e28; background:#fff1f1; padding:16px; margin:16px 0; overflow-wrap:anywhere; }
+.library-error[hidden] { display:none; }
+.library-error ul,.library-changes ul { padding-left:20px; }
+.library-changes { margin:16px 0; border-top:1px solid #c6c6c6; overflow-wrap:anywhere; }
+.library-changes li { margin-bottom:8px; font-size:13px; line-height:20px; }
+@media(max-width:600px) { .cabinet-library-dialog { padding:16px; } .library-filters { grid-template-columns:1fr; gap:0; } .library-grid { grid-template-columns:1fr; } .library-toolbar button { flex:1 1 120px; } }
+
+#controls [data-section=local-settings] details>summary { font-size:14px; font-weight:400; }
+
+.cabinet-library-dialog .field select { padding-right:44px; }
+
+.cabinet-library-dialog input[type=checkbox]:disabled { border-color:#c6c6c6; background-color:transparent; cursor:not-allowed; }
+.cabinet-library-dialog input[type=checkbox]:checked:disabled { background-color:#c6c6c6; }
+.scope-notice p { overflow-wrap:anywhere; }
+.scope-notice button { white-space:normal; min-height:40px; height:auto; }
+.error-owner { font-size:12px; font-weight:600; margin-bottom:8px; }
+
+/* Keep mobile assembly controls and the orbit canvas within one readable panel. */
+@media(max-width:900px) {
+  body[data-context="assembly"] #assembly-panel { position:static; width:auto; height:auto; min-height:0; margin:0 16px 24px; padding:16px; box-shadow:none; z-index:auto; }
+  body[data-context="assembly"] #assembly-panel .assembly-drawing { flex:none; height:320px; min-height:220px; }
+  body[data-context="assembly"] .workspace { padding-bottom:24px; }
+}

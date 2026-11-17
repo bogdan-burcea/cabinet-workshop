@@ -1,8 +1,9 @@
+import {golaRails,isGola} from './gola.js';
 import {wallSuspensionApplies} from './wall-hangers.js';
 import {cabineoVariants} from './cabineo.js';
 import {sectionDrawerConfigs} from './sections.js';
 import {isTandembox,tandemboxHardware} from './tandembox.js';
-import {pantryPlan,pantryConfig} from './pantry.js';
+import {isPantry,pantryPlan,pantryConfig} from './pantry.js';
 import {isDrawers,drawerPlan,tandemFixings} from './tandem.js';
 import {glassSchedule} from './doors.js';
 export const emptyCosts=()=>({currency:'RON',basis:'sheet',prices:{},extras:[]});
@@ -14,14 +15,16 @@ export function costRows(cabinets,parts,layout,costs={}){
  for(const sheet of layout.sheets){const g=groups.get(JSON.stringify([sheet.material,sheet.thickness]));if(g)g.sheets++;}
  for(const g of groups.values())add('Material',`${g.material} · ${g.t} mm`+(c.basis==='sheet'?` · ${g.width} × ${g.height} mm`:''),c.basis==='sheet'?'sheet':'m²',c.basis==='sheet'?g.sheets:g.area,[g.material,g.t,c.basis,...(c.basis==='sheet'?[g.width,g.height]:[])]);
  for(const r of cabinets){const a=r.config||r,ps=parts.filter(p=>p.cabinetId===r.id||!p.cabinetId),cups=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Hinge cup').length;
-  for(const drawer of (a.split?sectionDrawerConfigs(a):[a])){const a=drawer;if((isDrawers(a)||a.style==='Pantry')&&isTandembox(a)){for(const [,number,label,n]of tandemboxHardware(a.style==='Pantry'?pantryConfig(a):a))add('Hardware',number+' · '+label,'each',n,number==='Z31L1036A'?[number,label]:number);}
-  else if(isDrawers(a)||a.style==='Pantry'){const p=a.style==='Pantry'?pantryPlan(a):drawerPlan(a),n=a.drawerCount;add('Hardware',`${p.partNumber} · L/R runner pair`,'pair',n,p.partNumber);add('Hardware','T51.1700.04 · L/R locking-device pair','pair',n,'T51.1700.04');add('Hardware','Runner screws · Ø4 × 15 mm','each',2*n*tandemFixings(p.length).length,'runner-screw');}
+  for(const drawer of (a.split?sectionDrawerConfigs(a):[a])){const a=drawer;if((isDrawers(a)||isPantry(a))&&isTandembox(a)){for(const [,number,label,n]of tandemboxHardware(isPantry(a)?pantryConfig(a):a))add('Hardware',number+' · '+label,'each',n,number==='Z31L1036A'?[number,label]:number);}
+  else if(isDrawers(a)||isPantry(a)){const p=isPantry(a)?pantryPlan(a):drawerPlan(a),n=a.drawerCount;add('Hardware',`${p.partNumber} · L/R runner pair`,'pair',n,p.partNumber);add('Hardware','T51.1700.04 · L/R locking-device pair','pair',n,'T51.1700.04');add('Hardware','Runner screws · Ø4 × 15 mm','each',2*n*tandemFixings(p.length).length,'runner-screw');}
   }
-  if(a.wallSuspensionEnabled!==false&&wallSuspensionApplies(a)&&a.wallHanger==='blum_48n0510'){add('Hardware','48N0510.03S /48N0510.02S · Blum screw-on wall hanger pair','pair',1,'blum_48n0510');add('Hardware','Wall hanger fixing screws · match bought hanger','each',4,'wall-hanger-screw');if(a.wallRailNotches)add('Hardware','Wall suspension rail · user-specified profile','m',a.width/1000,'wall-suspension-rail');}
+  if((a.style!=='Wall'||a.wallSuspensionEnabled!==false)&&wallSuspensionApplies(a)&&a.wallHanger==='blum_48n0510'){add('Hardware','48N0510.03S /48N0510.02S · Blum screw-on wall hanger pair','pair',1,'blum_48n0510');add('Hardware','Wall hanger fixing screws · match bought hanger','each',4,'wall-hanger-screw');if(a.wallRailNotches)add('Hardware','Wall suspension rail · user-specified profile','m',a.width/1000,'wall-suspension-rail');}
   if(cups){add('Hardware',a.hinge+' · hinge','each',cups,a.hinge);add('Hardware',a.hinge+' · '+a.plate+' mm mounting plate','each',cups,a.hinge+'-plate-'+a.plate);}
+  if(isGola(a)){const rails=golaRails(a,ps);const length=rails.reduce((sum,r)=>sum+(r.vertical?r.box[5]:r.box[3])/1000,0);add('Hardware','GOLA aluminium rail · cut length','m',length,'gola-profile');}
   const handles=new Set(ps.filter(p=>p.flatOperations.some(o=>o.label==='Handle through hole')).map(p=>p.glassDoor?.name||p.key||p.code)).size;if(handles)add('Hardware',a.handle==='knob'?'Knob':a.handle+' pull · '+a.handlePitch+' mm','each',handles,a.handle==='knob'?'knob':a.handle+'-'+a.handlePitch);
-  if(!wallSuspensionApplies(a)&&a.support!=='floor'&&a.feet!=='none')add('Hardware',a.feet+' foot plate / adjustable foot','each',a.feetCount,a.feet);
+  if(a.style!=='Wall'&&a.support!=='floor'&&a.feet!=='none')add('Hardware',a.feet+' foot plate / adjustable foot','each',a.feetCount,a.feet);
   const cabineo=cabineoVariants[a.assemblyConnector];if(a.assembly&&cabineo){const quantity=ps.flatMap(p=>p.flatOperations).filter(o=>o.label===cabineo.name+' fixing').length;add('Hardware',cabineo.article+' · '+cabineo.name+' · white','each',quantity,a.assemblyConnector);}
+  const backConnectors=ps.flatMap(p=>p.flatOperations).filter(o=>o.rpcConnector).length;if(backConnectors)add('Hardware','260.09.765 · Häfele Ixconnect RPC S 15/25','each',backConnectors,'hafele_26009765');
   const dowels=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Frame dowel');for(const diameter of new Set(dowels.map(o=>o.diameter)))add('Hardware','Frame dowel · Ø'+diameter+' × 30 mm','each',dowels.filter(o=>o.diameter===diameter).length/2,'frame-dowel-'+diameter);
   for(const g of glassSchedule(ps,a))add('Glass',`Glass · ${g.thickness} mm`,'m²',g.width*g.height/1e6,'glass-'+g.thickness);
  }
