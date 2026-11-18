@@ -1,3 +1,4 @@
+import {applyBackConstruction} from './workbench/back-construction.js';
 import {golaFrontRows} from './workbench/gola.js';
 import {sectionConfigs,sectionPart,fixedShelfRow} from './workbench/sections.js';
 import {pantryRows} from './workbench/pantry.js';
@@ -49,7 +50,7 @@ export function panels(p,c,local=false){
  }
  const w=c.width,h=c.height,d=c.depth,t=c.thickness,b=c.back,cd=d-b,r=c.rail_width??100,dt=c.doorThickness??18,st=c.shelfThickness??18;
  const rows=[['Left side',0,0,0,t,cd,h],['Right side',w-t,0,0,t,cd,h],['Bottom',t,0,0,w-2*t,cd,t]];
- if((c.top_construction??(isBase(c)?'rails':'full'))==='rails')rows.push(['Front rail',t,0,h-t,w-2*t,r,t],['Rear rail',t,cd-r,h-t,w-2*t,r,t]);
+ if((c.top_construction??(isBase(c)?'rails':'full'))==='rails')rows.push(['Front rail',t,0,h-t,w-2*t,c.frontRailWidth||r,t],['Rear rail',t,cd-(c.rearTopRailWidth||r),h-t,w-2*t,c.rearTopRailWidth||r,t]);
  else rows.push(['Top',t,0,h-t,w-2*t,cd,t]);
  rows.push(['Back',0,cd,0,w,b,h]);
  const count=c.front.includes('drawer')?Number(c.front[0]):0;
@@ -67,9 +68,9 @@ export function panels(p,c,local=false){
    rows.push([prefix+'overlay front',2,-dt-2,fz,w-4,dt,fh],[prefix+'left side',x,0,z,12,dep,wh],[prefix+'right side',x+bw-12,0,z,12,dep,wh],[prefix+'internal front',x+12,0,z,bw-24,12,wh],[prefix+'back',x+12,dep-12,z,bw-24,12,wh],[prefix+'bottom',x,0,base,bw,dep,6]);
   }
  }
- const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry){adjusted.push(...pantryRows(c.pantry));if(c.pantry.style==='Tall'&&c.pantry.splitShelf)adjusted.push(fixedShelfRow({...c,sections:c.pantry}));}if(c.sections){if(c.sections.splitShelf!==false)adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...adjusted);
+ const adjusted=adjustPanels(c,rows);if(c.tandem)adjusted.push(...tandemRows(c.tandem));if(c.pantry){adjusted.push(...pantryRows(c.pantry));if(c.pantry.style==='Tall'&&c.pantry.splitShelf)adjusted.push(fixedShelfRow({...c,sections:c.pantry}));}if(c.sections){if(c.sections.splitShelf!==false)adjusted.push(fixedShelfRow(c));for(const a of sectionConfigs(c))for(const row of panels(p,a.child,true).filter(r=>sectionPart(r[0]))){const r=[...row];r[0]=a.rename(r[0]);r[3]+=a.offset;adjusted.push(r);}}rows.splice(0,rows.length,...applyBackConstruction(c,adjusted));
  if(w<=2*t||h<=2*t||cd<=0||b<=0||t<=0)throw Error('Panel thickness leaves no usable cabinet space.');
- if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=2*r)throw Error('Base depth must leave space between its two support rails.');
+ if((c.top_construction??(isBase(c)?'rails':'full'))==='rails'&&cd<=(c.frontRailWidth||r)+(c.rearTopRailWidth||r))throw Error('Base depth must leave space between its two support rails.');
  if(!count&&c.shelves&&(h-2*t<=c.shelves*st||cd<=20))throw Error('The shelves do not fit. Increase the cabinet size or reduce shelf quantity.');
  if(rows.some(r=>r.slice(4).some(v=>v<=0||!Number.isFinite(v))))throw Error('These dimensions leave an empty or invalid panel.');
  const fronts=golaFrontRows(c,rows);rows.splice(0,rows.length,...fronts);if(local)return rows;

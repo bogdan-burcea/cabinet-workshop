@@ -4,7 +4,7 @@ import {commonGroups,setCommonGroup,applyProjectSettings,applyResolvedProjectDef
 import {captureCabinetTemplate} from './cabinet-template.js';
 import {syncProject} from './project.js';
 export const isPreserved=c=>c.settingsPolicy==='preserve';
-export function localGroupValues(c,group){return group==='worktop'?{worktopThickness:c.installation?.worktopThickness??38}:Object.fromEntries(commonGroups[group].map(k=>[k,structuredClone(c[k])]));}
+export function localGroupValues(c,group){return group==='worktopOverhangs'?Object.fromEntries(commonGroups.worktopOverhangs.map(k=>[k,structuredClone(c.worktop?.[k]??(k==='front'?20:0))])):group==='worktop'?{worktopThickness:c.installation?.worktopThickness??38}:Object.fromEntries(commonGroups[group].map(k=>[k,structuredClone(c[k])]));}
 export function setLocalGroup(state,group,values){
  if(!isPreserved(state.cabinet))throw Error('Choose Preserve saved settings to edit local fittings.');
  const config=structuredClone(state.cabinet),edits=structuredClone(config.featureEdits);delete config.settingsPolicy;
@@ -32,3 +32,23 @@ export function withCabinetStyle(state,style,{frontMode,fitDrawers=false}={}){
  syncProject(next);const portable=captureCabinetTemplate(next);if(fitDrawers&&next.cabinet.frontMode==='drawers'){next.cabinet.drawerLength=portable.config.drawerLength;next.cabinet.drawerRunner=portable.config.drawerRunner;syncProject(next);}return next;
 }
 export function correctionTarget(action,cabinet){const group=commonGroupForKey(action.key),local=action.settingScope==='local'||action.settingScope!=='project'&&isPreserved(cabinet);return{view:group&&!local?'common':'build',id:group&&local&&!action.id.startsWith('local-')?'local-'+action.id:action.id,group};}
+
+// Reuse the existing full-door tray generator, with reviewed local fittings when
+// GOLA must be replaced. Project profiles and other cabinets are never edited.
+export function withTallInteriorDrawers(state,{handle}={}){
+ if(state.cabinet.style!=='Tall')throw Error('Interior drawers behind doors are available on Tall cabinets.');
+ const replacingGola=state.cabinet.handle==='gola';
+ if(replacingGola&&!['horizontal','vertical','knob','none'].includes(handle))throw Error('Choose door pulls, knobs or no handle drilling for interior drawers. GOLA needs split fronts.');
+ const next=replacingGola?withInstancePolicy(state,'preserve'):structuredClone(state),c=next.cabinet;
+ if(replacingGola)c.handle=handle;
+ Object.assign(c,{frontMode:'doors',split:true,fullDoor:true,lowerType:'drawers',upperType:'open',alignLowerToBase:false});
+ if(!state.cabinet.split){c.splitHeight=Math.min(1400,c.height-200);c.lowerDrawers=c.drawerCount;c.upperShelves=c.shelves;}
+ for(const key of ['splitFloorHeight','lowerSectionOffset','lowerSectionBottomDado','lowerSectionBottomLift'])delete c[key];
+ if(c.drawerSystem==='tandembox_m'){c.drawerStock=16;c.drawerBottom=16;}
+ syncProject(next);captureCabinetTemplate(next);return next;
+}
+
+export function withTallDoubleDoors(state,{handle='horizontal'}={}){
+ if(state.cabinet.style!=='Tall'||!['horizontal','vertical','knob','none'].includes(handle))throw Error('Choose Tall door pulls or knobs.');
+ const next=withInstancePolicy(state,'preserve');Object.assign(next.cabinet,{doors:2,handle,frontMode:'doors',split:false,fullDoor:false});syncProject(next);captureCabinetTemplate(next);return next;
+}

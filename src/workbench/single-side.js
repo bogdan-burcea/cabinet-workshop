@@ -11,10 +11,10 @@ export function reversibleBore(part,o){
  if(o.label!=='Assembly clearance')return false;
  return part.flatOperations.some(p=>p.type==='pocket'&&p.axis===2&&p.sign===-o.sign&&Math.abs(end-(o.sign>0?p.box[2]:p.box[2]+p.box[5]))<E&&Math.abs((p.sign<0?p.box[2]+p.box[5]:p.box[2])-(p.sign<0?t:0))<E&&o.point[0]-o.diameter/2>=p.box[0]-E&&o.point[0]+o.diameter/2<=p.box[0]+p.box[3]+E&&o.point[1]-o.diameter/2>=p.box[1]-E&&o.point[1]+o.diameter/2<=p.box[1]+p.box[4]+E);
 }
-const reversibleFeature=(part,o)=>reversibleBore(part,o)||o.golaRail&&o.type==='pocket'&&o.axis===2&&Math.abs(o.box[2])<E&&Math.abs(o.box[5]-part.thickness)<E;
+export const reversibleFeature=(part,o)=>reversibleBore(part,o)||o.type==='pocket'&&o.axis===2&&Math.abs(o.box[2])<E&&Math.abs(o.box[5]-part.thickness)<E;
 export function oneSidePart(part){
  const fixed=(part.flatOperations||[]).filter(o=>o.axis===2&&!reversibleFeature(part,o)),faces=new Set(fixed.map(face));
- if(faces.size>1)throw Error(`${part.code} (${part.row[0]}) has blind features on both faces. One-side machining cannot preserve them. Change the conflicting construction or feature override before exporting a face-up sheet.`);
+ if(faces.size>1){const labels=f=>[...new Set(fixed.filter(o=>face(o)===f).map(o=>o.label))].join(', '),error=Error(`${part.code} (${part.row[0]}) has blind features on both faces: A — ${labels('A')}; B — ${labels('B')}. One-side machining cannot preserve them. Change the conflicting construction or feature override.`);error.partCode=part.code;error.partName=part.row[0];error.manufacturingConflict=true;throw error;}
  const originalFace=faces.values().next().value||'A',sign=originalFace==='A'?-1:1,t=part.thickness;let redirected=0;
  const operations=part.flatOperations.map(o=>{let a=structuredClone(o);if(o.axis===2&&face(o)!==originalFace){if(!reversibleFeature(part,o))throw Error(part.code+': a blind feature cannot move to the machining face.');a=o.type==='bore'?{...a,sign,point:[o.point[0],o.point[1],sign<0?t:0],depth:t}:{...a,sign};redirected++;}if(originalFace==='B')a=transformOperation(a,([x,y,z])=>[part.width-x,y,t-z],([x,y,z])=>[-x,y,-z]);return a;});
  const hasFeatures=fixed.length>0,up=/^Door/.test(part.row[0])&&hasFeatures?'Door inside / hinge-cup face up':/side$/.test(part.row[0])&&hasFeatures?'Cabinet inside face up':hasFeatures?'Groove / drilling face up':'Chosen show face down; plain face up';
