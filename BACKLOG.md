@@ -230,3 +230,65 @@ Implement each task on a feature branch with a pull request. No feature changes 
 - Still pending by user request: Blum 155° inset configuration (71B7650/71B7690 with a 9 mm mounting plate). Do not implement until requested; inset zero-protrusion behavior needs application-specific validation.
 
 - Release validation: clean lockfile installation on Node 22, 630 tests, production build and diff whitespace checks pass. Updated fflate to 0.8.3; audit reports zero vulnerabilities. Desktop/mobile isolated Chrome checks pass for version 0.42.0, legacy project loading, unchanged raw schema-1/future library records and recovery export, preserved insertion/Undo/Redo, Add/configure/style-review/save/reload, Parts/3D and Documents. Hosting workflow/configuration unchanged.
+
+## Desktop construction refinements — local review
+
+- Implemented sheet-length plinth runs split at cabinet boundaries, matching assembly export, and foot clearance behind plinths. Foot clearance includes a conservative 30 mm physical envelope.
+- Construction and mounting defaults now live in Global per cabinet type. Rear rails are an alternative to a full back; incompatible back connectors and active back-mounted hangers are rejected explicitly.
+- Tall GOLA fronts split at internal sections without top/bottom channels. Open cabinet thumbnails, compact library actions, tighter desktop workspace spacing, a clearer nesting summary and colored wireframe accessories are implemented.
+- Confirmed unique-mode adoption defect: a latent Global Ixconnect back-inset minimum used a fallback back thickness, so editing the unique cabinet could not repair adoption. The minimum now uses the effective back thickness; regressions cover multiple local values, independent instances and save/load.
+- Verified 639 tests, production build and isolated desktop browser workflows, including Make unique adoption/reload, rear-rail controls, library actions, Parts, nesting and wireframe rendering. Mobile review is deferred at the user's request. No push or publication.
+
+- Review adjustment: restored the small workflow tab subtitles (Dimensions & fittings, Machining details, Sheets & materials, Downloads & costs); tighter workspace spacing remains.
+
+## Wireframe and suspension review correction
+
+- Reverted accessory solid coloring: only actual machining edges receive teal in wireframe; bought drawer parts stay neutral and solid shading is unchanged.
+- Grouped enable controls with Wall suspension and exposed Base, Wall and Tall profiles. Unique cabinet activation now resolves required hanger back clearance even when no shared hanger group was edited in that transaction.
+- Added machining-edge classification and global/unique suspension regressions for all three cabinet types. All 643 tests and the production build pass. Local only.
+- Isolated desktop browser check passed: Global suspension profiles for Base/Wall/Tall, unique suspension off/on, and colored machining wireframe; visually reviewed the result.
+
+## Worktops, independent rails and split GOLA — local review
+
+- Confirmed from the supplied project: switching a Base to drawers caused an aligned Tall's lower offset to become about −2.84e−14 mm. This incorrectly enabled a near-zero dado and blocked the whole transaction. Offsets/lifts within numerical tolerance now remain zero; no user bottom settings are changed.
+- Confirmed split GOLA sections incorrectly chose independent whole-cabinet edges. Split fronts now share a horizontal channel at the section boundary, with no floor-level or vertical-centre choice. Alignment accounts for the shared finger gap, and purchased profile geometry follows the same placement as the machining.
+- Added per-cabinet worktop preview, overhangs and draft modal editing for rectangular/circular openings and appliance-body clearance. Apply is one Undo transaction; Cancel leaves the cabinet intact. Worktop clicks open the editor. Matching openings continue through supports, with explicit GOLA, fixing, side-panel, rail-strength and clearance validation.
+- Entire worktop STEP merges adjoining matching tops, splitting at cabinet boundaries up to the configured stock length (default 4100 mm). It also appears in the assembly STEP. Worktops remain separate from cabinet-board nesting/costing. Cross-cabinet openings are not supported; partial circular support-edge openings use polygon machining, while circular worktop openings are exact.
+- Four independent rail widths are available in the style profile/local unique settings. Rear rails receive one extra centre Cabineo housing each, with the matching receiver in the top panel/rear top rail and bottom panel. Hardware counts include these fittings.
+- Template schema 7 explicitly migrates older records with worktop and rail-width defaults and the corrected geometry; existing overrides still validate.
+- Verified 650 tests and production build, actual worktop STEP round-trip volume, global/local rail geometry, persistence/template independence, isolated desktop cutout editing, Undo/Redo, split GOLA controls and a real worktop STEP download. Desktop only; no push or publication.
+
+## Tall interior drawers and Base-only cutout controls — local review
+
+- Worktop cutout editing is available only on Base cabinets. Tall/Wall retain overhang editing, and existing saved non-Base cutouts are preserved through Apply/save/load.
+- Tall Front type now offers Doors · interior drawers from ordinary or split layouts. It reuses the full-door tray generator, keeps the selected hinge and provides existing drawer-system/quantity/zone controls.
+- GOLA-to-interior conversion reviews ordinary handles and makes the instance unique; peers, Global profiles and saved templates remain unchanged. Full-height double doors also use this reviewed pulls/knobs path. Centre is removed from new Tall GOLA choices; existing saved centre geometry remains loadable without silent hardware replacement.
+- Verified project/template round trips for wooden and Antaro inner drawers, source/peer independence, and isolated desktop workflows for cutout restrictions, retained legacy cutouts, interior drawers and double-door handle review. Local only; mobile remains deferred.
+- Final validation: all 653 tests and production build pass. Desktop browser review confirms Tall ordinary/split front selection, reviewed unique handle changes, new Centre exclusion, Base-only cutout controls and preservation of legacy Wall cutouts.
+
+## Tall interior audit, global worktop controls and costing — local review
+
+- Added Global worktop overhang profiles with independent storage, preserved-instance protection and exposed-run-end trimming. Interior cabinet seams do not duplicate side overhangs in STEP or costing.
+- Cutout rectangles use four edge distances with live derived width/depth; circles show live diameter. Minimums follow stock, individual rail widths, GOLA, screw/Cabineo envelopes and captured-back fittings. These are conservative no-notch bounds; exact geometry and below-worktop clearance still validate. Live draft edits survive adding/removing other cutouts.
+- Tall interior doors expose the existing Blum 155° zero-protrusion hinge. Changing this local selector makes the cabinet unique without touching peers or Global hinges. Added a measured top-drawer-to-first-shelf gap, with construction/pin-bank minimums and explicit template preservation.
+- Confirmed/fixed audit defects: runner-spacer and fixed-shelf depths used back-panel formulas with rear rails; dense shelf banks produced overlapping extra holes; explicit shelf clearance was omitted from template capture. Required support holes remain; intersecting/conflicting adjustment holes merge or are omitted.
+- Verified all 17,280 core combinations (two drawer systems, one/two doors, five hinge choices, three door styles, fixed shelf on/off, one–four drawers, zero–eight upper shelves and two–five hinges), 192 construction/support combinations and 486 wood-stock/bottom/width/depth/hinge boundary cases. Compared 32 matched layouts with legacy Pantry: panel/drilling and purchased assembly geometry match for TANDEM/Antaro. Physically unavailable dimensions/fittings remain explicit errors.
+- Added a Worktop cost row in linear metres, missing-price styling, persisted unit prices, CSV output and reconciled cabinet allocation. Quantity uses actual run lengths including exposed overhangs; apertures do not reduce linear length, and waste is separate.
+- Template schema/generator 8 explicitly approve corrected rear-rail depths and dense pin-bank geometry; old settings remain loadable and saved overrides must still validate. No storage reset, push or publication. Mobile remains deferred.
+- Final validation: all 665 tests pass; production build and diff checks pass. Isolated desktop QA verified Global overhangs, live edge-distance dimensions and persistence, rectangular/circular apertures, worktop price entry and cabinet totals, local 155 hinge selection, explicit shelf clearance and unchanged peer fittings. Representative Tall CAD bodies mesh successfully. No push or deployment.
+
+## Worktop opening / one-side machining false conflict — fixed locally
+
+- Confirmed reproduction: changing a Base profile from rails to a full top with worktop openings falsely raised opposed blind features. Full-thickness rectangular/polygon pockets were treated as blind unless tagged GOLA. Through bores already worked.
+- One-side planning now recognizes every true full-thickness flat pocket as reversible. It moves openings to the required Cabineo/groove face without changing blind depths, polygon shape or removed volume. Genuine opposed blind features still fail explicitly.
+- Rectangular support openings use rectangular pockets rather than an unnecessary polygon representation; partial circular support-edge openings retain their polygon path.
+- Project manufacturing errors now identify the owning cabinet and part, including non-active cabinets. Conflict messages name the actual blind feature groups; correction controls no longer suggest unrelated sheet dimensions. Restored/proposed configurations are distinguished, and corrections to a different unique cabinet target its local settings.
+- Verified 669 passing tests plus targeted geometry checks: Cabineo 8/12 tops with rectangle/circle openings, clipped front-rail openings, unchanged CAD volume/inputs, shared profiles across cabinets, and genuine opposed-blind errors with ownership. Production build and isolated browser checks passed for P004 Front rail → Top, nesting and an actual entire-assembly STEP download. Local only; nothing pushed or published.
+
+## Release 0.43.0 — preparation authorized 2026-11-18
+
+- Publish the current reviewed desktop changes through the feature branch, PR checks and normal main-branch Pages deployment. Prior local-only notes above describe their review state before this authorization.
+- Release includes worktop geometry/export/pricing, Global construction and overhang profiles, Tall interior controls, desktop UI refinements and manufacturing fixes. Personal kitchen example artifacts remain local.
+- Preserve project/library storage, explicit schema migrations, Undo and branch protections. Release checks and live deployment verification are recorded in the release PR.
+
+- Release candidate validation: clean Node 22 npm ci (zero reported vulnerabilities), 669 tests, production build and diff checks passed. Isolated 0.43.0 browser smoke restored a legacy project, migrated/read a schema-5 template, preserved raw legacy/future library records and exports, exercised insertion/Undo and Tall interior creation/reload, and verified Parts/Nesting/cost views without page errors.

@@ -18,7 +18,7 @@ The **Make unique** checkbox captures current resolved settings for this instanc
 
 ## Tall pantry layouts and shared rails
 
-New cabinet choices are Base, Wall and Tall. Existing Pantry records remain readable for compatibility. On Tall, enable **Split into sections**, choose whether to **Include fixed shelf**, and enable **Full-height door over inner drawers** for a pantry layout. Set lower tray quantity, section boundary, upper shelf quantity and tray setback. This uses the existing zero-protrusion 155° hinge/tray system; open the doors before pulling trays. Disable full-height doors to configure separate lower/upper fronts.
+New cabinet choices are Base, Wall and Tall. Existing Pantry records remain readable for compatibility. On Tall, enable **Split into sections**, choose whether to **Include fixed shelf**, and enable **Full-height door over inner drawers** for a pantry layout. Set lower tray quantity, section boundary, upper shelf quantity and tray setback. GOLA uses split fronts with grips at internal breaks, so full-height covered trays are unavailable with GOLA. This uses the existing hinge/tray system; open the doors before pulling trays. Disable full-height doors to configure separate lower/upper fronts.
 
 For exposed drawers with GOLA, **Shared drawer rail** selects adjacent drawers numbered from the top. The upper drawer pulls from below and the lower from above. Pair 1 & 2 removes the top rail; pair 2 & 3 removes the rail above drawer 2. A three-drawer cabinet therefore has two rails. Shared-pair selection belongs to the individual cabinet, including when edited through a GOLA cut in Parts. Vertical GOLA positions are unavailable when the cabinet contains drawers.
 

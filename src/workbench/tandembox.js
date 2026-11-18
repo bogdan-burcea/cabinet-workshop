@@ -7,7 +7,7 @@ export const tandemboxLengths=[270,350,400,450,500,550];
 export function tandemboxPlan(c){
  const fail=s=>{throw Error('TANDEMBOX antaro M: '+s);},n=c.drawerCount;
  if(!Number.isInteger(n)||n<1||n>4)fail('Choose 1–4 drawers.');
- const front=drawerFrontGeometry(c),available=c.depth-front.setback-c.back-(c.backGroove?c.backInset:0),length=c.drawerLength||[...tandemboxLengths].reverse().find(n=>n+3<=available);
+ const front=drawerFrontGeometry(c),available=c.depth-front.setback-(c.backConstruction==='rails'?c.thickness:c.back+(c.backGroove?c.backInset:0)),length=c.drawerLength||[...tandemboxLengths].reverse().find(n=>n+3<=available);
  if(!tandemboxLengths.includes(length)||length+3>available)fail('Choose a 270, 350, 400, 450, 500 or 550 mm runner that fits before the back, with 3 mm clearance.');
  if(c.drawerStock!==16||c.drawerBottom!==16)fail('This preset needs 16 mm wooden bottoms and backs. Select the preset again to set both automatically.');
  if(c.thickness<16)fail('Cabinet stock must be at least 16 mm for the specified runner screws.');

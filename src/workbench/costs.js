@@ -1,3 +1,5 @@
+import {projectWorktopRows} from './worktop-runs.js';
+import {hasWorktop} from './worktops.js';
 import {golaRails,isGola} from './gola.js';
 import {wallSuspensionApplies} from './wall-hangers.js';
 import {cabineoVariants} from './cabineo.js';
@@ -8,6 +10,7 @@ import {isDrawers,drawerPlan,tandemFixings} from './tandem.js';
 import {glassSchedule} from './doors.js';
 export const emptyCosts=()=>({currency:'RON',basis:'sheet',prices:{},extras:[]});
 export function checkedCosts(value){const c={...emptyCosts(),...structuredClone(value||{})};if(typeof c.currency!=='string'||!c.currency.trim()||c.currency.length>12||!['sheet','area'].includes(c.basis)||!c.prices||Array.isArray(c.prices)||typeof c.prices!=='object'||!Array.isArray(c.extras)||c.extras.length>50)throw Error('Enter a currency, pricing basis and up to 50 additional cost items.');for(const [k,v]of Object.entries(c.prices))if(k.length>300||!Number.isFinite(v)||v<0||v>1e8)throw Error('Unit prices must be 0–100,000,000.');for(const e of c.extras)if(!e||typeof e.name!=='string'||e.name.length>100||!e.name.trim()||!Number.isFinite(e.quantity)||e.quantity<0||e.quantity>1e6||e.price!==null&&(!Number.isFinite(e.price)||e.price<0||e.price>1e8))throw Error('Additional items need a name, non-negative quantity and price.');return c;}
+function worktopQuantities(cabinets){const records=cabinets.map((r,i)=>r.config?r:{id:'worktop-cost-'+i,config:r});if(!records.some(r=>hasWorktop(r.config)))return [];return projectWorktopRows({cabinets:records},{stockLimit:false}).flatMap(p=>p.worktopOwners);}
 export function costRows(cabinets,parts,layout,costs={}){
  const c=checkedCosts(costs),rows=[],groups=new Map();
  const add=(category,label,unit,quantity,id=label)=>{if(quantity<=0)return;const key=JSON.stringify([category,id,unit]),old=rows.find(r=>r.key===key);if(old)old.quantity+=quantity;else rows.push({key,category,label,unit,quantity});};
@@ -28,6 +31,7 @@ export function costRows(cabinets,parts,layout,costs={}){
   const dowels=ps.flatMap(p=>p.flatOperations).filter(o=>o.label==='Frame dowel');for(const diameter of new Set(dowels.map(o=>o.diameter)))add('Hardware','Frame dowel · Ø'+diameter+' × 30 mm','each',dowels.filter(o=>o.diameter===diameter).length/2,'frame-dowel-'+diameter);
   for(const g of glassSchedule(ps,a))add('Glass',`Glass · ${g.thickness} mm`,'m²',g.width*g.height/1e6,'glass-'+g.thickness);
  }
+ const worktops=worktopQuantities(cabinets);add('Worktop','Worktop · linear length','m',worktops.reduce((sum,a)=>sum+a.width/1000,0),'worktop');
  for(const p of parts)for(const [edge,t]of Object.entries(p.edgeBand||{}))if(t)add('Edgeband',`Edgeband · ${t} mm`,'m',(edge.startsWith('x')?(p.finishedHeight||p.height):(p.finishedWidth||p.width))/1000,'band-'+t);
  const priced=rows.map(r=>({...r,price:c.prices[r.key]??null,total:Math.round(r.quantity*(c.prices[r.key]??0)*100)/100}));const extras=c.extras.map((e,i)=>({key:'extra-'+i,category:'Additional',label:e.name,unit:'each',quantity:e.quantity,price:e.price,total:Math.round(e.quantity*(e.price??0)*100)/100}));
  const total=[...priced,...extras].reduce((n,r)=>n+r.total,0);return {rows:priced,extras,total:Math.round(total*100)/100,currency:c.currency,missing:[...priced,...extras].filter(r=>r.price===null).length,unplaced:layout.unplaced.length,basis:c.basis};
@@ -40,7 +44,7 @@ export function cabinetCosts(cabinets,parts,layout,costs={}){
   return {id:r.id,name:r.config.name,rows:[],total:0,missing:0,unplaced:layout.unplaced.filter(p=>p.cabinetId===r.id).length,quantities,parts:own};
  });
  for(const row of estimate.rows){
-  const weights=local.map(a=>{if(row.category!=='Material')return a.quantities.find(q=>q.key===row.key)?.quantity||0;const [material,t]=JSON.parse(row.key)[1];return a.parts.filter(p=>p.material===material&&p.thickness===t).reduce((n,p)=>n+p.width*p.height,0);}),sum=weights.reduce((n,w)=>n+w,0);
+  const weights=local.map(a=>{if(row.category==='Worktop')return worktopQuantities(cabinets).filter(p=>p.cabinetId===a.id).reduce((sum,p)=>sum+p.width/1000,0);if(row.category!=='Material')return a.quantities.find(q=>q.key===row.key)?.quantity||0;const [material,t]=JSON.parse(row.key)[1];return a.parts.filter(p=>p.material===material&&p.thickness===t).reduce((n,p)=>n+p.width*p.height,0);}),sum=weights.reduce((n,w)=>n+w,0);
   if(!sum)continue;
   const raw=weights.map(w=>Math.round(row.total*100)*w/sum),cents=raw.map(Math.floor),order=raw.map((v,i)=>({i,remainder:v-cents[i]})).sort((a,b)=>b.remainder-a.remainder||a.i-b.i);
   let left=Math.round(row.total*100)-cents.reduce((n,v)=>n+v,0);for(const a of order){if(left--<=0)break;cents[a.i]++;}

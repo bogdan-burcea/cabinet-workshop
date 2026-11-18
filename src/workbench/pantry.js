@@ -10,7 +10,7 @@ export function pantryConfig(c){
  return {...a,hinge:'blum_71b7550',plate:0,style:'Tall',traySideSpacer:pantrySideSpacer(c),split:false,innerDrawer:true,drawerInset:false,drawerFrontStyle:'slab',frontMode:'drawers',width:c.width-2*pantrySideSpacer(c),depth:c.depth-a.pantrySetback,height:a.pantryDrawerZone,drawerFront1:0,drawerFront2:0,drawerFront3:0,handle:'none'};
 }
 export function pantryPlan(c){return drawerPlan(pantryConfig(c));}
-export function pantryRows(c){const virtual=pantryConfig(c),setback=c.pantrySetback??60,spacer=pantrySideSpacer(c),rows=tandemRows(virtual).filter(r=>!r[0].endsWith('overlay front')).map(([name,x,y,...rest])=>[name,x+spacer,y+setback,...rest]);if(spacer){const floor=(c.bottomDado?c.bottomLift:0)+c.thickness;for(const [name,x]of [['Left',c.thickness],['Right',c.width-c.thickness-spacer]])rows.push(['Runner spacer '+name,x,setback,floor,spacer,c.depth-setback-c.back-(c.backGroove?c.backInset:0),virtual.height-floor]);}return rows;}
+export function pantryRows(c){const virtual=pantryConfig(c),setback=c.pantrySetback??60,spacer=pantrySideSpacer(c),rows=tandemRows(virtual).filter(r=>!r[0].endsWith('overlay front')).map(([name,x,y,...rest])=>[name,x+spacer,y+setback,...rest]);if(spacer){const floor=(c.bottomDado?c.bottomLift:0)+c.thickness;for(const [name,x]of [['Left',c.thickness],['Right',c.width-c.thickness-spacer]])rows.push(['Runner spacer '+name,x,setback,floor,spacer,c.depth-setback-(c.backConstruction==='rails'?c.thickness:c.back+(c.backGroove?c.backInset:0)),virtual.height-floor]);}return rows;}
 export function pantryOperations(c){const virtual=pantryConfig(c),setback=c.pantrySetback??60,spacer=pantrySideSpacer(c),rawRows=tandemRows(virtual);return tandemOperations(virtual,rawRows).filter(o=>!o.label.startsWith('Drawer front fixing')).map(o=>{const part=spacer&&/^(Left side|Right side)$/.test(o.part)?'Runner spacer '+(o.part==='Left side'?'Left':'Right'):o.part;return o.type==='pocket'?{...o,part,box:o.box.map((v,i)=>v+(i===0?spacer:i===1?setback:0))}:{...o,part,point:o.point.map((v,i)=>v+(i===0?spacer:i===1?setback:0))};});}
 
 // Keep hinge plates/arms between tray levels; a zero-protrusion door still needs vertical clearance.
@@ -28,9 +28,12 @@ export function pantryShelfBase(c){if(c.style==='Tall')return c.splitHeight+(c.s
 
 export function pantryDrawerTop(c){return Math.max(...pantryPlan(c).boxes.map(b=>b.sideZ+b.height));}
 export function pantryShelfGap(c){
+ if(c.pantryShelfGap!==undefined){const minimum=pantryMinimumShelfGap(c);if(!Number.isFinite(c.pantryShelfGap)||c.pantryShelfGap<minimum||c.pantryShelfGap>100000)throw Error('Drawer-to-first-shelf clearance must be '+minimum+'–100000 mm to clear the drawer envelope and fixed shelf.');return c.pantryShelfGap;}
  if(c.style==='Tall'){const base=pantryShelfBase(c),n=c.upperShelves,st=c.shelfThickness;return base+(c.height-c.thickness-base-n*st)/(n+1)-pantryDrawerTop(c);}
- if(c.pantryShelfGap!==undefined){if(!Number.isFinite(c.pantryShelfGap)||c.pantryShelfGap<20||c.pantryShelfGap>100000)throw Error('Pantry shelf clearance must be 20–100000 mm.');return c.pantryShelfGap;}
+
  // Keep the previous automatic shelf positions when loading existing projects.
  const n=c.pantryShelfCount??2,st=c.shelfThickness??18,base=pantryShelfBase(c);
  return base+(c.height-c.thickness-base-n*st)/(n+1)-pantryDrawerTop(c);
 }
+
+export function pantryMinimumShelfGap(c){const pinClearance=c.pins?Math.floor((c.pinCount??5)/2)*32+5.1:0;return c.style==='Tall'?Math.ceil(Math.max(20,pantryShelfBase(c)-pantryDrawerTop(c)+(c.splitShelf?20:0),pinClearance)*10)/10:20;}

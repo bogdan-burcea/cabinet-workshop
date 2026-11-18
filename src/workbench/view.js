@@ -1,3 +1,4 @@
+import {worktopPart} from './worktops.js';
 import {golaPurchasedRows} from './gola.js';
 import {openDoorPoint} from './door-motion.js';
 import {explodedOffset} from './explode.js';
@@ -9,9 +10,9 @@ export const svgNS='http://www.w3.org/2000/svg';
 let cutSerial=0;
 export function svgEl(tag,attributes={},text){const e=document.createElementNS(svgNS,tag);for(const [k,v]of Object.entries(attributes))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;}
 export const previewProject=([x,y,z])=>[(x-y)*.866,(x+y)*.42-z],previewCamera=[1,1,.84];
-export function hoodFaceContours(operations,axis,plane,shift=[0,0,0]){return operations.filter(o=>o.hoodFeature&&o.axis===axis).map(o=>{const axes=[0,1,2].filter(k=>k!==axis),points=o.type==='bore'?Array.from({length:48},(_,i)=>{const p=[...o.point];p[axes[0]]+=Math.cos(i*Math.PI/24)*o.diameter/2;p[axes[1]]+=Math.sin(i*Math.PI/24)*o.diameter/2;return p;}):[[0,0],[1,0],[1,1],[0,1]].map(t=>{const p=o.box.slice(0,3);axes.forEach((k,j)=>p[k]+=t[j]*o.box[k+3]);return p;});return points.map(p=>p.map((v,k)=>k===axis?plane:v+shift[k]));});}
+export function hoodFaceContours(operations,axis,plane,shift=[0,0,0]){return operations.filter(o=>(o.hoodFeature||o.worktopCutout)&&o.axis===axis).map(o=>{const axes=[0,1,2].filter(k=>k!==axis),points=o.type==='bore'?Array.from({length:48},(_,i)=>{const p=[...o.point];p[axes[0]]+=Math.cos(i*Math.PI/24)*o.diameter/2;p[axes[1]]+=Math.sin(i*Math.PI/24)*o.diameter/2;return p;}):[[0,0],[1,0],[1,1],[0,1]].map(t=>{const p=o.box.slice(0,3);axes.forEach((k,j)=>p[k]+=t[j]*o.box[k+3]);return p;});return points.map(p=>p.map((v,k)=>k===axis?plane:v+shift[k]));});}
 export function previewFaces(cabinet,{open=true,exploded=false,wireframe=false}={}){
- const rows=cabinetRows(cabinet);rows.push(...golaPurchasedRows(cabinet,rows));const project=previewProject,camera=previewCamera,faces=[];
+ const rows=cabinetRows(cabinet);rows.push(...golaPurchasedRows(cabinet,rows));const worktop=worktopPart(cabinet);if(worktop)rows.push(worktop);const project=previewProject,camera=previewCamera,faces=[];
  for(let i=0;i<rows.length;i++){
   let [name,x,y,z,w,d,h]=rows[i].row;if(name==='Bottom'&&!exploded){const left=Math.max(x,cabinet.thickness);w=Math.min(x+w,cabinet.width-cabinet.thickness)-left;x=left;}const door=name.startsWith('Door'),glazed=door&&cabinet.doorStyle==='glass'&&!rows[i].glassFramePart;
   let boxes=[[x,y,z,w,d,h,false]];
@@ -22,7 +23,7 @@ export function previewFaces(cabinet,{open=true,exploded=false,wireframe=false}=
    if(/^Drawer /.test(name)&&open)vertices=vertices.map(([px,py,pz])=>[px,py+Math.min(250,cabinet.depth*.45),pz]);if(door&&open)vertices=vertices.map(point=>openDoorPoint(point,rows[i],cabinet));
    if(exploded){const shift=explodedOffset(name,cabinet);vertices=vertices.map(p=>p.map((v,i)=>v+shift[i]));}
    const color=/overlay front$/.test(name)?'#c1c7cd':glass?'rgba(120,190,210,0.20)':door?'#c1c7cd':name==='Back'?'#f2f4f8':name.startsWith('Shelf')?'#e0e0e0':'#dde1e6';
-   for(const face of [[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){const v=face.map(j=>vertices[j]),u=v[1].map((n,j)=>n-v[0][j]),q=v[2].map((n,j)=>n-v[1][j]),normal=[u[1]*q[2]-u[2]*q[1],u[2]*q[0]-u[0]*q[2],u[0]*q[1]-u[1]*q[0]];if(normal.reduce((n,x,j)=>n+x*camera[j],0)<=0&&!wireframe)continue;const xy=v.map(project);const axis=normal.findIndex(n=>Math.abs(n)>1e-6),shift=exploded?explodedOffset(name,cabinet):[0,0,0],cuts=hoodFaceContours(rows[i].operations||[],axis,v[0][axis],shift);faces.push({...(cuts.length?{cuts}:{}),vertices:v,originalVertices:v,xy,color,depth:v.reduce((n,p)=>n+p.reduce((n,a)=>n+a,0),0)/4,name,code:'P'+String(i+1).padStart(3,'0'),...(glass?{glass:true}:{})});}
+   for(const face of [[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){const v=face.map(j=>vertices[j]),u=v[1].map((n,j)=>n-v[0][j]),q=v[2].map((n,j)=>n-v[1][j]),normal=[u[1]*q[2]-u[2]*q[1],u[2]*q[0]-u[0]*q[2],u[0]*q[1]-u[1]*q[0]];if(normal.reduce((n,x,j)=>n+x*camera[j],0)<=0&&!wireframe)continue;const xy=v.map(project);const axis=normal.findIndex(n=>Math.abs(n)>1e-6),shift=exploded?explodedOffset(name,cabinet):[0,0,0],cuts=hoodFaceContours(rows[i].operations||[],axis,v[0][axis],shift);faces.push({...(cuts.length?{cuts}:{}),vertices:v,originalVertices:v,xy,color,depth:v.reduce((n,p)=>n+p.reduce((n,a)=>n+a,0),0)/4,name,code:rows[i].code||'P'+String(i+1).padStart(3,'0'),...(glass?{glass:true}:{})});}
   }
  }
  return faces;

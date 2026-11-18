@@ -17,7 +17,7 @@ export function drawerPlan(c){if(isTandembox(c))return tandemboxPlan(c);
  if(!['560H','560F'].includes(family)||family==='560H'&&s>16||family==='560F'&&s<17||s>16&&s<17)fail('Runner and drawer stock do not match. Choose 560H for 11–16 mm or 560F for 17–19 mm.');
  if(!Number.isFinite(b)||b<6||b>12)fail('Drawer bottom thickness must be 6–12 mm.');
  if(!Number.isFinite(a.drawerBoxHeight)||a.drawerBoxHeight<60||a.drawerBoxHeight>400)fail('Maximum box height must be 60–400 mm.');
- const front=drawerFrontGeometry(c),availableDepth=c.depth-front.setback-c.back-(c.backGroove?c.backInset:0),length=a.drawerLength===0?[...tandemLengths].reverse().find(v=>v+3<=availableDepth):a.drawerLength;
+ const front=drawerFrontGeometry(c),availableDepth=c.depth-front.setback-(c.backConstruction==='rails'?c.thickness:c.back+(c.backGroove?c.backInset:0)),length=a.drawerLength===0?[...tandemLengths].reverse().find(v=>v+3<=availableDepth):a.drawerLength;
  if(!tandemLengths.includes(length)||length+3>availableDepth)fail('Runner length must fit before the back panel: nominal length + 3 mm. Reduce runner length or increase body depth.');
  const inner=c.width-2*c.thickness-(family==='560H'?42:49),outer=inner+2*s,depth=length-10,x=(c.width-outer)/2;
  if(inner<120)fail('Drawer box is too narrow. Increase body width or reduce cabinet stock thickness.');
